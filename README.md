@@ -1,6 +1,6 @@
 # AI Form Builder
 
-This is an AI-powered form builder application built using Next.js, Next-auth, Shadcn UI, Gemini AI API, Drizzle, PostgreSQL, and TypeScript. With this application, users can easily create customized forms by providing prompts, and the forms can be published for others to fill out. The admin of the form can access and view all responses submitted.
+This is the RIC form builder application built using Next.js, Next-auth, Shadcn UI, Gemini AI API, Drizzle, PostgreSQL, and TypeScript. With this application, users can easily create customized forms by providing prompts, and the forms can be published for others to fill out. The admin of the form can access and view all responses submitted.
 
 ## Features
 
@@ -36,25 +36,9 @@ This is an AI-powered form builder application built using Next.js, Next-auth, S
    npm intall
    ```
 
-3. **Set Up Environment Variables:**
-
-   ```bash
-    GEMINI_API_KEY=
-    GOOGLE_CLIENT_ID=
-    GOOGLE_CLIENT_SECRET=
-    AUTH_SECRET=
-    DATABASE_URL=
-   ```
-
-## Preview
-https://github.com/harshxraj/ai-form-builder/assets/128404446/bc419920-edcb-4aa6-baa2-79fc2e4c360b
-
-## Dashboard
-![Screenshot 2024-03-17 181850](https://github.com/harshxraj/ai-form-builder/assets/128404446/5b384e5a-6cc6-4120-945c-b6471a9717f0)
 
 
-## Results Page
-![Screenshot 2024-03-17 183821](https://github.com/harshxraj/ai-form-builder/assets/128404446/14e8492c-07e4-4a8d-a82e-18c5df1c0d86)
+
 
 
 
