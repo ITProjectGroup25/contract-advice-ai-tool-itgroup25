@@ -1,5 +1,4 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -134,7 +133,7 @@ const ReferralRequestForm = () => {
                     placeholder="Enter your full name"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    className={`mt-1 ${
+                    className={`mt-1 bg-white text-gray-900 placeholder:text-gray-500 ${
                       errors.name ? "border-red-500" : "border-gray-300"
                     }`}
                   />
@@ -156,7 +155,7 @@ const ReferralRequestForm = () => {
                     placeholder="your.email@example.com"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className={`mt-1 ${
+                    className={`mt-1 bg-white text-gray-900 placeholder:text-gray-500 ${
                       errors.email ? "border-red-500" : "border-gray-300"
                     }`}
                   />
