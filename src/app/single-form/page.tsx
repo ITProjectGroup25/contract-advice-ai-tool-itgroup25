@@ -350,56 +350,26 @@ const ReferralRequestForm = () => {
               </p>
 
               <div>
-                <Label className="text-sm font-medium text-gray-700">
-                  Stage of Query <span className="text-red-500">*</span>
-                </Label>
-                <RadioGroup
-                  value={formData.stageOfQuery}
-                  onValueChange={(value) =>
-                    handleInputChange("stageOfQuery", value)
-                  }
-                  className="mt-3 space-y-3"
-                >
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem
-                      value="pre-award"
-                      id="pre-award"
+                {stageOfQueryOptions.map((stage) => (
+                  <div
+                    key={stage.id}
+                    className="flex items-center space-y-3 space-x-3"
+                  >
+                    <Checkbox
+                      id={stage.id}
+                      checked={formData.stageOfQuery.includes(stage.id)}
+                      onCheckedChange={() => handleStageOfQueryToggle(stage.id)}
                       className="border-gray-300"
                     />
                     <Label
-                      htmlFor="pre-award"
+                      htmlFor={stage.id}
                       className="text-sm text-gray-700 font-normal cursor-pointer"
                     >
-                      Pre-Award
+                      {stage.label}
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem
-                      value="post-award"
-                      id="post-award"
-                      className="border-gray-300"
-                    />
-                    <Label
-                      htmlFor="post-award"
-                      className="text-sm text-gray-700 font-normal cursor-pointer"
-                    >
-                      Post-Award
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem
-                      value="other"
-                      id="other"
-                      className="border-gray-300"
-                    />
-                    <Label
-                      htmlFor="other"
-                      className="text-sm text-gray-700 font-normal cursor-pointer"
-                    >
-                      Other
-                    </Label>
-                  </div>
-                </RadioGroup>
+                ))}
+
                 {errors.stageOfQuery && (
                   <p className="mt-2 text-sm text-red-500">
                     {errors.stageOfQuery}
@@ -426,40 +396,27 @@ const ReferralRequestForm = () => {
                 <Label className="text-sm font-medium text-gray-700">
                   Query Type <span className="text-red-500">*</span>
                 </Label>
-                <RadioGroup
-                  value={formData.queryType}
-                  onValueChange={(value) =>
-                    handleInputChange("queryType", value)
-                  }
-                  className="mt-3 space-y-3"
-                >
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem
-                      value="simple"
-                      id="simple"
+
+                {queryTypeOptions.map((stage) => (
+                  <div
+                    key={stage.id}
+                    className="flex items-center space-y-3 space-x-3"
+                  >
+                    <Checkbox
+                      id={stage.id}
+                      checked={formData.stageOfQuery.includes(stage.id)}
+                      onCheckedChange={() => handleStageOfQueryToggle(stage.id)}
                       className="border-gray-300"
                     />
                     <Label
-                      htmlFor="simple"
+                      htmlFor={stage.id}
                       className="text-sm text-gray-700 font-normal cursor-pointer"
                     >
-                      Simple
+                      {stage.label}
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem
-                      value="complex"
-                      id="complex"
-                      className="border-gray-300"
-                    />
-                    <Label
-                      htmlFor="complex"
-                      className="text-sm text-gray-700 font-normal cursor-pointer"
-                    >
-                      Complex
-                    </Label>
-                  </div>
-                </RadioGroup>
+                ))}
+
                 {errors.queryType && (
                   <p className="mt-2 text-sm text-red-500">
                     {errors.queryType}
