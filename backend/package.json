@@ -1,0 +1,24 @@
+{
+  "name": "@contract/backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "db:generate": "drizzle-kit generate:pg",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "@auth/drizzle-adapter": "^0.7.0",
+    "drizzle-orm": "^0.29.4",
+    "next-auth": "^5.0.0-beta.13",
+    "pg": "^8.11.3",
+    "postgres": "^3.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "drizzle-kit": "^0.20.14",
+    "supabase": "^2.39.2",
+    "typescript": "^5"
+  }
+}
