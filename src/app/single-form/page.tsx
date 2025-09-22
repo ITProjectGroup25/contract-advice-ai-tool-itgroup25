@@ -397,22 +397,24 @@ const ReferralRequestForm = () => {
                   Query Type <span className="text-red-500">*</span>
                 </Label>
 
-                {queryTypeOptions.map((stage) => (
+                {queryTypeOptions.map((option) => (
                   <div
-                    key={stage.id}
-                    className="flex items-center space-y-3 space-x-3"
+                    key={option.id}
+                    className="flex items-center space-x-3 mt-3"
                   >
                     <Checkbox
-                      id={stage.id}
-                      checked={formData.stageOfQuery.includes(stage.id)}
-                      onCheckedChange={() => handleStageOfQueryToggle(stage.id)}
+                      id={option.id}
+                      checked={formData.queryType === option.id}
+                      onCheckedChange={() =>
+                        handleInputChange("queryType", option.id)
+                      }
                       className="border-gray-300"
                     />
                     <Label
-                      htmlFor={stage.id}
+                      htmlFor={option.id}
                       className="text-sm text-gray-700 font-normal cursor-pointer"
                     >
-                      {stage.label}
+                      {option.label}
                     </Label>
                   </div>
                 ))}
