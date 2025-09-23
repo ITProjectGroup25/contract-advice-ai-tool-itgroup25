@@ -1,44 +1,11 @@
-# AI Form Builder
 
-This is the RIC form builder application built using Next.js, Next-auth, Shadcn UI, Gemini AI API, Drizzle, PostgreSQL, and TypeScript. With this application, users can easily create customized forms by providing prompts, and the forms can be published for others to fill out. The admin of the form can access and view all responses submitted.
+  # Web Form App Prototype
 
-## Features
+  This is a code bundle for Web Form App Prototype. The original project is available at https://www.figma.com/design/s9cfamVXvtRZCjkdW2LEPK/Web-Form-App-Prototype.
 
-- **AI-Powered Form Creation**: Users can create forms by simply providing prompts, and the AI generates the necessary form fields based on the prompts.
-- **Authentication**: Next-auth is integrated for secure authentication, allowing users to sign up, sign in, and manage their accounts.
-- **Responsive Design:** Shadcn UI ensures that the application is responsive and looks great across various devices and screen sizes.
-- **Admin Dashboard**: Admin users have access to a dashboard where they can view all responses submitted to their forms.
-- **Persistent Data Storage**: PostgreSQL is used as the database to store form configurations, user information, and form responses securely.
-- **Theme Customization**: The app offers six different themes for users to choose from, allowing them to customize the appearance of their app interface.
-- **Type Safety**: TypeScript is employed throughout the project to provide type safety and enhance code maintainability.
+  ## Running the code
 
-### Technologies Used
+  Run `npm i` to install the dependencies.
 
-- **Next.js**: A React framework for building server-side rendered (SSR) and statically generated web applications.
-- **Next-auth**: A complete open-source authentication solution for Next.js applications.
-- **Shadcn UI**: A UI framework for building beautiful, responsive web interfaces.
-- **Gemini AI API**: An API for integrating artificial intelligence capabilities into applications.
-- **Drizzle ORM**: ORM used for object-relational mapping, simplifying database interactions and management.
-- **PostgreSQ**L: A powerful, open-source relational database system.
-- **TypeScript**: A statically typed superset of JavaScript that provides type safety and enhance code maintainability.
-
-### Get Started
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/harshxraj/ai-form-builder.git
-   ```
-
-2. **Install Dependencies:**
-
-   ```bash
-   cd your_repo
-   npm intall
-   ```
-
-
-
-
-
-
-
+  Run `npm run dev` to start the development server.
+  
