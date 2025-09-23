@@ -1,44 +1,29 @@
 # AI Form Builder
 
-This is the RIC form builder application built using Next.js, Next-auth, Shadcn UI, Gemini AI API, Drizzle, PostgreSQL, and TypeScript. With this application, users can easily create customized forms by providing prompts, and the forms can be published for others to fill out. The admin of the form can access and view all responses submitted.
+This repository now uses an npm workspace monorepo so the frontend, backend, and shared assets can evolve independently while still sharing types and utilities.
 
-## Features
+## Repository layout
 
-- **AI-Powered Form Creation**: Users can create forms by simply providing prompts, and the AI generates the necessary form fields based on the prompts.
-- **Authentication**: Next-auth is integrated for secure authentication, allowing users to sign up, sign in, and manage their accounts.
-- **Responsive Design:** Shadcn UI ensures that the application is responsive and looks great across various devices and screen sizes.
-- **Admin Dashboard**: Admin users have access to a dashboard where they can view all responses submitted to their forms.
-- **Persistent Data Storage**: PostgreSQL is used as the database to store form configurations, user information, and form responses securely.
-- **Theme Customization**: The app offers six different themes for users to choose from, allowing them to customize the appearance of their app interface.
-- **Type Safety**: TypeScript is employed throughout the project to provide type safety and enhance code maintainability.
+- **frontend/** – Next.js client app (App Router, UI components, server actions & routes).
+- **backend/** – Database schema, Drizzle connection, NextAuth configuration, Supabase/Drizzle tooling.
+- **shared/** – Cross-cutting TypeScript types and any future utilities consumed by both teams.
 
-### Technologies Used
+The root `package.json` wires the three workspaces together and exposes convenience scripts that proxy to the frontend for local development.
 
-- **Next.js**: A React framework for building server-side rendered (SSR) and statically generated web applications.
-- **Next-auth**: A complete open-source authentication solution for Next.js applications.
-- **Shadcn UI**: A UI framework for building beautiful, responsive web interfaces.
-- **Gemini AI API**: An API for integrating artificial intelligence capabilities into applications.
-- **Drizzle ORM**: ORM used for object-relational mapping, simplifying database interactions and management.
-- **PostgreSQ**L: A powerful, open-source relational database system.
-- **TypeScript**: A statically typed superset of JavaScript that provides type safety and enhance code maintainability.
+## Getting started
 
-### Get Started
-1. **Clone the repository:**
+```bash
+npm install          # installs all workspaces
+npm run dev          # starts the Next.js dev server from ./frontend
+npm run lint         # runs next lint in the frontend workspace
+npm run typecheck    # tsc --noEmit for shared, backend, then frontend
+```
 
-   ```bash
-   git clone https://github.com/harshxraj/ai-form-builder.git
-   ```
+> ℹ️  `npm run typecheck` currently surfaces several historical typing gaps inside the frontend codebase (e.g. form builder helpers). These pre-existing issues were not addressed in this restructuring pass.
 
-2. **Install Dependencies:**
+## Additional tooling
 
-   ```bash
-   cd your_repo
-   npm intall
-   ```
+- Backend database tooling lives under `backend/` – use `npm run db:generate`, `npm run db:migrate`, or `npm run db:push` from the repository root.
+- Shared types exposed via `@shared` can be authored in `shared/src/` and consumed from both the Next.js app (`@shared/...`) and backend (`@shared/...`).
 
-
-
-
-
-
-
+With this layout the frontend and backend teams can iterate without stepping on each other, while shared contracts stay in one place.

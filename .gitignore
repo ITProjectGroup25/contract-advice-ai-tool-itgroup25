@@ -2,19 +2,31 @@
 
 # dependencies
 /node_modules
+/frontend/node_modules
+/backend/node_modules
+/shared/node_modules
+node_modules_old/
 /.pnp
 .pnp.js
 .yarn/install-state.gz
 
 # testing
 /coverage
+/frontend/coverage
+/backend/coverage
+/shared/coverage
+*.lcov
 
 # next.js
 /.next/
-/out/
+frontend/.next/
+/frontend/out/
 
 # production
 /build
+/frontend/build
+/backend/dist
+/shared/dist
 
 # misc
 .DS_Store
@@ -26,8 +38,12 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
 
 # vercel
 .vercel
@@ -35,3 +51,84 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+**/tsconfig.tsbuildinfo
+
+# development folders
+/dev/
+/development/
+/temp/
+/tmp/
+/drafts/
+/backup/
+/backups/
+/archive/
+/archives/
+/test-data/
+/demo/
+/examples/
+/playground/
+/sandbox/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Log files
+*.log
+logs/
+
+# Package manager (uncomment if you want to ignore lock files)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# Cache
+.cache/
+.npm/
+.eslintcache
+.stylelintcache
+
+# Environment and config
+.env.example
+config.local.*
+secrets.json
+
+# Misc temp files
+*.tmp
+*.temp
+desktop.ini
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Supabase
+.branches
+.temp
+docker/.env

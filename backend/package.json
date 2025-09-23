@@ -1,0 +1,26 @@
+{
+  "name": "@contract/backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "db:generate": "dotenv -e ../.env -- drizzle-kit generate:pg",
+    "db:migrate": "dotenv -e ../.env -- drizzle-kit migrate",
+    "db:push": "dotenv -e ../.env -- drizzle-kit push:pg"
+  },
+  "dependencies": {
+    "@auth/drizzle-adapter": "^0.7.0",
+    "dotenv": "^17.2.2",
+    "drizzle-orm": "^0.29.4",
+    "next-auth": "^5.0.0-beta.13",
+    "pg": "^8.11.3",
+    "postgres": "^3.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "dotenv-cli": "^7.4.1",
+    "drizzle-kit": "^0.20.14",
+    "supabase": "^2.39.2",
+    "typescript": "^5"
+  }
+}
