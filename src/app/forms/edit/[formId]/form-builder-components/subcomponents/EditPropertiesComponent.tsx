@@ -53,6 +53,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const containerUpdatedItem = updatedItem as FormLayoutComponentContainerType;
 
   const [isUpdatedItemRequired, setIsUpdatedItemRequired] = useState(false);
+  const [itemIsAlwaysVisible, setItemIsAlwaysVisible] = useState(false);
 
   useEffect(() => {
     if (selectedControl) {
@@ -132,6 +133,20 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     }));
   };
 
+  const handleAlwaysVisibleCheckChange: React.ChangeEventHandler<
+    HTMLInputElement
+  > = (e) => {
+    const { name, value } = e.target;
+    const key = e.currentTarget.checked;
+    if (name === "alwaysVisible") {
+      setItemIsAlwaysVisible(key);
+    }
+    setUpdatedItem((prevState) => ({
+      ...prevState,
+      [name]: key,
+    }));
+  };
+
   const onFormSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     editControlProperties(updatedItem as FormLayoutComponentChildrenType);
@@ -195,9 +210,9 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                     <FormControlLabel
                       control={
                         <Checkbox
-                          checked={isUpdatedItemRequired}
-                          name="required"
-                          onChange={handleCheckChange}
+                          checked={itemIsAlwaysVisible}
+                          name="alwaysVisible"
+                          onChange={handleAlwaysVisibleCheckChange}
                         />
                       }
                       label="Always Visible"
