@@ -24,16 +24,6 @@ export default function AdminLayout({
         icon: "list",
       },
       {
-        title: "Analytics",
-        href: "/analytics",
-        icon: "lineChart",
-      },
-      {
-        title: "Charts",
-        href: "/charts",
-        icon: "pieChart",
-      },
-      {
         title: "Settings",
         href: "/settings",
         icon: "settings",
