@@ -1,12 +1,6 @@
-import {
-  Checkbox,
-  FormControlLabel,
-  SelectChangeEvent,
-  TextField,
-} from "@mui/material";
+import { Checkbox, FormControlLabel, TextField } from "@mui/material";
 import _ from "lodash";
 import React, { FC, useEffect, useState } from "react";
-import useModalStrip from "../hooks/useModalStrip";
 import {
   FormLayoutComponentChildrenItemsType,
   FormLayoutComponentChildrenType,
@@ -60,14 +54,6 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
 
   const [isUpdatedItemRequired, setIsUpdatedItemRequired] = useState(false);
 
-  const [moveControlObj, setMoveControlObj] =
-    useState<FormLayoutComponentChildrenType | null>(null);
-  const [controlsInContainer, setControlsInContainer] = useState<
-    number | undefined
-  >(undefined);
-
-  const { showModalStrip } = useModalStrip();
-
   useEffect(() => {
     if (selectedControl) {
       if ((selectedControl as FormLayoutComponentChildrenType).items) {
@@ -88,8 +74,6 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
         );
       }
     }
-    setMoveControlObj(null);
-    setControlsInContainer(undefined);
   }, [selectedControl]);
 
   const handleChange: React.ChangeEventHandler<
@@ -158,32 +142,6 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   ) => {
     event.preventDefault();
     editContainerProperties(updatedItem as FormLayoutComponentContainerType);
-  };
-
-  const handleMoveControlSelectChange: (
-    event: SelectChangeEvent<any>,
-    child: React.ReactNode
-  ) => void = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "containerId") {
-      const container = props.formLayoutComponents.filter(
-        (con) => con.container.id === value
-      )[0];
-      let stepsInContainer = container.children.length;
-      if (
-        (selectedControl as FormLayoutComponentChildrenType).containerId ===
-        value
-      ) {
-        stepsInContainer -= 1;
-      }
-
-      setControlsInContainer(stepsInContainer);
-    }
-    setMoveControlObj((prev) => ({
-      ...(prev as FormLayoutComponentChildrenType),
-      [name]: value,
-    }));
   };
 
   return (
@@ -308,6 +266,9 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                       />
                     </>
                   ) : null}
+
+                  {/* WRITE THE CODE HERE */}
+
                   <input
                     type="submit"
                     className="btn btn-light btn-shadow m-t-20 m-r-10"
