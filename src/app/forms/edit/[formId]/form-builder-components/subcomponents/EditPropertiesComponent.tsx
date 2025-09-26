@@ -1,10 +1,7 @@
 import {
   Checkbox,
-  FormControl,
   FormControlLabel,
-  InputLabel,
   MenuItem,
-  Select,
   SelectChangeEvent,
   TextField,
 } from "@mui/material";
@@ -355,71 +352,6 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                     type="submit"
                     className="btn btn-light btn-shadow m-t-20 m-r-10"
                     value="Update Data"
-                  />
-                  <input
-                    type="button"
-                    className="btn btn-light btn-shadow m-t-20 m-l-0"
-                    value="Cancel"
-                    onClick={() => {
-                      if (selectControl) {
-                        selectControl(undefined);
-                      }
-                    }}
-                  />
-                </form>
-              </div>
-              <div className="m-t-20"></div>
-              <div className="main-form">
-                <form
-                  onSubmit={onMoveControlFormSubmit}
-                  style={{ minWidth: "100%" }}
-                >
-                  <div className="main-form-title">Move Control to Step</div>
-                  <div>
-                    <FormControl style={{ minWidth: "100%" }}>
-                      <InputLabel>Step:</InputLabel>
-                      <Select
-                        name="containerId"
-                        value={
-                          moveControlObj && moveControlObj.containerId
-                            ? moveControlObj.containerId
-                            : ""
-                        }
-                        onChange={handleMoveControlSelectChange}
-                      >
-                        {props.formLayoutComponents.map((item, ind) => {
-                          return (
-                            <MenuItem
-                              key={item.container.id}
-                              value={item.container.id}
-                            >
-                              Step {ind + 1}
-                            </MenuItem>
-                          );
-                        })}
-                      </Select>
-                    </FormControl>
-                  </div>
-                  <div>
-                    <FormControl style={{ minWidth: "100%" }}>
-                      <InputLabel>Position:</InputLabel>
-                      <Select
-                        name="position"
-                        value={
-                          moveControlObj && moveControlObj.position
-                            ? moveControlObj.position
-                            : ""
-                        }
-                        onChange={handleMoveControlSelectChange}
-                      >
-                        {getPositions()}
-                      </Select>
-                    </FormControl>
-                  </div>
-                  <input
-                    type="submit"
-                    className="btn btn-light btn-shadow m-t-20 m-r-10"
-                    value="Move"
                   />
                   <input
                     type="button"
