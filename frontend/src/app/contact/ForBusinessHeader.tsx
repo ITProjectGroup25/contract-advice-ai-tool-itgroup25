@@ -15,6 +15,15 @@ const ForBusinessHeader = () => {
         </Link>
         <div className="flex items-center gap-2">
           <Button
+            className="rounded-full bg-emerald-500 text-sm font-bold hover:bg-emerald-600"
+            asChild
+          >
+            <Link className="text-white" href="/grant-support">
+              Referral Assistant
+            </Link>
+          </Button>
+
+          <Button
             className="rounded-full bg-purple-500 text-sm font-bold"
             asChild
           >
