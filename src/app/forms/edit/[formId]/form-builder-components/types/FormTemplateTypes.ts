@@ -19,6 +19,7 @@ export const FormLayoutComponentChildrenSchema = z.object({
   itemType: z.string(),
   icon: z.string(),
   required: z.boolean(),
+  alwaysVisible: z.boolean().optional(),
   items: z.array(FormLayoutComponentChildrenItemsSchema).optional(),
   category: z.string(),
   index: z.number().optional(),

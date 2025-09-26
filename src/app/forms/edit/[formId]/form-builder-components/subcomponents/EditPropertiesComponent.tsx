@@ -53,7 +53,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const containerUpdatedItem = updatedItem as FormLayoutComponentContainerType;
 
   const [isUpdatedItemRequired, setIsUpdatedItemRequired] = useState(false);
-  const [itemIsAlwaysVisible, setItemIsAlwaysVisible] = useState(false);
+  const [itemIsAlwaysVisible, setItemIsAlwaysVisible] = useState(true);
 
   useEffect(() => {
     if (selectedControl) {
@@ -72,6 +72,11 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
       if (selectedControl.hasOwnProperty("required")) {
         setIsUpdatedItemRequired(
           (selectedControl as FormLayoutComponentChildrenType).required
+        );
+      }
+      if (selectedControl.hasOwnProperty("alwaysVisible")) {
+        setItemIsAlwaysVisible(
+          (selectedControl as FormLayoutComponentChildrenType).alwaysVisible!
         );
       }
     }
