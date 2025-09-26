@@ -1,13 +1,13 @@
 import { Button } from "@mui/material";
 import React, { FunctionComponent } from "react";
 import { useDrop } from "react-dnd";
-import { FormContainerList, FormItemTypes } from "../utils/formBuilderUtils";
-import ControlViewComponent from "./ControlViewComponent";
-import "./styles.scss";
 import {
   FormLayoutComponentChildrenType,
   FormLayoutComponentContainerType,
 } from "../types/FormTemplateTypes";
+import { FormContainerList, FormItemTypes } from "../utils/formBuilderUtils";
+import ControlViewComponent from "./ControlViewComponent";
+import "./styles.scss";
 
 interface DropContainerComponentProps {
   accept: string;
@@ -120,6 +120,7 @@ const DropContainerComponent: FunctionComponent<DropContainerComponentProps> = (
                   if (handleItemAdded) {
                     handleItemAdded({ ...FormContainerList[0] });
                   }
+                  console.log({ FormContainerList });
                 }}
               >
                 <span style={{ marginRight: "9px" }}>

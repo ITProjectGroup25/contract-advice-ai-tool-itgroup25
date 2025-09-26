@@ -127,29 +127,34 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   };
 
   const handleCheckChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const { name, value } = e.target;
+    const { name } = e.target;
     const key = e.currentTarget.checked;
     if (name === "required") {
       setIsUpdatedItemRequired(key);
     }
+
+    console.log({ name, key });
     setUpdatedItem((prevState) => ({
       ...prevState,
       [name]: key,
     }));
+    console.log({ updatedItem });
   };
 
   const handleAlwaysVisibleCheckChange: React.ChangeEventHandler<
     HTMLInputElement
   > = (e) => {
-    const { name, value } = e.target;
-    const key = e.currentTarget.checked;
-    if (name === "alwaysVisible") {
-      setItemIsAlwaysVisible(key);
-    }
+    const isVisible = e.currentTarget.checked;
+    setItemIsAlwaysVisible(isVisible);
+
+    console.log({ updatedItem });
+
     setUpdatedItem((prevState) => ({
       ...prevState,
-      [name]: key,
+      alwaysVisible: isVisible,
     }));
+
+    console.log({ updatedItem });
   };
 
   const onFormSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
