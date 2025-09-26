@@ -106,6 +106,14 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
     });
   };
 
+  const handleGoToResults = () => {
+    router.push(`/forms/results/${selectedTemplate?.id}`);
+  };
+
+  const handleGoToFAQCreator = () => {
+    router.push(`/forms/faq-creator/${selectedTemplate?.id}`);
+  };
+
   return (
     <>
       <>
@@ -170,13 +178,15 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                             </Button>
                           </div>
                           <div className="d-flex justify-content-start align-items-center">
-                            <Button onClick={handleCancel} className="mx-2">
+                            <Button
+                              onClick={handleGoToResults}
+                              className="mx-2"
+                            >
                               Results
                             </Button>
                             <Button
-                              onClick={handleDelete}
-                              className="mx-2 text-red"
-                              disabled={isDeleting}
+                              onClick={handleGoToFAQCreator}
+                              className="mx-2"
                             >
                               FAQ
                             </Button>
