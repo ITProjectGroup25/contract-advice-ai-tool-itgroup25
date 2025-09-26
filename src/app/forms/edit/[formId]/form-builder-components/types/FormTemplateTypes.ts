@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // Leaf type
 export const FormLayoutComponentChildrenItemsSchema = z.object({
-  id: z.number(),
+  id: z.number().or(z.string()),
   value: z.string(),
   label: z.string(),
 });
@@ -22,7 +22,7 @@ export const FormLayoutComponentChildrenSchema = z.object({
   items: z.array(FormLayoutComponentChildrenItemsSchema).optional(),
   category: z.string(),
   index: z.number().optional(),
-  id: z.string(),
+  id: z.string().or(z.number()),
   containerId: z.string(),
   placeholder: z.string().optional(),
   rows: z.number().optional(),
