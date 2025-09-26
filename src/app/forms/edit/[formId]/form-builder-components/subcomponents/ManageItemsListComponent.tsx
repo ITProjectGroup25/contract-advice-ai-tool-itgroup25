@@ -3,7 +3,6 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemSecondaryAction,
   ListItemText,
   TextField,
 } from "@mui/material";
@@ -94,17 +93,12 @@ const ManageItemsListComponent: FC<ManageItemsListComponentProps> = (props) => {
             return (
               <ListItem key={item.value}>
                 <ListItemText primary={item.label} />
-                <ListItemSecondaryAction>
-                  <IconButton edge="end" onClick={() => changeToEditMode(item)}>
-                    <Edit />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => deleteItemFromList(item)}
-                    edge="end"
-                  >
-                    <Delete />
-                  </IconButton>
-                </ListItemSecondaryAction>
+                <IconButton edge="end" onClick={() => changeToEditMode(item)}>
+                  <Edit />
+                </IconButton>
+                <IconButton onClick={() => deleteItemFromList(item)} edge="end">
+                  <Delete />
+                </IconButton>
               </ListItem>
             );
           })}

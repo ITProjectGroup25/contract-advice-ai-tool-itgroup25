@@ -1,7 +1,6 @@
 import {
   Checkbox,
   FormControlLabel,
-  MenuItem,
   SelectChangeEvent,
   TextField,
 } from "@mui/material";
@@ -187,34 +186,6 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     }));
   };
 
-  const getPositions = () => {
-    if (controlsInContainer !== undefined) {
-      return Array.from(Array(controlsInContainer + 1).keys()).map((item) => {
-        return (
-          <MenuItem key={item} value={item}>
-            {item + 1}
-          </MenuItem>
-        );
-      });
-    }
-    return null;
-  };
-
-  const onMoveControlFormSubmit: React.FormEventHandler<HTMLFormElement> = (
-    e
-  ) => {
-    e.preventDefault();
-
-    if (!(moveControlObj as FormLayoutComponentChildrenType).containerId) {
-      showModalStrip("danger", "You need to select Step first", 5000);
-      return;
-    }
-    props.moveControlFromSide(
-      selectedControl as FormLayoutComponentChildrenType,
-      moveControlObj as FormLayoutComponentChildrenType
-    );
-  };
-
   return (
     <>
       {selectedControl ? (
@@ -279,18 +250,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                       style={textboxStyle}
                     />
                   </div>
-                  {/* {childUpdatedItem.controlName === FormControlNames.INPUTTEXTFIELD ? <>
-            <div>
-              <FormControl style={{minWidth:'100%'}}>
-                <InputLabel>Prefill Data With</InputLabel>
-                <Select
-                >
-                  <MenuItem value={'ConsignmentId'}>Consignment Id</MenuItem>
-                  <MenuItem value={'Weight'}>Weight</MenuItem>            
-                </Select>
-              </FormControl>
-            </div>
-          </>: null} */}
+
                   {childUpdatedItem.controlName ===
                     FormControlNames.INPUTTEXTFIELD ||
                   childUpdatedItem.controlName ===
