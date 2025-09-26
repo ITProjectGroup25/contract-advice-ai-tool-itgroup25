@@ -129,7 +129,9 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                   <div className="row mb-5">
                     <div className="col-12">
                       <div className="d-flex justify-content-between align-items-between">
-                        <h4 className="mb-0">{selectedTemplate?.formName}</h4>
+                        <div>
+                          <h4 className="mb-0">{selectedTemplate?.formName}</h4>
+                        </div>
                         <div className="action-buttons d-flex">
                           <Button
                             onClick={handleDelete}
