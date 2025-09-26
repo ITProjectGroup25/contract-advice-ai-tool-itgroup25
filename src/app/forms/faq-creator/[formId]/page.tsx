@@ -1,3 +1,5 @@
+import AdminFAQManager from "./faq-creator";
+
 const page = async ({
   params,
 }: {
@@ -11,6 +13,6 @@ const page = async ({
     return <div>Form not found</div>;
   }
 
-  return <div>HELLO THERE</div>;
+  return <AdminFAQManager />;
 };
 export default page;
