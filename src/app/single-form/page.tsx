@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Clock, HelpCircle, User, Users } from "lucide-react";
 import { useState } from "react";
+import ChatbotInterface from "./components/chatbot";
 
 const ReferralRequestForm = () => {
   const [formData, setFormData] = useState({
@@ -961,6 +962,8 @@ const ReferralRequestForm = () => {
             </Card>
           </>
         )}
+
+        <ChatbotInterface />
 
         {/* Submit Button */}
         <div className="mt-8 flex justify-end">
