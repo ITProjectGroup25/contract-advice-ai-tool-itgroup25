@@ -191,6 +191,18 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                       }
                     }}
                   />
+                  <div className="m-t-20 p-l-0">
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={isUpdatedItemRequired}
+                          name="required"
+                          onChange={handleCheckChange}
+                        />
+                      }
+                      label="Always Visible"
+                    />
+                  </div>
                 </form>
               </div>
             </>
@@ -266,8 +278,6 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                       />
                     </>
                   ) : null}
-
-                  {/* WRITE THE CODE HERE */}
 
                   <input
                     type="submit"
