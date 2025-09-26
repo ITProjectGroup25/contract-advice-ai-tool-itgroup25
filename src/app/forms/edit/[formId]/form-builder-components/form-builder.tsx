@@ -132,41 +132,56 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                         <div>
                           <h4 className="mb-0">{selectedTemplate?.formName}</h4>
                         </div>
-                        <div className="action-buttons d-flex">
-                          <Button
-                            onClick={handleDelete}
-                            className="mx-2 text-red"
-                            disabled={isDeleting}
-                          >
-                            {isDeleting ? "Deleting..." : "Delete"}
-                          </Button>
-                          <div className="border-right"></div>
-                          <Button onClick={handleCancel} className="mx-2">
-                            Cancel
-                          </Button>
-                          <div className="border-right"></div>
-                          <Button onClick={handleSave} className="mx-2">
-                            Save
-                          </Button>
-                          <Button
-                            className="mx-2"
-                            variant="outlined"
-                            // onClick={() => openPreviewDrawer()}
-                            endIcon={<RemoveRedEye />}
-                          >
-                            <a href={SAMPLE_GRANT_FORM_URL}>Preview</a>
-                          </Button>
-                          <Button
-                            onClick={handlePublishForm}
-                            className="mx-2"
-                            color="primary"
-                            endIcon={<Publish />}
-                            disableElevation
-                            variant="contained"
-                            disabled={isPublishing}
-                          >
-                            {isPublishing ? "Publishing..." : "Publish"}
-                          </Button>
+                        <div>
+                          <div className="action-buttons d-flex">
+                            <Button
+                              onClick={handleDelete}
+                              className="mx-2 text-red"
+                              disabled={isDeleting}
+                            >
+                              {isDeleting ? "Deleting..." : "Delete"}
+                            </Button>
+                            <div className="border-right"></div>
+                            <Button onClick={handleCancel} className="mx-2">
+                              Cancel
+                            </Button>
+                            <div className="border-right"></div>
+                            <Button onClick={handleSave} className="mx-2">
+                              Save
+                            </Button>
+                            <Button
+                              className="mx-2"
+                              variant="outlined"
+                              // onClick={() => openPreviewDrawer()}
+                              endIcon={<RemoveRedEye />}
+                            >
+                              <a href={SAMPLE_GRANT_FORM_URL}>Preview</a>
+                            </Button>
+                            <Button
+                              onClick={handlePublishForm}
+                              className="mx-2"
+                              color="primary"
+                              endIcon={<Publish />}
+                              disableElevation
+                              variant="contained"
+                              disabled={isPublishing}
+                            >
+                              {isPublishing ? "Publishing..." : "Publish"}
+                            </Button>
+                          </div>
+                          <div className="d-flex justify-content-start align-items-center">
+                            <Button onClick={handleCancel} className="mx-2">
+                              Results
+                            </Button>
+                            <Button
+                              onClick={handleDelete}
+                              className="mx-2 text-red"
+                              disabled={isDeleting}
+                            >
+                              FAQ
+                            </Button>
+                            <div className="border-right"></div>
+                          </div>
                         </div>
                       </div>
                     </div>
