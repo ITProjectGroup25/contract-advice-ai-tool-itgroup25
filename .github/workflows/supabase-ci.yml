@@ -1,0 +1,65 @@
+name: Supabase CI
+
+on:
+  push:
+    branches: [develop, emailJS, main]
+  pull_request:
+    branches: [develop, emailJS, main]
+
+env:
+  SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+  SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+  SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+
+      - name: Validate database migrations
+        working-directory: backend
+        run: |
+          supabase db lint --project-ref "$SUPABASE_PROJECT_REF"
+
+  deploy:
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+
+      - name: Push database migrations
+        working-directory: backend
+        run: |
+          supabase db push --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+
+      - name: Deploy edge functions
+        working-directory: backend
+        run: |
+          if [ -d "supabase/functions" ]; then
+            supabase functions deploy --project-ref "$SUPABASE_PROJECT_REF"
+          else
+            echo "No supabase/functions directory found; skipping function deploy."
+          fi
