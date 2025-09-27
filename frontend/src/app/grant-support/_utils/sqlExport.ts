@@ -12,6 +12,13 @@ interface Question {
   required: boolean;
 }
 
+interface FileData {
+  name: string;
+  size: number;
+  type: string;
+  data: string; // base64 encoded
+}
+
 export function generateSQLFromFormData(
   formData: FormData, 
   questions: Question[], 
@@ -46,6 +53,19 @@ export function generateSQLFromFormData(
   sql += `  FOREIGN KEY (submission_id) REFERENCES form_submissions(id)\n`;
   sql += `);\n\n`;
   
+  sql += `-- Create file attachments table\n`;
+  sql += `CREATE TABLE IF NOT EXISTS file_attachments (\n`;
+  sql += `  id INT AUTO_INCREMENT PRIMARY KEY,\n`;
+  sql += `  submission_id VARCHAR(255),\n`;
+  sql += `  question_id VARCHAR(255),\n`;
+  sql += `  file_name VARCHAR(500),\n`;
+  sql += `  file_size INT,\n`;
+  sql += `  file_type VARCHAR(255),\n`;
+  sql += `  file_data LONGTEXT,\n`;
+  sql += `  uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n`;
+  sql += `  FOREIGN KEY (submission_id) REFERENCES form_submissions(id)\n`;
+  sql += `);\n\n`;
+  
   // Insert main submission record
   const queryType = formData['query-type'] || 'unknown';
   sql += `-- Insert main submission record\n`;
@@ -62,19 +82,33 @@ export function generateSQLFromFormData(
     const question = questions.find(q => q.id === fieldName);
     
     if (question) {
-      // Handle different value types
-      let responseValue = '';
-      if (Array.isArray(value)) {
-        responseValue = value.join(', ');
+      // Handle file upload fields specially
+      if (question.type === 'file-upload' && Array.isArray(value)) {
+        const files = value as FileData[];
+        for (const file of files) {
+          sql += `INSERT INTO file_attachments (submission_id, question_id, file_name, file_size, file_type, file_data)\n`;
+          sql += `VALUES ('${submissionId}', '${question.id}', '${file.name.replace(/'/g, "''")}', ${file.size}, '${file.type}', '${file.data}');\n`;
+        }
+        
+        // Also add a summary response
+        const fileSummary = files.map(f => `${f.name} (${Math.round(f.size/1024)}KB)`).join(', ');
+        sql += `INSERT INTO submission_responses (submission_id, question_id, question_title, question_type, response_value, section_name)\n`;
+        sql += `VALUES ('${submissionId}', '${question.id}', '${question.title.replace(/'/g, "''")}', '${question.type}', 'Files: ${fileSummary}', '${question.section}');\n`;
       } else {
-        responseValue = String(value);
+        // Handle other field types
+        let responseValue = '';
+        if (Array.isArray(value)) {
+          responseValue = value.join(', ');
+        } else {
+          responseValue = String(value);
+        }
+        
+        // Escape single quotes in the response value
+        responseValue = responseValue.replace(/'/g, "''");
+        
+        sql += `INSERT INTO submission_responses (submission_id, question_id, question_title, question_type, response_value, section_name)\n`;
+        sql += `VALUES ('${submissionId}', '${question.id}', '${question.title.replace(/'/g, "''")}', '${question.type}', '${responseValue}', '${question.section}');\n`;
       }
-      
-      // Escape single quotes in the response value
-      responseValue = responseValue.replace(/'/g, "''");
-      
-      sql += `INSERT INTO submission_responses (submission_id, question_id, question_title, question_type, response_value, section_name)\n`;
-      sql += `VALUES ('${submissionId}', '${question.id}', '${question.title.replace(/'/g, "''")}', '${question.type}', '${responseValue}', '${question.section}');\n`;
     } else if (fieldName.includes('_other')) {
       // Handle "other" fields
       const baseFieldName = fieldName.split('_')[0];
@@ -123,7 +157,6 @@ export async function exportFormSubmissionAsSQL(
 ): Promise<string> {
   const submissionId = `submission_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   const sqlContent = generateSQLFromFormData(formData, questions, submissionId);
-  const defaultFilename = filename || `form_submission_${new Date().toISOString().split('T')[0]}_${submissionId}.sql`;
   
   // Save to local database
   const submission: FormSubmission = {
@@ -142,8 +175,9 @@ export async function exportFormSubmissionAsSQL(
     console.error('Error saving to local database:', error);
   }
   
-  // Download SQL file
-  downloadSQLFile(sqlContent, defaultFilename);
+  // Note: Automatic SQL file download has been removed
+  // SQL content is still generated and saved to the database
+  // Manual export is available through the Admin Panel
   
   return submissionId;
 }

@@ -6,51 +6,42 @@ import { CheckCircle, ArrowLeft, FileText, Clock } from "lucide-react";
 
 interface SuccessPageProps {
   onBack: () => void;
-  type?: 'complex' | 'simple-escalated';
+  type?: "complex" | "simple-escalated";
 }
 
-export function SuccessPage({ onBack, type = 'complex' }: SuccessPageProps) {
-  const isSimpleEscalated = type === 'simple-escalated';
-  
+export function SuccessPage({ onBack, type = "complex" }: SuccessPageProps) {
+  const isSimpleEscalated = type === "simple-escalated";
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={onBack}
-          className="flex items-center gap-2"
-        >
+        <Button variant="outline" size="sm" onClick={onBack} className="flex items-center gap-2">
           <ArrowLeft className="h-4 w-4" />
           Back to Form
         </Button>
         <div className="space-y-1">
           <h1 className="text-2xl">Referral Request</h1>
           <p className="text-muted-foreground">
-            {isSimpleEscalated 
+            {isSimpleEscalated
               ? "Your query has been escalated for human review"
-              : "Your complex referral has been submitted successfully"
-            }
+              : "Your complex referral has been submitted successfully"}
           </p>
         </div>
       </div>
 
-      {/* Success Message */}
       <Card className="text-center">
         <CardContent className="pt-8 pb-8">
           <div className="flex flex-col items-center space-y-6">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
-            
+
             <div className="space-y-2">
               <h2 className="text-2xl text-green-700">Successfully Submitted!</h2>
               <p className="text-muted-foreground max-w-md">
                 {isSimpleEscalated
                   ? "Your simple query has been forwarded to our grants team for personalized assistance since the automated response didn&apos;t fully address your needs."
-                  : "Your complex referral request has been received and will be processed by our team."
-                }
+                  : "Your complex referral request has been received and will be processed by our team."}
               </p>
             </div>
 
@@ -74,8 +65,7 @@ export function SuccessPage({ onBack, type = 'complex' }: SuccessPageProps) {
                   <p className="text-sm text-muted-foreground">
                     {isSimpleEscalated
                       ? "Our grants team will review your query and the automated response, then provide personalized guidance tailored to your specific situation."
-                      : "Our team will review your complex referral and get back to you with detailed guidance and support."
-                    }
+                      : "Our team will review your complex referral and get back to you with detailed guidance and support."}
                   </p>
                 </CardContent>
               </Card>
@@ -91,8 +81,7 @@ export function SuccessPage({ onBack, type = 'complex' }: SuccessPageProps) {
                   <p className="text-sm text-muted-foreground">
                     {isSimpleEscalated
                       ? "You can expect a personalized response within 1-2 business days since this was escalated from our automated system."
-                      : "You can expect a response within 3-5 business days. Urgent requests will be prioritized accordingly."
-                    }
+                      : "You can expect a response within 3-5 business days. Urgent requests will be prioritized accordingly."}
                   </p>
                 </CardContent>
               </Card>
@@ -109,9 +98,3 @@ export function SuccessPage({ onBack, type = 'complex' }: SuccessPageProps) {
     </div>
   );
 }
-
-
-
-
-
-

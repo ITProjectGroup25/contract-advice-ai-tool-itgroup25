@@ -146,7 +146,7 @@ export const defaultQuestions: Question[] = [
   {
     id: "stage-of-query",
     title: "Stage of Query",
-    type: "checkbox-group",
+    type: "radio-group",
     required: true,
     section: "stage-query",
     order: 4,
@@ -200,7 +200,7 @@ export const defaultQuestions: Question[] = [
   {
     id: "simple-mri-involvement",
     title: "MRI Involvement",
-    type: "checkbox-group",
+    type: "radio-group",
     required: true,
     section: "simple-mri",
     order: 7,
@@ -701,10 +701,29 @@ export const defaultQuestions: Question[] = [
     id: "complex-documents-attached",
     title: "Attach all relevant documents",
     description: "Please attach agreement for review, funding agreement, relevant correspondence, related agreements",
-    type: "textarea",
+    type: "file-upload",
     required: true,
     section: "complex-support",
     order: 32,
+    visible: true,
+    conditional: {
+      dependsOn: "query-type",
+      showWhen: ["complex"]
+    },
+    fileUploadConfig: {
+      accept: ".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.zip",
+      maxSize: 25,
+      maxFiles: 10
+    }
+  },
+  {
+    id: "complex-documents-list",
+    title: "Document List",
+    description: "Please list the documents you have attached or confirm attachment",
+    type: "textarea",
+    required: false,
+    section: "complex-support",
+    order: 32.5,
     visible: true,
     conditional: {
       dependsOn: "query-type",
@@ -743,4 +762,3 @@ export const defaultQuestions: Question[] = [
     }
   }
 ];
-

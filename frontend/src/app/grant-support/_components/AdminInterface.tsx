@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import { Button } from "./ui/button";
@@ -23,10 +23,10 @@ import {
   EyeOff,
   Move,
   Copy,
-  FileSpreadsheet,
   Database
 } from "lucide-react";
 import { DatabaseManagement } from "./DatabaseManagement";
+import { EmailConfiguration } from "./EmailConfiguration";
 
 export interface QuestionOption {
   id: string;
@@ -38,7 +38,7 @@ export interface Question {
   id: string;
   title: string;
   description?: string;
-  type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox-group' | 'radio-group' | 'date';
+  type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox-group' | 'radio-group' | 'date' | 'file-upload';
   required: boolean;
   options?: QuestionOption[];
   placeholder?: string;
@@ -46,6 +46,11 @@ export interface Question {
     minLength?: number;
     maxLength?: number;
     pattern?: string;
+  };
+  fileUploadConfig?: {
+    accept?: string;
+    maxSize?: number; // in MB
+    maxFiles?: number;
   };
   conditional?: {
     dependsOn: string;
@@ -264,18 +269,6 @@ export function AdminInterface({
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              // Export to Excel functionality will be added later
-              console.log("Export to Excel clicked");
-            }}
-            className="flex items-center gap-2"
-          >
-            <FileSpreadsheet className="h-4 w-4" />
-            Export to Excel
-          </Button>
           <Badge variant="secondary" className="flex items-center gap-1 text-xs">
             <Settings className="h-3 w-3" />
             Admin Mode
@@ -284,9 +277,10 @@ export function AdminInterface({
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="questions">Questions Management</TabsTrigger>
           <TabsTrigger value="sections">Sections Management</TabsTrigger>
+          <TabsTrigger value="email">Email Configuration</TabsTrigger>
           <TabsTrigger value="database">Database Management</TabsTrigger>
         </TabsList>
 
@@ -331,7 +325,7 @@ export function AdminInterface({
                     <Label htmlFor="question-type">Question Type *</Label>
                     <Select
                       value={newQuestion.type}
-                      onValueChange={(value: string) => setNewQuestion({ ...newQuestion, type: value as Question['type'] })}
+                      onValueChange={(value) => setNewQuestion({ ...newQuestion, type: value as Question['type'] })}
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -344,6 +338,7 @@ export function AdminInterface({
                         <SelectItem value="checkbox-group">Checkbox Group</SelectItem>
                         <SelectItem value="radio-group">Radio Group</SelectItem>
                         <SelectItem value="date">Date Input</SelectItem>
+                        <SelectItem value="file-upload">File Upload</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -365,7 +360,7 @@ export function AdminInterface({
                     <Label htmlFor="question-section">Section *</Label>
                     <Select
                       value={newQuestion.section}
-                      onValueChange={(value: any) => setNewQuestion({ ...newQuestion, section: value })}
+                      onValueChange={(value) => setNewQuestion({ ...newQuestion, section: value })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select section" />
@@ -395,7 +390,7 @@ export function AdminInterface({
                   <Checkbox
                     id="question-required"
                     checked={newQuestion.required}
-                    onCheckedChange={(checked: any) => 
+                    onCheckedChange={(checked) => 
                       setNewQuestion({ ...newQuestion, required: !!checked })
                     }
                   />
@@ -424,7 +419,7 @@ export function AdminInterface({
                           <div className="flex items-center space-x-2">
                             <Checkbox
                               checked={option.hasOtherField}
-                              onCheckedChange={(checked: any) => 
+                              onCheckedChange={(checked) => 
                                 updateOption(index, 'hasOtherField', !!checked)
                               }
                             />
@@ -440,6 +435,64 @@ export function AdminInterface({
                           </Button>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* File Upload Configuration */}
+                {newQuestion.type === 'file-upload' && (
+                  <div className="space-y-3">
+                    <Label>File Upload Configuration</Label>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="file-accept">Accepted File Types</Label>
+                        <Input
+                          id="file-accept"
+                          value={newQuestion.fileUploadConfig?.accept || "*/*"}
+                          onChange={(e) => setNewQuestion({
+                            ...newQuestion,
+                            fileUploadConfig: {
+                              ...newQuestion.fileUploadConfig,
+                              accept: e.target.value
+                            }
+                          })}
+                          placeholder="e.g., .pdf,.doc,.docx"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="file-max-size">Max Size (MB)</Label>
+                        <Input
+                          id="file-max-size"
+                          type="number"
+                          min="1"
+                          max="100"
+                          value={newQuestion.fileUploadConfig?.maxSize || 10}
+                          onChange={(e) => setNewQuestion({
+                            ...newQuestion,
+                            fileUploadConfig: {
+                              ...newQuestion.fileUploadConfig,
+                              maxSize: parseInt(e.target.value) || 10
+                            }
+                          })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="file-max-files">Max Files</Label>
+                        <Input
+                          id="file-max-files"
+                          type="number"
+                          min="1"
+                          max="20"
+                          value={newQuestion.fileUploadConfig?.maxFiles || 5}
+                          onChange={(e) => setNewQuestion({
+                            ...newQuestion,
+                            fileUploadConfig: {
+                              ...newQuestion.fileUploadConfig,
+                              maxFiles: parseInt(e.target.value) || 5
+                            }
+                          })}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -575,7 +628,7 @@ export function AdminInterface({
                   <Label htmlFor="section-query-type">Visibility</Label>
                   <Select
                     value={newSection.queryType}
-                    onValueChange={(value: string | undefined) => setNewSection({ ...newSection, queryType: value as FormSection['queryType'] })}
+                    onValueChange={(value) => setNewSection({ ...newSection, queryType: value as FormSection['queryType'] })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -649,6 +702,10 @@ export function AdminInterface({
           </div>
         </TabsContent>
 
+        <TabsContent value="email" className="space-y-6">
+          <EmailConfiguration />
+        </TabsContent>
+
         <TabsContent value="database" className="space-y-6">
           <DatabaseManagement />
         </TabsContent>
@@ -656,9 +713,5 @@ export function AdminInterface({
     </div>
   );
 }
-
-
-
-
 
 
