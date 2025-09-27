@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAppDispatch } from "../redux/hooks";
 import {
   FormLayoutComponentChildrenType,
   FormLayoutComponentContainerType,
@@ -8,7 +7,6 @@ import {
 } from "../types/FormTemplateTypes";
 import { generateID } from "../utils/common";
 import { FormItemTypes } from "../utils/formBuilderUtils";
-import useModalStrip from "./useModalStrip";
 
 interface useFormBuilderProps {
   template: TemplateType;
@@ -26,9 +24,6 @@ const useFormBuilder = (props: useFormBuilderProps) => {
     | FormLayoutComponentContainerType
     | FormLayoutComponentChildrenType
   >(undefined);
-
-  const dispatch = useAppDispatch();
-  const { showModalStrip } = useModalStrip();
 
   // Handles a Container or a Component added on the form builder
   const handleItemAdded = (
@@ -137,12 +132,16 @@ const useFormBuilder = (props: useFormBuilderProps) => {
     const formContainerId = newState.findIndex(
       (comp) => comp.container.id === item.id
     );
+    console.log({ item });
     const formContainer = { ...newState[formContainerId] };
+    console.log({ formContainer });
     formContainer.container = {
       ...formContainer.container,
       heading: item.heading,
       subHeading: item.subHeading,
+      alwaysVisible: item.alwaysVisible,
     };
+    console.log({ formContainer });
     newState[formContainerId] = formContainer;
     setFormLayoutComponents(newState);
   };

@@ -118,6 +118,13 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
     <>
       <>
         <DndProvider backend={HTML5Backend}>
+          <button
+            onClick={() =>
+              console.log({ formLayoutComponents, selectedTemplate })
+            }
+          >
+            CLICKME
+          </button>
           <div className="wrapper">
             <div className="row">
               <div

@@ -147,6 +147,8 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     const isVisible = e.currentTarget.checked;
     setItemIsAlwaysVisible(isVisible);
 
+    console.log({ isVisible });
+
     console.log({ updatedItem });
 
     setUpdatedItem((prevState) => ({
@@ -166,6 +168,9 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     event
   ) => {
     event.preventDefault();
+    console.log({
+      updatedItem,
+    });
     editContainerProperties(updatedItem as FormLayoutComponentContainerType);
   };
 
@@ -176,6 +181,14 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
           {containerUpdatedItem.itemType === FormItemTypes.CONTAINER ? (
             <>
               <div className="main-form">
+                <button
+                  onClick={() => {
+                    console.log({ updatedItem });
+                  }}
+                >
+                  {" "}
+                  CLICKME
+                </button>
                 <form
                   onSubmit={onContainerFormSubmit}
                   style={{ minWidth: "100%" }}
