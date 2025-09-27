@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "./ui/button";
@@ -10,10 +10,12 @@ import { Checkbox } from "./ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
 import { toast } from "sonner";
-import { FileText, Users, Clock, HelpCircle, Search, Settings, Download } from "lucide-react";
-import { useState, useEffect } from "react";
+import { FileText, Users, Clock, HelpCircle, Search, Settings } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
 import { Question, FormSection } from "./AdminInterface";
 import { exportFormSubmissionAsSQL } from "../_utils/sqlExport";
+import { emailService, EmailData, GrantTeamEmailData } from "../_utils/emailService";
+import { FileUpload } from "./FileUpload";
 
 interface DynamicFormRendererProps {
   questions: Question[];
@@ -40,24 +42,18 @@ export function DynamicFormRenderer({
   const visibleQuestions = questions.filter(q => q.visible);
   const sortedSections = [...sections].sort((a, b) => a.order - b.order);
 
-  const getQueryType = () => {
+  const getQueryType = useCallback(() => {
     const queryTypeQuestion = questions.find(q => q.id === "query-type");
     if (!queryTypeQuestion) return "";
     return formValues[queryTypeQuestion.id] || "";
-  };
+  }, [formValues, questions]);
 
-  // Memoized function to check question visibility with circular dependency protection
-  const [visibilityCache, setVisibilityCache] = useState<{[key: string]: boolean}>({});
-  
-  const isQuestionVisible = (question: Question, checkingStack: Set<string> = new Set()): boolean => {
+  const isQuestionVisible = useCallback((question: Question, checkingStack: Set<string> = new Set()): boolean => {
     // Prevent infinite recursion
     if (checkingStack.has(question.id)) {
       return false;
     }
     
-    const cond = question.conditional;
-    if (!cond) return true;
-
     // Check query type visibility
     const queryType = getQueryType();
     if (question.conditional?.dependsOn === "query-type") {
@@ -69,7 +65,7 @@ export function DynamicFormRenderer({
       const dependentValue = formValues[question.conditional.dependsOn];
       
       // First check if the question we depend on is itself visible
-      const dependentQuestion = questions.find(q => q.id === cond.dependsOn);
+      const dependentQuestion = questions.find(q => q.id === question.conditional.dependsOn);
       if (dependentQuestion) {
         checkingStack.add(question.id);
         const isParentVisible = isQuestionVisible(dependentQuestion, checkingStack);
@@ -87,7 +83,7 @@ export function DynamicFormRenderer({
     }
 
     return true;
-  };
+  }, [formValues, questions, getQueryType]);
 
   // Clear values for invisible questions
   useEffect(() => {
@@ -97,7 +93,7 @@ export function DynamicFormRenderer({
         setValue(q.id, undefined);
       }
     });
-  }, [formValues, visibleQuestions, setValue]);
+  }, [formValues, visibleQuestions, setValue, isQuestionVisible]);
 
   const isSectionVisible = (section: FormSection) => {
     const queryType = getQueryType();
@@ -147,18 +143,70 @@ export function DynamicFormRenderer({
       const queryType = getQueryType() as 'simple' | 'complex';
       const submissionId = await exportFormSubmissionAsSQL(data, questions, queryType);
       
+      // Send confirmation email to user
+      const userEmail = data.email as string;
+      const userName = data.name as string;
+      
+      if (userEmail && userName) {
+        const emailData: EmailData = {
+          userEmail,
+          userName,
+          submissionId,
+          queryType,
+          timestamp: new Date().toISOString()
+        };
+        
+        try {
+          console.log('📧 FORM: Sending USER CONFIRMATION email to:', userEmail);
+          const emailSent = await emailService.sendConfirmationEmail(emailData);
+          if (emailSent) {
+            console.log('✅ FORM: User confirmation email sent successfully to:', userEmail);
+          } else {
+            console.warn('⚠️ FORM: Failed to send user confirmation email');
+          }
+        } catch (emailError) {
+          console.error('❌ FORM: User confirmation email service error:', emailError);
+          // Don't fail the form submission if email fails
+        }
+      }
+      
       if (queryType === "simple") {
-        toast.success("Simple query submitted successfully! SQL file downloaded.");
+        toast.success("Simple query submitted successfully! Check your email for confirmation.");
         setTimeout(() => {
           onSimpleQuerySuccess?.(submissionId);
         }, 1000);
       } else if (queryType === "complex") {
-        toast.success("Complex referral submitted successfully! SQL file downloaded.");
+        // Send notification email to grant team for complex queries
+        if (userEmail && userName) {
+          const grantTeamEmailData: GrantTeamEmailData = {
+            submissionId,
+            queryType: 'complex',
+            userEmail,
+            userName,
+            timestamp: new Date().toISOString(),
+            formData: data
+          };
+          
+          try {
+            console.log('📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:', submissionId);
+            const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
+            if (grantEmailSent) {
+              console.log('✅ FORM: Grant team notification sent successfully for complex query:', submissionId);
+            } else {
+              console.warn('⚠️ FORM: Failed to send grant team notification');
+            }
+          } catch (grantEmailError) {
+            console.error('❌ FORM: Grant team notification error:', grantEmailError);
+            // Don't fail the form submission if grant team email fails
+          }
+        }
+        
+        toast.success("Complex referral submitted successfully! Check your email for confirmation.");
         setTimeout(() => {
           onComplexQuerySuccess?.();
         }, 1000);
       } else {
-        toast.success("Form submitted successfully! SQL file downloaded.");
+        toast.success("Form submitted successfully! Check your email for confirmation.");
       }
     } catch (error) {
       toast.error("Failed to submit referral request. Please try again.");
@@ -175,6 +223,9 @@ export function DynamicFormRenderer({
       const rules: any = {};
       if (question.required) {
         if (question.type === 'checkbox-group') {
+          rules.validate = (value: any) => 
+            value && value.length > 0 ? true : `${question.title} is required`;
+        } else if (question.type === 'file-upload') {
           rules.validate = (value: any) => 
             value && value.length > 0 ? true : `${question.title} is required`;
         } else {
@@ -411,7 +462,7 @@ export function DynamicFormRenderer({
                         <Checkbox
                           id={`${fieldName}-${option.id}`}
                           checked={value === option.id}
-                          onCheckedChange={(checked: any) => {
+                          onCheckedChange={(checked) => {
                             if (checked) {
                               handleRadioChange(fieldName, option.id);
                             }
@@ -436,6 +487,35 @@ export function DynamicFormRenderer({
                     </div>
                   ))}
                 </div>
+              )}
+            />
+            {errors[fieldName] && (
+              <p className="text-sm text-destructive">
+                {errors[fieldName]?.message as string}
+              </p>
+            )}
+          </div>
+        );
+
+      case 'file-upload':
+        return (
+          <div key={question.id} className="space-y-2">
+            <Controller
+              name={fieldName}
+              control={control}
+              rules={getValidationRules()}
+              render={({ field: { value = [], onChange } }) => (
+                <FileUpload
+                  id={fieldName}
+                  title={question.title}
+                  description={question.description}
+                  required={question.required}
+                  value={value}
+                  onChange={onChange}
+                  accept={question.fileUploadConfig?.accept || "*/*"}
+                  maxSize={question.fileUploadConfig?.maxSize || 10}
+                  maxFiles={question.fileUploadConfig?.maxFiles || 5}
+                />
               )}
             />
             {errors[fieldName] && (
@@ -524,7 +604,6 @@ export function DynamicFormRenderer({
     </div>
   );
 }
-
 
 
 

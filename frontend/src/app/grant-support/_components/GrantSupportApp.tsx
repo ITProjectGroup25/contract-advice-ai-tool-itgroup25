@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChatBot } from "./ChatBot";
 import { SuccessPage } from "./SuccessPage";
 import { SimpleQueryResponse } from "./SimpleQueryResponse";
@@ -14,13 +14,38 @@ import { defaultQuestions, defaultSections } from "../_data/defaultQuestions";
 
 type AppState = 'form' | 'simple-response' | 'success' | 'admin';
 
-export default function GrantSupportApp() {
+export default function App() {
   const [currentState, setCurrentState] = useState<AppState>('form');
   const [questions, setQuestions] = useState<Question[]>(defaultQuestions);
   const [sections, setSections] = useState<FormSection[]>(defaultSections);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [successPageType, setSuccessPageType] = useState<'complex' | 'simple-escalated'>('complex');
   const [currentSubmissionId, setCurrentSubmissionId] = useState<string | undefined>();
+
+  // Check EmailJS on app start
+  useEffect(() => {
+    console.log('[EmailJS] App started, checking EmailJS availability...');
+    const checkEmailJS = () => {
+      const emailjs = (window as any).emailjs;
+      const emailJSReady = (window as any).emailJSReady;
+      console.log('[EmailJS] EmailJS check:', {
+        available: typeof emailjs !== 'undefined',
+        methods: emailjs ? Object.keys(emailjs) : null,
+        emailJSReady: emailJSReady,
+        hasInit: emailjs && typeof emailjs.init === 'function',
+        hasSend: emailjs && typeof emailjs.send === 'function'
+      });
+    };
+    
+    // Check immediately
+    checkEmailJS();
+    
+    // Check periodically for more detailed monitoring
+    const intervals = [500, 1000, 2000, 5000];
+    intervals.forEach(delay => {
+      setTimeout(checkEmailJS, delay);
+    });
+  }, []);
 
   const handleSimpleQuerySuccess = (submissionId?: string) => {
     setCurrentSubmissionId(submissionId);
@@ -138,10 +163,6 @@ export default function GrantSupportApp() {
     </div>
   );
 }
-
-
-
-
 
 
 

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import { Button } from "./ui/button";
@@ -120,8 +120,3 @@ export function PasswordDialog({ open, onClose, onSuccess }: PasswordDialogProps
     </Dialog>
   );
 }
-
-
-
-
-

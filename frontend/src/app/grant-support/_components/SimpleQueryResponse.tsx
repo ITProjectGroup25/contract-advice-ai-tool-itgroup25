@@ -1,11 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Bot, ArrowLeft, ThumbsUp, CheckCircle, AlertCircle } from "lucide-react";
-import { useState } from "react";
 import { localDB } from "../_utils/localDatabase";
+import { emailService, GrantTeamEmailData } from "../_utils/emailService";
 import exampleImage from "../_assets/automated-response.png";
 
 interface SimpleQueryResponseProps {
@@ -45,6 +46,32 @@ export function SimpleQueryResponse({ onBack, onSatisfied, onNeedHumanHelp, subm
           needsHumanReview: true,
           status: "escalated",
         });
+
+        try {
+          const submission = await localDB.getSubmission(submissionId);
+          if (submission?.formData) {
+            const userEmail = submission.formData.email as string | undefined;
+            const userName = submission.formData.name as string | undefined;
+
+            if (userEmail && userName) {
+              const grantTeamEmailData: GrantTeamEmailData = {
+                submissionId,
+                queryType: "escalated",
+                userEmail,
+                userName,
+                timestamp: new Date().toISOString(),
+                formData: submission.formData,
+              };
+
+              const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
+              if (!grantEmailSent) {
+                console.warn("Grant team escalation email was not sent");
+              }
+            }
+          }
+        } catch (grantEmailError) {
+          console.error("Grant team escalation email failed:", grantEmailError);
+        }
       } catch (error) {
         console.error("Error updating submission:", error);
       }
@@ -104,8 +131,7 @@ export function SimpleQueryResponse({ onBack, onSatisfied, onNeedHumanHelp, subm
           <div className="border-t pt-6">
             <h3 className="text-lg mb-4">Was this response helpful?</h3>
             <p className="text-muted-foreground mb-6">
-              Please let us know if this automated response resolved your query or if you need further assistance from our
-              grants team.
+              Please let us know if this automated response resolved your query or if you need further assistance from our grants team.
             </p>
 
             <div className="flex gap-4">
@@ -127,8 +153,7 @@ export function SimpleQueryResponse({ onBack, onSatisfied, onNeedHumanHelp, subm
 
           <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> If you selected &quot;I need human assistance,&quot; your original form submission will be forwarded
-              to our grants team for manual review. You&apos;ll receive a response within 1-2 business days.
+              <strong>Note:</strong> If you selected &quot;I need human assistance,&quot; your original form submission will be forwarded to our grants team for manual review. You&apos;ll receive a response within 1-2 business days.
             </p>
           </div>
         </CardContent>
@@ -136,9 +161,3 @@ export function SimpleQueryResponse({ onBack, onSatisfied, onNeedHumanHelp, subm
     </div>
   );
 }
-
-
-
-
-
-
