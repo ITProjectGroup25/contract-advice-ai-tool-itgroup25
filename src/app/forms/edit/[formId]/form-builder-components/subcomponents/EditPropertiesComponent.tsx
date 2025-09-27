@@ -240,6 +240,24 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                       }
                       label="Always Visible"
                     />
+                    {
+                      !itemIsAlwaysVisible ? (
+                        <div className="m-t-20 p-l-0">
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={isUpdatedItemRequired}
+                                name="required"
+                                onChange={handleCheckChange}
+                              />
+                            }
+                            label="Required"
+                          />
+                        </div>
+                      ) : (
+                        ""
+                      )
+                    }
                   </div>
                 </form>
               </div>
