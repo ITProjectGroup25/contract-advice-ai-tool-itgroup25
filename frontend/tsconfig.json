@@ -25,16 +25,10 @@
         "./src/app/*"
       ],
       "@backend": [
-        "../backend/src"
-      ],
-      "@backend/*": [
-        "../backend/src/*"
+        "./src/lib/backend-stub"
       ],
       "@shared": [
-        "../shared/src"
-      ],
-      "@shared/*": [
-        "../shared/src/*"
+        "./src/types/shared"
       ]
     }
   },
