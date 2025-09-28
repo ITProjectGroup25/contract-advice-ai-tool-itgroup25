@@ -4,7 +4,7 @@ import {
   FormLayoutComponentChildrenType,
   FormLayoutComponentContainerType,
 } from "@/app/forms/edit/[formId]/form-builder-components/types/FormTemplateTypes";
-import { Box, Button, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { renderField } from "./control-field-renderer";
 
@@ -85,10 +85,6 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     );
   };
 
-  const isLastStep =
-    currentStep === formTemplate.formLayoutComponents.length - 1;
-  const isFirstStep = currentStep === 0;
-
   // Filter visible steps
   const visibleSteps = formTemplate.formLayoutComponents.filter(
     (step) =>
@@ -97,14 +93,21 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
   );
 
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit}
-      sx={{ maxWidth: 800, mx: "auto", p: 3 }}
-    >
-      <Typography variant="h4" gutterBottom>
-        {formTemplate.formName}
-      </Typography>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+            Referral Request Form
+          </h1>
+        </div>
+      </div>
+
+      <button
+        className="text-black"
+        onClick={() => console.log({ visibleSteps })}
+      >
+        Submit
+      </button>
 
       {/* Render visible steps */}
       {visibleSteps.map((step, index) =>
@@ -115,27 +118,6 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
         )
       )}
 
-      {/* Navigation buttons */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
-        <Button
-          variant="outlined"
-          onClick={handlePrevious}
-          disabled={isFirstStep}
-        >
-          Previous
-        </Button>
-
-        {isLastStep ? (
-          <Button type="submit" variant="contained" color="primary">
-            Submit
-          </Button>
-        ) : (
-          <Button variant="contained" onClick={handleNext}>
-            Next
-          </Button>
-        )}
-      </Box>
-
       {/* Debug info - remove in production */}
       <Box sx={{ mt: 4, p: 2, backgroundColor: "#f5f5f5", borderRadius: 1 }}>
         <Typography variant="h6" gutterBottom>
@@ -145,7 +127,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
           {JSON.stringify(formData, null, 2)}
         </pre>
       </Box>
-    </Box>
+    </div>
   );
 };
 
