@@ -43,6 +43,8 @@ export const FormContainerList = [
     heading: "Container Heading",
     subHeading: "Container SubHeading",
     alwaysVisible: true,
+    selectedControlOption: "",
+    selectedControlHeading: "",
   },
 ];
 

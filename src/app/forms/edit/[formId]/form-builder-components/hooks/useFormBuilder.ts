@@ -135,12 +135,16 @@ const useFormBuilder = (props: useFormBuilderProps) => {
     console.log({ item });
     const formContainer = { ...newState[formContainerId] };
     console.log({ formContainer });
-    formContainer.container = {
-      ...formContainer.container,
-      heading: item.heading,
-      subHeading: item.subHeading,
-      alwaysVisible: item.alwaysVisible,
-    };
+
+    const itemKeys = Object.keys(item);
+    const cleanedContainer = Object.fromEntries(
+      Object.entries(formContainer.container).filter(
+        ([key]) => !itemKeys.includes(key)
+      )
+    );
+
+    formContainer.container = { ...cleanedContainer, ...item };
+
     console.log({ formContainer });
     newState[formContainerId] = formContainer;
     setFormLayoutComponents(newState);

@@ -173,6 +173,9 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     const isVisible = e.currentTarget.checked;
     setItemIsAlwaysVisible(isVisible);
 
+    setSelectedControlHeading("");
+    setSelectedControlOption("");
+
     console.log({ isVisible });
 
     console.log({ updatedItem });
@@ -188,6 +191,8 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const handleSetSelectedControlHeading = (e: any) => {
     const heading = e.target.value;
 
+    console.log({ heading });
+
     setSelectedControlHeading(heading);
 
     setUpdatedItem((prevState) => ({
@@ -198,6 +203,8 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
 
   const handleSetSelectedControloption = (e: any) => {
     const optionName = e.target.value;
+
+    console.log({ optionName });
 
     setSelectedControlOption(optionName);
 

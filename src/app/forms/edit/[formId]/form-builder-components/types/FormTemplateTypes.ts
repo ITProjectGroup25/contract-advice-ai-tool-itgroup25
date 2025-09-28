@@ -44,6 +44,8 @@ export const FormLayoutComponentContainerSchema = z.object({
   subHeading: z.string(),
   id: z.string(),
   alwaysVisible: z.boolean(),
+  selectedControlOption: z.string().optional(),
+  selectedControlHeading: z.string().optional(),
   desktopWidth: z.number().optional(),
 });
 export type FormLayoutComponentContainerType = z.infer<

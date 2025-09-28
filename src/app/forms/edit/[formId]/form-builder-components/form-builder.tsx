@@ -71,6 +71,8 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
 
       console.log({ formLayoutComponents });
 
+      
+
       // Call your server function (Next.js server action)
       const res = await publishForm({ message: "" }, formData);
 
