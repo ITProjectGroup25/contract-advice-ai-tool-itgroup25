@@ -156,9 +156,10 @@ SUPABASE_ANON_KEY: 项目设置中的 anon public key
      - Output: 无需填写（Next.js 默认处理）
    - 方式 B（Root 指向子目录）
      - Root Directory: `frontend`
-     - Install Command: `cd .. && npm install`（确保安装所有 workspace 依赖）
+     - Install Command: `npm install --include=dev`
      - Build Command: `npm run build`
      - Output: 留空或使用默认值（Next.js 默认处理）
+     - 重要：开启 “Include files outside the root directory in the Build Step”（因为通过 `@backend` 别名引用到 `../backend/src`）
 
 说明：前端在构建时会通过 tsconfig 路径别名引入 `../backend/src` 代码（例如 NextAuth、Drizzle）。采用方式 A 可确保相关依赖在云端构建时已正确安装；若采用方式 B，请务必使用上面的安装命令以在仓库根目录完成完整安装。
 

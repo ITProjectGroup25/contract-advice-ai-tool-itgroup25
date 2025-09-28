@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "installCommand": "cd .. && npm install --include=dev",
+  "installCommand": "npm install --include=dev",
   "functions": {
     "src/app/api/**/route.ts": {
       "maxDuration": 35
