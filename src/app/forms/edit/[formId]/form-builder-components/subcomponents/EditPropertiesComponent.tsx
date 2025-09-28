@@ -1,4 +1,12 @@
-import { Checkbox, FormControlLabel, TextField } from "@mui/material";
+import {
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import _ from "lodash";
 import React, { FC, useEffect, useState } from "react";
 import {
@@ -240,24 +248,22 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                       }
                       label="Always Visible"
                     />
-                    {
-                      !itemIsAlwaysVisible ? (
-                        <div className="m-t-20 p-l-0">
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={isUpdatedItemRequired}
-                                name="required"
-                                onChange={handleCheckChange}
-                              />
-                            }
-                            label="Required"
-                          />
-                        </div>
-                      ) : (
-                        ""
-                      )
-                    }
+                    {!itemIsAlwaysVisible ? (
+                      <div className="m-t-20 p-l-0">
+                        <FormControl
+                          style={{ minWidth: "100%", marginBottom: 15 }}
+                        >
+                          <InputLabel>Visible when control</InputLabel>
+                          <Select value={""} label="Visible when control">
+                            <MenuItem value="">
+                              <em>Select a control</em>
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
+                      </div>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 </form>
               </div>
