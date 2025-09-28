@@ -19,6 +19,7 @@ import {
 import { FormControlNames, FormItemTypes } from "../utils/formBuilderUtils";
 import ManageItemsListComponent from "./ManageItemsListComponent";
 import listAllControlDisplayNames from "./helpers/listAllControlDisplayNames";
+import retrieveOptionsFromControl from "./helpers/retrieveOptionsFromControl";
 
 const textboxStyle = {
   minWidth: "100%",
@@ -72,6 +73,13 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const controlDisplayNames = listAllControlDisplayNames(selectedTemplate!);
 
   const [selectedControlHeading, setSelectedControlHeading] = useState("");
+
+  const controlOptions = retrieveOptionsFromControl({
+    controlName: selectedControlHeading,
+    template: selectedTemplate!,
+  });
+
+  const [selectedControlOption, setSelectedControlOption] = useState("");
 
   useEffect(() => {
     if (selectedControl) {
@@ -299,26 +307,23 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                       <FormControl fullWidth>
                         <InputLabel>On select of</InputLabel>
                         <Select
-                          value={selectedControlHeading}
-                          label="Age"
+                          value={selectedControlOption}
+                          label="control-options"
                           onChange={(e) =>
-                            setSelectedControlHeading(e.target.value)
+                            setSelectedControlOption(e.target.value)
                           }
                         >
-                          {controlDisplayNames.length === 0 ? (
+                          {controlOptions.length === 0 ? (
                             <MenuItem value="">
                               <em>There are no controls in your form</em>
                             </MenuItem>
                           ) : null}
                           <MenuItem value="">
-                            <em>Select a control</em>
+                            <em>Select an option</em>
                           </MenuItem>
-                          {controlDisplayNames.map((controlHeading) => (
-                            <MenuItem
-                              key={controlHeading}
-                              value={controlHeading}
-                            >
-                              {controlHeading}
+                          {controlOptions.map((controlOption) => (
+                            <MenuItem key={controlOption} value={controlOption}>
+                              {controlOption}
                             </MenuItem>
                           ))}
                         </Select>
