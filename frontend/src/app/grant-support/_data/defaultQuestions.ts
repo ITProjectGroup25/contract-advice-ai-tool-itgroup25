@@ -284,7 +284,7 @@ export const defaultQuestions: Question[] = [
   {
     id: "simple-guide-check",
     title: "Have you checked the guide?",
-    description: "Please refer to the EAAC Grants Training Guide (PDF): https://example.com/eaac-grants-training-guide.pdf",
+    description: "Please refer to the EAAC Grants Training Guide (PDF): /EAAC%20Grants%20Training%20Guide%28May2024%29.pdf",
     type: "radio-group",
     required: true,
     section: "simple-explanation",
