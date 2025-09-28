@@ -17,13 +17,13 @@
 ```
 
 ### 技术栈
-- **前端**: Next.js 14 + TypeScript + Tailwind CSS
-- **后端**: Drizzle ORM + Next.js API Routes  
-- **数据库**: PostgreSQL (Supabase)
-- **身份验证**: NextAuth.js
-- **AI服务**: Google Gemini API
-- **部署**: Vercel (Frontend) + Supabase (Database)
-- **CI/CD**: GitHub Actions
+- 前端: Next.js 14 + TypeScript + Tailwind CSS
+- 后端: Next.js API Routes + Drizzle ORM（与前端同仓同进程）
+- 数据库: PostgreSQL（本地 Docker / Supabase 托管）
+- 身份验证: NextAuth.js（Google OAuth）
+- AI 服务: Google Gemini API（可选，按需配置）
+- 部署: Vercel（应用）+ Supabase（数据库）
+- CI/CD: GitHub Actions（前端构建、数据库迁移）
 
 ---
 
@@ -61,6 +61,13 @@ Docker Desktop (本地开发)
 | `NEXT_PUBLIC_SUPABASE_URL` | Frontend | Supabase项目URL | `https://xxx.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Frontend | Supabase匿名密钥 | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
 
+提示：生成 `NEXTAUTH_SECRET` 可用命令（任意一条）：
+```bash
+openssl rand -base64 32
+# 或（仅 Node 环境）
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
 ---
 
 ## 🏠 本地开发环境搭建
@@ -79,8 +86,7 @@ npm install
 ### 步骤 3: 启动本地数据库
 ```bash
 cd docker
-cp .env.example .env
-# 编辑 .env 文件调整数据库配置
+# 确认/编辑 docker/.env（默认已提供示例凭据）
 docker compose up -d
 cd ..
 ```
@@ -137,17 +143,24 @@ SUPABASE_URL: 项目设置中的 API URL
 SUPABASE_ANON_KEY: 项目设置中的 anon public key
 ```
 
-### 2. Vercel 前端部署
+### 2. Vercel 前端部署（Monorepo 配置重点）
 
 #### 自动部署（推荐）
 1. 连接 GitHub 仓库到 Vercel
-2. 配置环境变量（见上表）
-3. 设置构建命令：
-   ```bash
-   Build Command: npm run build --workspace frontend
-   Output Directory: frontend/.next
-   Install Command: npm install
-   ```
+2. 配置环境变量（见上表，至少包括 `NEXTAUTH_URL`、`NEXTAUTH_SECRET`、`NEXT_PUBLIC_SUPABASE_*`、`DATABASE_URL`）
+3. 项目设置（两种等效方式，任选其一）：
+   - 方式 A（推荐，简单稳妥）
+     - Root Directory: 仓库根目录
+     - Install Command: `npm install`
+     - Build Command: `npm run build --workspace frontend`
+     - Output: 无需填写（Next.js 默认处理）
+   - 方式 B（Root 指向子目录）
+     - Root Directory: `frontend`
+     - Install Command: `cd .. && npm install`（确保安装所有 workspace 依赖）
+     - Build Command: `npm run build`
+     - Output: 留空或使用默认值（Next.js 默认处理）
+
+说明：前端在构建时会通过 tsconfig 路径别名引入 `../backend/src` 代码（例如 NextAuth、Drizzle）。采用方式 A 可确保相关依赖在云端构建时已正确安装；若采用方式 B，请务必使用上面的安装命令以在仓库根目录完成完整安装。
 
 #### 手动部署
 ```bash
@@ -193,15 +206,15 @@ Push to main branch →
 ### Google OAuth 设置
 1. 前往 [Google Cloud Console](https://console.cloud.google.com)
 2. 创建新项目或选择现有项目
-3. 启用 Google+ API
-4. 创建 OAuth 2.0 客户端 ID
+3. 配置 OAuth 同意屏幕（外部/内部，填写必要信息）
+4. 在“凭据”中新建“OAuth 2.0 客户端 ID”（应用类型：Web 应用）
 5. 添加授权重定向 URI：
    ```
    http://localhost:3000/api/auth/callback/google (开发)
    https://yourdomain.vercel.app/api/auth/callback/google (生产)
    ```
 
-### Google Gemini API 设置
+### Google Gemini API 设置（可选）
 1. 在 Google Cloud Console 中启用 Generative AI API
 2. 创建 API 密钥
 3. 设置 API 配额和限制
@@ -305,8 +318,11 @@ vercel rollback [deployment-url]
 git revert HEAD
 git push origin main
 
-# 数据库迁移回滚
-npm run db:migrate --workspace backend -- down
+# 数据库迁移回滚（建议）
+# Drizzle 默认不提供自动 down 回滚命令。
+# 生产环境建议通过：
+#  1) 使用 Supabase 备份/还原；或
+#  2) 为每个向上迁移编写对应的回滚 SQL，并在需要时手动执行。
 ```
 
 ---
