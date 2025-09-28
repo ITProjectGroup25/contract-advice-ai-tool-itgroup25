@@ -17,6 +17,7 @@ import {
 } from "../types/FormTemplateTypes";
 import { FormControlNames, FormItemTypes } from "../utils/formBuilderUtils";
 import ManageItemsListComponent from "./ManageItemsListComponent";
+import useFormBuilder from "../hooks/useFormBuilder";
 
 const textboxStyle = {
   minWidth: "100%",
@@ -25,6 +26,7 @@ const textboxStyle = {
 };
 
 interface EditPropertiesComponentProps {
+  selectedTemplate?: ReturnType<typeof useFormBuilder>['selectedTemplate'];
   selectedControl?:
     | undefined
     | FormLayoutComponentChildrenType

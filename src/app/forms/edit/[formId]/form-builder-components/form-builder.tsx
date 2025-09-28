@@ -241,6 +241,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
               <div className={classes.sidebarHeight + " sidebar col-lg-3"}>
                 <div className="container">
                   <EditPropertiesComponent
+                    selectedTemplate={selectedTemplate}
                     selectedControl={selectedControl}
                     selectControl={selectControl}
                     formLayoutComponents={formLayoutComponents}
