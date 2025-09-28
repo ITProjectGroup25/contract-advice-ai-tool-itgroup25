@@ -99,34 +99,36 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
           <h1 className="text-3xl font-semibold text-gray-900 mb-2">
             Referral Request Form
           </h1>
+
+          <button
+            className="text-black"
+            onClick={() => console.log({ visibleSteps })}
+          >
+            Submit
+          </button>
+
+          {/* Render visible steps */}
+          {visibleSteps.map((step, index) =>
+            renderStep(
+              step.container,
+              step.children,
+              step.container.alwaysVisible || index === 0
+            )
+          )}
+
+          {/* Debug info - remove in production */}
+          <Box
+            sx={{ mt: 4, p: 2, backgroundColor: "#f5f5f5", borderRadius: 1 }}
+          >
+            <Typography variant="h6" gutterBottom>
+              Form Data (Debug):
+            </Typography>
+            <pre style={{ fontSize: "12px", overflow: "auto" }}>
+              {JSON.stringify(formData, null, 2)}
+            </pre>
+          </Box>
         </div>
       </div>
-
-      <button
-        className="text-black"
-        onClick={() => console.log({ visibleSteps })}
-      >
-        Submit
-      </button>
-
-      {/* Render visible steps */}
-      {visibleSteps.map((step, index) =>
-        renderStep(
-          step.container,
-          step.children,
-          step.container.alwaysVisible || index === 0
-        )
-      )}
-
-      {/* Debug info - remove in production */}
-      <Box sx={{ mt: 4, p: 2, backgroundColor: "#f5f5f5", borderRadius: 1 }}>
-        <Typography variant="h6" gutterBottom>
-          Form Data (Debug):
-        </Typography>
-        <pre style={{ fontSize: "12px", overflow: "auto" }}>
-          {JSON.stringify(formData, null, 2)}
-        </pre>
-      </Box>
     </div>
   );
 };

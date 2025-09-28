@@ -55,11 +55,7 @@ const page = async ({
 
   console.log({ validatedFormTemplate });
 
-  return (
-    <div className="bg-white">
-      <FormParser formTemplate={validatedFormTemplate} />;
-    </div>
-  );
+  return <FormParser formTemplate={validatedFormTemplate} />;
 };
 
 export default page;
