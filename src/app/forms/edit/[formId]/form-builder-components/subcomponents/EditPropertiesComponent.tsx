@@ -5,7 +5,6 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  SelectChangeEvent,
   TextField,
 } from "@mui/material";
 import _ from "lodash";
@@ -19,7 +18,7 @@ import {
 } from "../types/FormTemplateTypes";
 import { FormControlNames, FormItemTypes } from "../utils/formBuilderUtils";
 import ManageItemsListComponent from "./ManageItemsListComponent";
-import listAllControlHeadings from "./helpers/listAllControlHeadings";
+import listAllControlDisplayNames from "./helpers/listAllControlDisplayNames";
 
 const textboxStyle = {
   minWidth: "100%",
@@ -68,15 +67,11 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const [isUpdatedItemRequired, setIsUpdatedItemRequired] = useState(false);
   const [itemIsAlwaysVisible, setItemIsAlwaysVisible] = useState(true);
 
-  const controlHeadings = listAllControlHeadings(selectedTemplate!);
+  console.log({ selectedTemplate });
+
+  const controlDisplayNames = listAllControlDisplayNames(selectedTemplate!);
 
   const [selectedControlHeading, setSelectedControlHeading] = useState("");
-
-  const [age, setAge] = React.useState("");
-
-  const handleChhange = (event: SelectChangeEvent) => {
-    setAge(event.target.value as string);
-  };
 
   useEffect(() => {
     if (selectedControl) {
@@ -278,7 +273,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                             setSelectedControlHeading(e.target.value)
                           }
                         >
-                          {controlHeadings.length === 0 ? (
+                          {controlDisplayNames.length === 0 ? (
                             <MenuItem value="">
                               <em>There are no controls in your form</em>
                             </MenuItem>
@@ -286,7 +281,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                           <MenuItem value="">
                             <em>Select a control</em>
                           </MenuItem>
-                          {controlHeadings.map((controlHeading) => (
+                          {controlDisplayNames.map((controlHeading) => (
                             <MenuItem
                               key={controlHeading}
                               value={controlHeading}

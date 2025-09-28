@@ -13,18 +13,18 @@ const listAllControl = (args: Args): string[] => {
     return [];
   }
 
-  // Extract all displayText from children across all components
-  const displayTexts: string[] = [];
+  // Extract all labelName from children across all components
+  const labelNames: string[] = [];
 
   args.formLayoutComponents.forEach((component) => {
     if (component.children && component.children.length > 0) {
       component.children.forEach((child) => {
-        displayTexts.push(child.displayText);
+        labelNames.push(child.labelName);
       });
     }
   });
 
-  return displayTexts;
+  return labelNames;
 };
 
 export default listAllControl;
