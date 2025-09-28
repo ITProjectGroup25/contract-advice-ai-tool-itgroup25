@@ -3,6 +3,7 @@ import useFormBuilder from "../../hooks/useFormBuilder";
 type Args = ReturnType<typeof useFormBuilder>["selectedTemplate"];
 
 const listAllControl = (args: Args): string[] => {
+  console.log({ args });
   // Handle null case
   if (!args) {
     return [];

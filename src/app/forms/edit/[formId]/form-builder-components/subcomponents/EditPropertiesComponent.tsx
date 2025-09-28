@@ -292,6 +292,38 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                         </Select>
                       </FormControl>
                     ) : null}
+
+                    <div className="my-4"></div>
+
+                    {selectedControlHeading ? (
+                      <FormControl fullWidth>
+                        <InputLabel>On select of</InputLabel>
+                        <Select
+                          value={selectedControlHeading}
+                          label="Age"
+                          onChange={(e) =>
+                            setSelectedControlHeading(e.target.value)
+                          }
+                        >
+                          {controlDisplayNames.length === 0 ? (
+                            <MenuItem value="">
+                              <em>There are no controls in your form</em>
+                            </MenuItem>
+                          ) : null}
+                          <MenuItem value="">
+                            <em>Select a control</em>
+                          </MenuItem>
+                          {controlDisplayNames.map((controlHeading) => (
+                            <MenuItem
+                              key={controlHeading}
+                              value={controlHeading}
+                            >
+                              {controlHeading}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    ) : null}
                   </div>
                 </form>
               </div>
