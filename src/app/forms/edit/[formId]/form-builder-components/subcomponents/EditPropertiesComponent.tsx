@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import _ from "lodash";
 import React, { FC, useEffect, useState } from "react";
+import useFormBuilder from "../hooks/useFormBuilder";
 import {
   FormLayoutComponentChildrenItemsType,
   FormLayoutComponentChildrenType,
@@ -17,7 +18,7 @@ import {
 } from "../types/FormTemplateTypes";
 import { FormControlNames, FormItemTypes } from "../utils/formBuilderUtils";
 import ManageItemsListComponent from "./ManageItemsListComponent";
-import useFormBuilder from "../hooks/useFormBuilder";
+import listAllControlHeadings from "./helpers/listAllControlHeadings";
 
 const textboxStyle = {
   minWidth: "100%",
@@ -26,7 +27,7 @@ const textboxStyle = {
 };
 
 interface EditPropertiesComponentProps {
-  selectedTemplate?: ReturnType<typeof useFormBuilder>['selectedTemplate'];
+  selectedTemplate?: ReturnType<typeof useFormBuilder>["selectedTemplate"];
   selectedControl?:
     | undefined
     | FormLayoutComponentChildrenType
@@ -50,6 +51,7 @@ interface EditPropertiesComponentProps {
 
 const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const {
+    selectedTemplate,
     selectedControl,
     selectControl,
     editControlProperties,
@@ -64,6 +66,10 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
 
   const [isUpdatedItemRequired, setIsUpdatedItemRequired] = useState(false);
   const [itemIsAlwaysVisible, setItemIsAlwaysVisible] = useState(true);
+
+  const controlHeadings = listAllControlHeadings(selectedTemplate!);
+
+  const [selectedControlHeading, setSelectedControlHeading] = useState("");
 
   useEffect(() => {
     if (selectedControl) {
@@ -250,16 +256,43 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                       }
                       label="Always Visible"
                     />
+
+                    <button onClick={() => console.log(selectedControlHeading)}>
+                      Click MEEEEE
+                    </button>
                     {!itemIsAlwaysVisible ? (
                       <div className="m-t-20 p-l-0">
                         <FormControl
                           style={{ minWidth: "100%", marginBottom: 15 }}
                         >
                           <InputLabel>Visible when control</InputLabel>
-                          <Select value={""} label="Visible when control">
-                            <MenuItem value="">
-                              <em>Select a control</em>
-                            </MenuItem>
+                          <Select
+                            value={selectedControlHeading ?? ""}
+                            label={
+                              selectedControlHeading ?? "Visible when control"
+                            }
+                          >
+                            {controlHeadings.length === 0 ? (
+                              <MenuItem value={selectedControlHeading ?? ""}>
+                                <em>There are no controls in your form</em>
+                              </MenuItem>
+                            ) : (
+                              <>
+                                <MenuItem value="Select a control"></MenuItem>
+                                {controlHeadings.map((controlHeading) => (
+                                  <MenuItem
+                                    key={controlHeading}
+                                    value={controlHeading}
+                                    onClick={() => {
+                                      console.log({ controlHeading });
+                                      setSelectedControlHeading(controlHeading);
+                                    }}
+                                  >
+                                    {controlHeading}
+                                  </MenuItem>
+                                ))}
+                              </>
+                            )}
                           </Select>
                         </FormControl>
                       </div>
