@@ -19,10 +19,11 @@ interface ManageItemsListComponentProps {
 }
 
 const ManageItemsListComponent: FC<ManageItemsListComponentProps> = (props) => {
-  // const [runningItemId, setRunningItemId] = useState(3);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [itemName, setItemName] = useState<string>("");
-  const [editItemId, setEditItemId] = useState<string | undefined>(undefined);
+  const [editItemId, setEditItemId] = useState<
+    FormLayoutComponentChildrenItemsType["id"] | undefined
+  >(undefined);
 
   const { items, addItemInList, deleteItemFromList, editIteminList } = props;
 
@@ -30,9 +31,8 @@ const ManageItemsListComponent: FC<ManageItemsListComponentProps> = (props) => {
     cancelEditing();
   }, [items]);
 
-  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const { name, value } = e.target;
-    setItemName(value);
+  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    setItemName(event.target.value);
   };
 
   const changeToEditMode = (item: FormLayoutComponentChildrenItemsType) => {
@@ -41,22 +41,31 @@ const ManageItemsListComponent: FC<ManageItemsListComponentProps> = (props) => {
     setEditMode(true);
   };
 
-  const onSubmit: React.MouseEventHandler<HTMLInputElement> = (event) => {
-    if (itemName !== null && itemName !== "") {
-      if (!editMode) {
-        addItemInList({
-          id: generateID(),
-          value: itemName.replace(" ", "__-"),
-          label: itemName,
-        });
-      } else {
-        editIteminList({
-          id: editItemId as string,
-          value: itemName.replace(" ", "__-"),
-          label: itemName,
-        });
-      }
+  const onSubmit: React.MouseEventHandler<HTMLInputElement> = () => {
+    if (!itemName) {
+      return;
     }
+
+    const value = itemName.replace(" ", "__-");
+
+    if (!editMode) {
+      addItemInList({
+        id: generateID(),
+        value,
+        label: itemName,
+      });
+      return;
+    }
+
+    if (editItemId === undefined) {
+      return;
+    }
+
+    editIteminList({
+      id: editItemId,
+      value,
+      label: itemName,
+    });
   };
 
   const cancelEditing = () => {
@@ -90,7 +99,7 @@ const ManageItemsListComponent: FC<ManageItemsListComponentProps> = (props) => {
           />
         )}
         <List component="nav">
-          {items?.map((item, ind) => {
+          {items?.map((item) => {
             return (
               <ListItem key={item.value}>
                 <ListItemText primary={item.label} />

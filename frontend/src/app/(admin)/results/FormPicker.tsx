@@ -1,4 +1,5 @@
 "use client";
+
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -10,70 +11,61 @@ import {
 } from "@/components/ui/select";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect } from "react";
+import type { SubmissionColumn, SubmissionRow, SubmissionTable } from "./types";
 
-const FormsPicker = (props: any) => {
-  const { options, setData, setCols, setRows } = props;
+type FormPickerProps = {
+  options: Array<{ label: string; value: number }>;
+  setData: (table: SubmissionTable | null) => void;
+  setCols: (columns: SubmissionColumn[]) => void;
+  setRows: (rows: SubmissionRow[]) => void;
+};
 
+const FormsPicker = ({ options, setData, setCols, setRows }: FormPickerProps) => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
-  const formId = searchParams.get("formId") || options[0].value.toString();
+  const fallbackFormId = options[0]?.value ?? 0;
+  const formIdParam = searchParams.get("formId");
+  const formId = formIdParam ?? String(fallbackFormId);
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
-      console.log("searchParams", searchParams);
       const params = new URLSearchParams(searchParams.toString());
       params.set(name, value);
-
       return params.toString();
     },
     [searchParams]
   );
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const res = await getSubmissions(51); // Call your API function here
-  //       if (res) {
-  //         const transformedData: TableProps = {
-  //           data: res.submissions,
-  //           columns: res.questions,
-  //         };
-  //         setCols(res.questions);
-  //         setRows(res.submissions);
-  //         setData(transformedData);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error);
-  //     }
-  //   };
+  const getSubmissions = async (_formId: number): Promise<SubmissionTable | null> => {
+    // TODO: Integrate with real form submissions endpoint once available.
+    return null;
+  };
 
-  //   fetchData();
-  // }, []);
-
-  const getSubmissions = async () => {};
-
-  const fetchData = async (formId: number) => {
+  const fetchData = async (selectedFormId: number) => {
     try {
-      const res = await getSubmissions();
-      if (res) {
-        const transformedData: TableProps = {
-          data: res.submissions,
-          columns: res.questions,
-        };
-        setCols(res.questions);
-        setRows(res.submissions);
-        setData(transformedData);
+      const response = await getSubmissions(selectedFormId);
+      if (response) {
+        setCols(response.columns);
+        setRows(response.data);
+        setData(response);
+      } else {
+        setCols([]);
+        setRows([]);
+        setData(null);
       }
-      console.log("respnose", res);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setCols([]);
+      setRows([]);
+      setData(null);
     }
   };
+
   useEffect(() => {
     fetchData(Number(formId));
-  }, [formId]); // Include formId in the dependency array
+  }, [formId]);
 
   return (
     <div className="flex gap-2 items-center">
@@ -81,12 +73,12 @@ const FormsPicker = (props: any) => {
       <Select
         value={formId}
         onValueChange={(value) => {
-          router.push(pathname + "?" + createQueryString("formId", value));
-          fetchData(Number(value)); // Call fetchData with the newly selected formId
+          router.push(`${pathname}?${createQueryString("formId", value)}`);
+          fetchData(Number(value));
         }}
       >
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder={options[0].label} />
+          <SelectValue placeholder={options[0]?.label ?? "Select a form"} />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>

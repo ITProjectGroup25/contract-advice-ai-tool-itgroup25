@@ -1,4 +1,4 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, useCallback } from "react";
 import { useDrag } from "react-dnd";
 import {
   FormLayoutComponentChildrenType,
@@ -49,10 +49,19 @@ const ControlDragComponent: FunctionComponent<ControlDragComponentProps> = (
   ); // Need to add this dependency for dragging elements.
   const opacity = isDragging ? 0.4 : 1;
 
+  const setDragRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node) {
+        drag(node);
+      }
+    },
+    [drag]
+  );
+
   return (
     <>
       <div
-        ref={drag}
+        ref={setDragRef}
         style={{ opacity, cursor: "move" }}
         className="d-flex align-items-center justify-content-center btn btn-light btn-shadow w-100 my-2"
       >
@@ -68,3 +77,4 @@ const ControlDragComponent: FunctionComponent<ControlDragComponentProps> = (
 };
 
 export default ControlDragComponent;
+

@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -48,7 +47,6 @@ const FormList = (props: Props) => {
         >
           <CardHeader>
             <CardTitle className="font-normal">{form.name}</CardTitle>
-            <CardDescription>{form.description}</CardDescription>
           </CardHeader>
           <CardFooter className="flex justify-center">
             <Link className="w-1/2" href={`/forms/edit/${form.id}`}>
@@ -64,3 +62,4 @@ const FormList = (props: Props) => {
 };
 
 export default FormList;
+

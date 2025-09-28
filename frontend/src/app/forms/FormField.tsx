@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from "react";
+import { ChangeEvent } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -7,13 +7,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FormControl, FormLabel } from "@/components/ui/form";
+import { FormControl } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { QuestionSelectModel } from "@shared";
-import { FieldOptionSelectModel } from "@shared";
+import { QuestionSelectModel, FieldOptionSelectModel } from "@shared";
 import { Label } from "@/components/ui/label";
+
+type SupportedFieldType = "Input" | "Switch" | "Textarea" | "Select" | "RadioGroup";
 
 type Props = {
   element: QuestionSelectModel & {
@@ -23,70 +24,82 @@ type Props = {
   onChange: (value?: string | ChangeEvent<HTMLInputElement>) => void;
 };
 
-const FormField = ({ element, value, onChange }: Props) => {
-  if (!element) return null;
-
-  const components = {
-    Input: () => <Input type="text" onChange={onChange} />,
-
-    Switch: () => (
-      <Switch
-        onCheckedChange={(checked: boolean) => {
-          onChange(checked ? "true" : "false");
-        }}
-      />
-    ),
-
-    Textarea: () => (
-      <Textarea
-        onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-          onChange(e.target.value)
-        }
-      />
-    ),
-
-    Select: () => (
-      <Select onValueChange={onChange}>
-        <SelectTrigger>
-          <SelectValue>Select an option</SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {element.fieldOptions.map((option, index) => (
-            <SelectItem
-              key={`${option.text} ${option.value}`}
+const components: Record<SupportedFieldType, (params: Props) => JSX.Element> = {
+  Input: ({ onChange }) => <Input type="text" onChange={onChange} />,
+  Switch: ({ onChange }) => (
+    <Switch
+      onCheckedChange={(checked: boolean) => {
+        onChange(checked ? "true" : "false");
+      }}
+    />
+  ),
+  Textarea: ({ onChange }) => (
+    <Textarea
+      onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+        onChange(event.target.value)
+      }
+    />
+  ),
+  Select: ({ element, onChange }) => (
+    <Select onValueChange={(value) => onChange(value)}>
+      <SelectTrigger>
+        <SelectValue placeholder="Select an option" />
+      </SelectTrigger>
+      <SelectContent>
+        {element.fieldOptions.map((option) => (
+          <SelectItem
+            key={`${option.text}_${option.id}`}
+            value={`answerId_${option.id}`}
+          >
+            {option.text}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  ),
+  RadioGroup: ({ element, onChange }) => (
+    <RadioGroup onValueChange={(value) => onChange(value)}>
+      {element.fieldOptions.map((option) => (
+        <div
+          key={`${option.text}_${option.id}`}
+          className="flex items-center space-x-2"
+        >
+          <FormControl>
+            <RadioGroupItem
               value={`answerId_${option.id}`}
+              id={option?.value?.toString() || `answerId_${option.id}`}
             >
               {option.text}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    ),
-    RadioGroup: () => (
-      <RadioGroup onValueChange={onChange}>
-        {element.fieldOptions.map((option, index) => (
-          <div
-            key={`${option.text} ${option.value}`}
-            className="flex items-center space-x-2"
-          >
-            <FormControl>
-              <RadioGroupItem
-                value={`answerId_${option.id}`}
-                id={option?.value?.toString() || `answerId_${option.id}`}
-              >
-                {option.text}
-              </RadioGroupItem>
-            </FormControl>
-            <Label className="text-base">{option.text}</Label>
-          </div>
-        ))}
-      </RadioGroup>
-    ),
-  };
+            </RadioGroupItem>
+          </FormControl>
+          <Label className="text-base">{option.text}</Label>
+        </div>
+      ))}
+    </RadioGroup>
+  ),
+};
 
-  return element.fieldType && components[element.fieldType]
-    ? components[element.fieldType]()
-    : null;
+const isSupportedFieldType = (
+  value: QuestionSelectModel["fieldType"],
+): value is SupportedFieldType => {
+  return value === "Input" ||
+    value === "Switch" ||
+    value === "Textarea" ||
+    value === "Select" ||
+    value === "RadioGroup";
+};
+
+const FormField = ({ element, value, onChange }: Props) => {
+  if (!element || !element.fieldType) {
+    return null;
+  }
+
+  if (!isSupportedFieldType(element.fieldType)) {
+    return null;
+  }
+
+  const Component = components[element.fieldType];
+  return <Component element={element} value={value} onChange={onChange} />;
 };
 
 export default FormField;

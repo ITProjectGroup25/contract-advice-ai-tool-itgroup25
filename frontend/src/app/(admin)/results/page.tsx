@@ -1,39 +1,38 @@
 "use client";
 
 import { getUserForms } from "@/app/actions/getUserForms";
-import { NextUIProvider, TableProps } from "@nextui-org/react";
+import { NextUIProvider } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import FormsPicker from "./FormPicker";
 import Res from "./Res";
+import type {
+  SubmissionColumn,
+  SubmissionRow,
+  SubmissionTable,
+} from "./types";
 
-type Props = {};
+type FormSelectOption = {
+  label: string;
+  value: number;
+};
 
-type Question = any;
-
-type FormSubmission = any;
-
-const Page = (props: Props) => {
-  const [selectOptions, setSelectOptions] = useState<
-    { label: string; value: number }[]
-  >([]);
-  const [data, setData] = useState<TableProps | null>(null);
-  const [cols, setCols] = useState<Question[] | null>(null);
-  const [rows, setRows] = useState<FormSubmission[] | null>(null);
+const Page = () => {
+  const [selectOptions, setSelectOptions] = useState<FormSelectOption[]>([]);
+  const [data, setData] = useState<SubmissionTable | null>(null);
+  const [cols, setCols] = useState<SubmissionColumn[]>([]);
+  const [rows, setRows] = useState<SubmissionRow[]>([]);
 
   useEffect(() => {
     const fetchForms = async () => {
       try {
         const userForms = await getUserForms();
-        const options: { label: string; value: number }[] = userForms
-          .filter((form) => form.name !== null) // Filter out forms with null names
-          .map((form) => ({
-            label: form.name!,
-            value: form.id,
-          }));
+        const options = userForms.map((form) => ({
+          label: form.name ?? `Form ${form.id}`,
+          value: form.id,
+        }));
         setSelectOptions(options);
-        console.log("userForms", userForms);
       } catch (err) {
-        console.log(err);
+        console.error("Failed to load forms", err);
       }
     };
 

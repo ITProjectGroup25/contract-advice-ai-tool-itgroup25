@@ -1,4 +1,5 @@
 import { generateID } from "./common";
+import type { FormLayoutComponentChildrenType, FormLayoutComponentContainerType } from "../types/FormTemplateTypes";
 
 export const FormControlNames = {
   STEPCONTAINER: "step-container",
@@ -33,7 +34,7 @@ export const FormPublishStatus = {
   PUBLISHED: "published",
 };
 
-export const FormContainerList = [
+export const FormContainerList: FormLayoutComponentContainerType[] = [
   {
     id: '',
     controlName: FormControlNames.STEPCONTAINER,
@@ -45,7 +46,7 @@ export const FormContainerList = [
   },
 ];
 
-export const FormControlList = [
+export const FormControlList: FormLayoutComponentChildrenType[] = [
   {
     id: '',
     controlName: FormControlNames.INPUTTEXTFIELD,
