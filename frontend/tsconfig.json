@@ -21,7 +21,14 @@
     ],
     "paths": {
       "@/*": [
-        "./src/*"
+        "./src/*",
+        "./src/app/*"
+      ],
+      "@backend": [
+        "../backend/src"
+      ],
+      "@backend/*": [
+        "../backend/src/*"
       ],
       "@shared": [
         "../shared/src"
@@ -38,6 +45,9 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/main.tsx",
+    "src/vite.config.ts",
+    "src/package.json"
   ]
 }
