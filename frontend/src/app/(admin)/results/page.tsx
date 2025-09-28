@@ -1,6 +1,5 @@
 "use client";
 
-import { getUserForms } from "@/app/actions/getUserForms";
 import { NextUIProvider } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import FormsPicker from "./FormPicker";
@@ -23,13 +22,28 @@ const Page = () => {
   const [rows, setRows] = useState<SubmissionRow[]>([]);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchForms = async () => {
       try {
-        const userForms = await getUserForms();
-        const options = userForms.map((form) => ({
+        const response = await fetch("/api/forms", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const payload = (await response.json()) as {
+          forms?: Array<{ id: number; name: string | null }>;
+        };
+
+        if (!isMounted) {
+          return;
+        }
+
+        const options = (payload.forms ?? []).map((form) => ({
           label: form.name ?? `Form ${form.id}`,
           value: form.id,
         }));
+
         setSelectOptions(options);
       } catch (err) {
         console.error("Failed to load forms", err);
@@ -37,6 +51,10 @@ const Page = () => {
     };
 
     fetchForms();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (

@@ -45,10 +45,46 @@ const DEFAULT_GRANT_TEAM_TEMPLATE_ID = 'template_grant_team';
 const GRANT_TEAM_EMAIL_STORAGE_KEY = 'grant_team_email';
 const GRANT_TEAM_TEMPLATE_ID_STORAGE_KEY = 'grant_team_template_id';
 
+const isBrowser = typeof window !== "undefined";
+
+const safeGetItem = (key: string): string | null => {
+  if (!isBrowser) {
+    return null;
+  }
+  try {
+    return window.localStorage.getItem(key);
+  } catch (error) {
+    console.warn(`Failed to read ${key} from localStorage:`, error);
+    return null;
+  }
+};
+
+const safeSetItem = (key: string, value: string) => {
+  if (!isBrowser) {
+    return;
+  }
+  try {
+    window.localStorage.setItem(key, value);
+  } catch (error) {
+    console.error(`Failed to write ${key} to localStorage:`, error);
+  }
+};
+
+const safeRemoveItem = (key: string) => {
+  if (!isBrowser) {
+    return;
+  }
+  try {
+    window.localStorage.removeItem(key);
+  } catch (error) {
+    console.warn(`Failed to remove ${key} from localStorage:`, error);
+  }
+};
+
 // Get current service ID from localStorage or use default
 function getCurrentServiceId(): string {
   try {
-    const stored = localStorage.getItem(SERVICE_ID_STORAGE_KEY);
+    const stored = safeGetItem(SERVICE_ID_STORAGE_KEY);
     return stored || DEFAULT_SERVICE_ID;
   } catch (error) {
     console.warn('Failed to read service ID from localStorage:', error);
@@ -59,7 +95,7 @@ function getCurrentServiceId(): string {
 // Save service ID to localStorage
 function saveServiceId(serviceId: string): void {
   try {
-    localStorage.setItem(SERVICE_ID_STORAGE_KEY, serviceId);
+    safeSetItem(SERVICE_ID_STORAGE_KEY, serviceId);
     console.log('📧 Service ID saved to localStorage:', serviceId);
   } catch (error) {
     console.error('Failed to save service ID to localStorage:', error);
@@ -69,7 +105,7 @@ function saveServiceId(serviceId: string): void {
 // Get current template ID from localStorage or use default
 function getCurrentTemplateId(): string {
   try {
-    const stored = localStorage.getItem(TEMPLATE_ID_STORAGE_KEY);
+    const stored = safeGetItem(TEMPLATE_ID_STORAGE_KEY);
     return stored || DEFAULT_TEMPLATE_ID;
   } catch (error) {
     console.warn('Failed to read template ID from localStorage:', error);
@@ -80,7 +116,7 @@ function getCurrentTemplateId(): string {
 // Save template ID to localStorage
 function saveTemplateId(templateId: string): void {
   try {
-    localStorage.setItem(TEMPLATE_ID_STORAGE_KEY, templateId);
+    safeSetItem(TEMPLATE_ID_STORAGE_KEY, templateId);
     console.log('📧 Template ID saved to localStorage:', templateId);
   } catch (error) {
     console.error('Failed to save template ID to localStorage:', error);
@@ -90,7 +126,7 @@ function saveTemplateId(templateId: string): void {
 // Get current public key from localStorage or use default
 function getCurrentPublicKey(): string {
   try {
-    const stored = localStorage.getItem(PUBLIC_KEY_STORAGE_KEY);
+    const stored = safeGetItem(PUBLIC_KEY_STORAGE_KEY);
     return stored || DEFAULT_PUBLIC_KEY;
   } catch (error) {
     console.warn('Failed to read public key from localStorage:', error);
@@ -101,7 +137,7 @@ function getCurrentPublicKey(): string {
 // Save public key to localStorage
 function savePublicKey(publicKey: string): void {
   try {
-    localStorage.setItem(PUBLIC_KEY_STORAGE_KEY, publicKey);
+    safeSetItem(PUBLIC_KEY_STORAGE_KEY, publicKey);
     console.log('📧 Public Key saved to localStorage:', publicKey);
   } catch (error) {
     console.error('Failed to save public key to localStorage:', error);
@@ -111,7 +147,7 @@ function savePublicKey(publicKey: string): void {
 // Grant team email configuration functions
 function getCurrentGrantTeamEmail(): string {
   try {
-    const stored = localStorage.getItem(GRANT_TEAM_EMAIL_STORAGE_KEY);
+    const stored = safeGetItem(GRANT_TEAM_EMAIL_STORAGE_KEY);
     return stored || DEFAULT_GRANT_TEAM_EMAIL;
   } catch (error) {
     console.warn('Failed to read grant team email from localStorage:', error);
@@ -121,7 +157,7 @@ function getCurrentGrantTeamEmail(): string {
 
 function saveGrantTeamEmail(email: string): void {
   try {
-    localStorage.setItem(GRANT_TEAM_EMAIL_STORAGE_KEY, email);
+    safeSetItem(GRANT_TEAM_EMAIL_STORAGE_KEY, email);
     console.log('📧 Grant team email saved to localStorage:', email);
   } catch (error) {
     console.error('Failed to save grant team email to localStorage:', error);
@@ -130,7 +166,7 @@ function saveGrantTeamEmail(email: string): void {
 
 function getCurrentGrantTeamTemplateId(): string {
   try {
-    const stored = localStorage.getItem(GRANT_TEAM_TEMPLATE_ID_STORAGE_KEY);
+    const stored = safeGetItem(GRANT_TEAM_TEMPLATE_ID_STORAGE_KEY);
     return stored || DEFAULT_GRANT_TEAM_TEMPLATE_ID;
   } catch (error) {
     console.warn('Failed to read grant team template ID from localStorage:', error);
@@ -140,7 +176,7 @@ function getCurrentGrantTeamTemplateId(): string {
 
 function saveGrantTeamTemplateId(templateId: string): void {
   try {
-    localStorage.setItem(GRANT_TEAM_TEMPLATE_ID_STORAGE_KEY, templateId);
+    safeSetItem(GRANT_TEAM_TEMPLATE_ID_STORAGE_KEY, templateId);
     console.log('📧 Grant team template ID saved to localStorage:', templateId);
   } catch (error) {
     console.error('Failed to save grant team template ID to localStorage:', error);
@@ -574,7 +610,7 @@ class EmailService {
         
         // Mark this configuration as invalid in localStorage
         try {
-          localStorage.setItem('emailjs_config_status', JSON.stringify({
+          safeSetItem('emailjs_config_status', JSON.stringify({
             isInvalid: true,
             lastError: error,
             timestamp: new Date().toISOString()
@@ -706,7 +742,7 @@ Template Variables Used:
   // Check if configuration was previously marked as invalid
   private isConfigurationInvalid(): boolean {
     try {
-      const status = localStorage.getItem('emailjs_config_status');
+      const status = safeGetItem('emailjs_config_status');
       if (status) {
         const statusData = JSON.parse(status);
         // Consider config invalid if marked as such within the last 24 hours
@@ -725,7 +761,7 @@ Template Variables Used:
   // Clear invalid configuration status
   clearInvalidStatus(): void {
     try {
-      localStorage.removeItem('emailjs_config_status');
+      safeRemoveItem('emailjs_config_status');
     } catch (error) {
       console.warn('Failed to clear invalid status:', error);
     }
@@ -840,7 +876,9 @@ Template Variables Used:
 export const emailService = new EmailService();
 
 // Auto-initialize when module loads
-emailService.initialize();
+if (typeof window !== "undefined") {
+  emailService.initialize();
+}
 
 // Export template for easy setup
 export const emailTemplate = emailService.generateEmailTemplate();
@@ -855,4 +893,5 @@ export {
   getCurrentGrantTeamTemplateId, saveGrantTeamTemplateId,
   getCurrentGrantTeamConfig
 };
+
 

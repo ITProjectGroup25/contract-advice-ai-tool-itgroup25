@@ -4,55 +4,47 @@ import { z } from "zod";
 import MainFormBuilder from "./form-builder-components/main-form-builder";
 import { TemplateSchema } from "./form-builder-components/types/FormTemplateTypes";
 
-type Props = {};
+export const dynamic = "force-dynamic";
 
-const page = async ({
-  params,
-}: {
+type PageParams = {
   params: {
-    formId: number;
+    formId: string;
   };
-}) => {
-  const formId = params.formId;
+};
 
-  if (!formId || formId == null) {
+const page = async ({ params }: PageParams) => {
+  const formId = Number(params.formId);
+
+  if (!Number.isInteger(formId)) {
     return <div>Form not Found!</div>;
   }
-
-  console.log(form.id);
-
-  console.log({ formId });
 
   const singleForm = await db.query.form.findFirst({
     where: eq(form.id, formId),
   });
 
-  console.log({ singleForm });
+  if (!singleForm) {
+    return <div>Form not Found!</div>;
+  }
 
   const formData = await db.query.formDetails.findFirst({
     where: eq(formDetails.formId, formId),
   });
 
-  console.log({ formData });
-
-  const formFields = z.string().parse(formData?.formFields);
-
-  console.log({ formFields });
+  const formFields = formData?.formFields
+    ? z.string().parse(formData.formFields)
+    : "[]";
 
   const formTemplate = {
-    formName: singleForm?.name!,
-    id: singleForm?.id!,
-    createdAt: singleForm?.createdAt!,
+    formName: singleForm.name ?? "Untitled Form",
+    id: singleForm.id,
+    createdAt: singleForm.createdAt,
     formLayoutComponents: JSON.parse(formFields),
     publishHistory: [],
     creator: "",
   };
 
-  console.log({ formTemplate });
-
   const validatedFormTemplate = TemplateSchema.parse(formTemplate);
-
-  console.log({ validatedFormTemplate });
 
   return (
     <div>
@@ -62,4 +54,3 @@ const page = async ({
 };
 
 export default page;
-
