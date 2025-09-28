@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd .. && npm install && npm run build --workspace frontend",
+  "outputDirectory": ".next",
+  "installCommand": "cd .. && npm install",
+  "functions": {
+    "src/app/api/**/route.ts": {
+      "maxDuration": 35
+    }
+  }
+}
