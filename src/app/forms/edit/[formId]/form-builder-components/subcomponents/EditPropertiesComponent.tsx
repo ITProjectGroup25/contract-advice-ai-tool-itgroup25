@@ -5,6 +5,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   TextField,
 } from "@mui/material";
 import _ from "lodash";
@@ -70,6 +71,12 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const controlHeadings = listAllControlHeadings(selectedTemplate!);
 
   const [selectedControlHeading, setSelectedControlHeading] = useState("");
+
+  const [age, setAge] = React.useState("");
+
+  const handleChhange = (event: SelectChangeEvent) => {
+    setAge(event.target.value as string);
+  };
 
   useEffect(() => {
     if (selectedControl) {
@@ -260,50 +267,36 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                     <button onClick={() => console.log(selectedControlHeading)}>
                       Click MEEEEE
                     </button>
+
                     {!itemIsAlwaysVisible ? (
-                      <div className="m-t-20 p-l-0">
-                        <FormControl
-                          style={{ minWidth: "100%", marginBottom: 15 }}
+                      <FormControl fullWidth>
+                        <InputLabel>Visible when control</InputLabel>
+                        <Select
+                          value={selectedControlHeading}
+                          label="Age"
+                          onChange={(e) =>
+                            setSelectedControlHeading(e.target.value)
+                          }
                         >
-                          <InputLabel>
-                            {selectedControlHeading ?? "Visible when control"}
-                          </InputLabel>
-                          <Select
-                            labelId="visible-when-control-select-label"
-                            id="visible-when-control-select"
-                            value={selectedControlHeading ?? "FJEIOFJA"}
-                            label={
-                              selectedControlHeading ??
-                              "Visibefefef when control"
-                            }
-                          >
-                            {controlHeadings.length === 0 ? (
-                              <MenuItem value={selectedControlHeading ?? ""}>
-                                <em>There are no controls in your form</em>
-                              </MenuItem>
-                            ) : (
-                              <>
-                                <MenuItem value="Select a control"></MenuItem>
-                                {controlHeadings.map((controlHeading) => (
-                                  <MenuItem
-                                    key={controlHeading}
-                                    value={controlHeading}
-                                    onClick={() => {
-                                      console.log({ controlHeading });
-                                      setSelectedControlHeading(controlHeading);
-                                    }}
-                                  >
-                                    {controlHeading}
-                                  </MenuItem>
-                                ))}
-                              </>
-                            )}
-                          </Select>
-                        </FormControl>
-                      </div>
-                    ) : (
-                      ""
-                    )}
+                          {controlHeadings.length === 0 ? (
+                            <MenuItem value="">
+                              <em>There are no controls in your form</em>
+                            </MenuItem>
+                          ) : null}
+                          <MenuItem value="">
+                            <em>Select a control</em>
+                          </MenuItem>
+                          {controlHeadings.map((controlHeading) => (
+                            <MenuItem
+                              key={controlHeading}
+                              value={controlHeading}
+                            >
+                              {controlHeading}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    ) : null}
                   </div>
                 </form>
               </div>
