@@ -105,6 +105,19 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
           (selectedControl as FormLayoutComponentChildrenType).alwaysVisible!
         );
       }
+      if (selectedControl.hasOwnProperty("selectedControlHeading")) {
+        setSelectedControlHeading(
+          (selectedControl as FormLayoutComponentContainerType)
+            .selectedControlHeading!
+        );
+      }
+
+      if (selectedControl.hasOwnProperty("selectedControlOption")) {
+        setSelectedControlOption(
+          (selectedControl as FormLayoutComponentContainerType)
+            .selectedControlOption!
+        );
+      }
     }
   }, [selectedControl]);
 
