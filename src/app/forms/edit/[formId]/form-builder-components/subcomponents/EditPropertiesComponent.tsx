@@ -185,6 +185,28 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     console.log({ updatedItem });
   };
 
+  const handleSetSelectedControlHeading = (e: any) => {
+    const heading = e.target.value;
+
+    setSelectedControlHeading(heading);
+
+    setUpdatedItem((prevState) => ({
+      ...prevState,
+      selectedControlHeading: heading,
+    }));
+  };
+
+  const handleSetSelectedControloption = (e: any) => {
+    const optionName = e.target.value;
+
+    setSelectedControlOption(optionName);
+
+    setUpdatedItem((prevState) => ({
+      ...prevState,
+      selectedControlOption: optionName,
+    }));
+  };
+
   const onFormSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     editControlProperties(updatedItem as FormLayoutComponentChildrenType);
@@ -277,9 +299,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                         <Select
                           value={selectedControlHeading}
                           label="Age"
-                          onChange={(e) =>
-                            setSelectedControlHeading(e.target.value)
-                          }
+                          onChange={handleSetSelectedControlHeading}
                         >
                           {controlDisplayNames.length === 0 ? (
                             <MenuItem value="">
@@ -309,9 +329,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                         <Select
                           value={selectedControlOption}
                           label="control-options"
-                          onChange={(e) =>
-                            setSelectedControlOption(e.target.value)
-                          }
+                          onChange={handleSetSelectedControloption}
                         >
                           {controlOptions.length === 0 ? (
                             <MenuItem value="">
