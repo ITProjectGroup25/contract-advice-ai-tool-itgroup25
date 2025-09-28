@@ -265,11 +265,16 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                         <FormControl
                           style={{ minWidth: "100%", marginBottom: 15 }}
                         >
-                          <InputLabel>Visible when control</InputLabel>
+                          <InputLabel>
+                            {selectedControlHeading ?? "Visible when control"}
+                          </InputLabel>
                           <Select
-                            value={selectedControlHeading ?? ""}
+                            labelId="visible-when-control-select-label"
+                            id="visible-when-control-select"
+                            value={selectedControlHeading ?? "FJEIOFJA"}
                             label={
-                              selectedControlHeading ?? "Visible when control"
+                              selectedControlHeading ??
+                              "Visibefefef when control"
                             }
                           >
                             {controlHeadings.length === 0 ? (
