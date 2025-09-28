@@ -4,7 +4,8 @@ import {
   FormLayoutComponentChildrenType,
   FormLayoutComponentContainerType,
 } from "@/app/forms/edit/[formId]/form-builder-components/types/FormTemplateTypes";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Card, CardContent, Typography } from "@mui/material";
+import { User } from "lucide-react";
 import React, { useState } from "react";
 import { renderField } from "./control-field-renderer";
 
@@ -51,6 +52,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
   // Field Renderer Function
 
   // Step Renderer Function
+
   const renderStep = (
     container: FormLayoutComponentContainerType,
     children: FormLayoutComponentChildrenType[],
@@ -59,29 +61,29 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     if (!isVisible) return null;
 
     return (
-      <Paper elevation={2} sx={{ p: 3, mb: 3 }} key={container.id}>
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h5" gutterBottom>
-            {container.heading}
-          </Typography>
-          {container.subHeading && (
-            <Typography variant="body1" color="text.secondary" gutterBottom>
-              {container.subHeading}
-            </Typography>
-          )}
-        </Box>
+      <Card className="border border-gray-200 bg-white">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <User className="w-5 h-5 text-gray-600" />
+            <h2 className="text-lg font-medium text-gray-900">
+              {container.heading}
+            </h2>
+          </div>
 
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          {container.subHeading ? (
+            <p className="text-sm text-gray-600 mb-6">{container.subHeading}</p>
+          ) : null}
+
           {children.map((field) => (
             <Box key={field.id}>
               {renderField(field, formData[field.id], (value) =>
-                //   @ts-ignore
+                // @ts-ignore
                 handleFieldChange(field.id, value)
               )}
             </Box>
           ))}
-        </Box>
-      </Paper>
+        </CardContent>
+      </Card>
     );
   };
 
