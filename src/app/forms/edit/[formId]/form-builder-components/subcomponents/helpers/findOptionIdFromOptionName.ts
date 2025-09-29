@@ -6,8 +6,9 @@ type Args = {
 };
 
 /**
- * Finds the option ID from the given optionName by traversing the form template.
- * Returns the option ID if found, otherwise returns an empty string.
+ * Finds the option ID from a given optionName by traversing the form template.
+ * Matches against the `label` field of child.items.
+ * Returns the option ID as a string if found, otherwise "".
  */
 const findOptionIdFromOptionName = ({
   optionName,
@@ -16,7 +17,7 @@ const findOptionIdFromOptionName = ({
   for (const comp of formTemplate.formLayoutComponents) {
     for (const child of comp.children) {
       if (child.items) {
-        const option = child.items.find((opt) => opt.value === optionName);
+        const option = child.items.find((opt) => opt.label === optionName);
         if (option) {
           return String(option.id);
         }
@@ -26,4 +27,4 @@ const findOptionIdFromOptionName = ({
   return "";
 };
 
-export default findOptionIdFromOptionName;
+export default findOptionIdFromOptionName

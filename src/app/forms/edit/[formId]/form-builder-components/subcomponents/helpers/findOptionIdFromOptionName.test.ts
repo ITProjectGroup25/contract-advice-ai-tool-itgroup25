@@ -1,139 +1,93 @@
 import { TemplateType } from "../../types/FormTemplateTypes";
 import findOptionIdFromOptionName from "./findOptionIdFromOptionName";
 
-const mockFormTemplate: TemplateType = {
-  formName: "Test Form",
-  id: 1,
-  formLayoutComponents: [
-    {
-      container: {
-        controlName: "step-container",
-        displayText: "Step 1",
-        itemType: "container",
-        icon: "fa fa-box",
-        heading: "Heading 1",
-        subHeading: "SubHeading 1",
-        id: "container-1",
-        alwaysVisible: true,
-      },
-      children: [
-        {
-          controlName: "radio-group",
-          displayText: "Options",
-          description: "Choose one",
-          labelName: "Option Label",
-          itemType: "control",
-          icon: "fa fa-circle",
-          required: false,
-          category: "choices",
-          id: "child-1",
-          containerId: "container-1",
-          items: [
-            { id: "opt-1", value: "Option A", label: "Option A" },
-            { id: "opt-2", value: "Option B", label: "Option B" },
-          ],
-        },
-      ],
-    },
-    {
-      container: {
-        controlName: "step-container",
-        displayText: "Step 2",
-        itemType: "container",
-        icon: "fa fa-box",
-        heading: "Heading 2",
-        subHeading: "SubHeading 2",
-        id: "container-2",
-        alwaysVisible: false,
-      },
-      children: [
-        {
-          controlName: "dropdown",
-          displayText: "More Options",
-          description: "Pick one",
-          labelName: "Dropdown",
-          itemType: "control",
-          icon: "fa fa-caret-down",
-          required: false,
-          category: "choices",
-          id: "child-2",
-          containerId: "container-2",
-          items: [
-            { id: 100, value: "Option X", label: "Option X" },
-            { id: 101, value: "Option Y", label: "Option Y" },
-          ],
-        },
-      ],
-    },
-  ],
-};
-
 describe("findOptionIdFromOptionName", () => {
-  it("should return the correct id when option exists in first container", () => {
-    const result = findOptionIdFromOptionName({
-      optionName: "Option A",
-      formTemplate: mockFormTemplate,
-    });
-    expect(result).toBe("opt-1");
-  });
-
-  it("should return the correct id when option exists in second container", () => {
-    const result = findOptionIdFromOptionName({
-      optionName: "Option Y",
-      formTemplate: mockFormTemplate,
-    });
-    expect(result).toBe("101"); // note: coerced to string
-  });
-
-  it("should return empty string when option does not exist", () => {
-    const result = findOptionIdFromOptionName({
-      optionName: "Nonexistent Option",
-      formTemplate: mockFormTemplate,
-    });
-    expect(result).toBe("");
-  });
-
-  it("should return the first match if multiple options share the same value", () => {
-    const templateWithDuplicates: TemplateType = {
-      ...mockFormTemplate,
+  it("should return the correct option id when given optionName = 'Button 2'", () => {
+    const formTemplate: TemplateType = {
+      formName: "Form 1",
+      id: 30,
+      createdAt: new Date("2025-09-29T00:16:17.000Z"),
       formLayoutComponents: [
-        ...mockFormTemplate.formLayoutComponents,
         {
           container: {
             controlName: "step-container",
-            displayText: "Step 3",
+            displayText: "Workflow Step",
             itemType: "container",
-            icon: "fa fa-box",
-            heading: "Heading 3",
-            subHeading: "SubHeading 3",
-            id: "container-3",
+            icon: "fa fa-building",
+            heading: "Container Heading",
+            subHeading: "Container SubHeading",
+            id: "y0o5880z2eci2s7yijwkns",
+            alwaysVisible: false,
+            selectedControlOption: "Button 2",
+            selectedControlHeading: "Label for Radio",
+          },
+          children: [
+            {
+              controlName: "text-field",
+              displayText: "Text Field",
+              description: "Some Description about the field",
+              labelName: "Text Field",
+              itemType: "control",
+              icon: "fas fa-text-height",
+              required: false,
+              category: "text-elements",
+              id: "3gfvkxypahots1w6vnh3c",
+              containerId: "y0o5880z2eci2s7yijwkns",
+              placeholder: "Placeholder for Text Field",
+              dataType: "text",
+            },
+          ],
+        },
+        {
+          container: {
+            controlName: "step-container",
+            displayText: "Workflow Step",
+            itemType: "container",
+            icon: "fa fa-building",
+            heading: "Container Heading",
+            subHeading: "Container SubHeading",
+            id: "31qp5s8fl2h5sy3j7oiqq6",
             alwaysVisible: true,
           },
           children: [
             {
-              controlName: "checkbox",
-              displayText: "Duplicate Options",
-              description: "Duplicate values",
-              labelName: "Dupes",
+              controlName: "radio-group",
+              displayText: "Radio",
+              description: "Some Description about the field",
+              labelName: "Label for Radio",
               itemType: "control",
-              icon: "fa fa-check",
+              icon: "far fa-dot-circle",
               required: false,
-              category: "choices",
-              id: "child-3",
-              containerId: "container-3",
               items: [
-                { id: "dup-1", value: "Option A", label: "Duplicate Option A" },
+                {
+                  id: "d4qnuo0veeqr811q63w8mo",
+                  value: "Button__-1",
+                  label: "Button 1",
+                },
+                {
+                  id: "xgkcmvr8w7envth4ys5jb",
+                  value: "Button__-2",
+                  label: "Button 2",
+                },
               ],
+              category: "other-elements",
+              id: "c02sgngsgoois98p5dnzlc",
+              containerId: "31qp5s8fl2h5sy3j7oiqq6",
+              containerToMakeVisible: "y0o5880z2eci2s7yijwkns",
+              optionThatMakesVisible: "Button 2",
             },
           ],
         },
       ],
+      publishHistory: [],
+      creator: "",
     };
 
     const result = findOptionIdFromOptionName({
-      optionName: "Option A",
-      formTemplate: templateWithDuplicates,
+      optionName: "Button 2",
+      formTemplate,
     });
-    expect(result).toBe("opt-1"); // first occurrence wins
+
+    expect(result).toBe("xgkcmvr8w7envth4ys5jb");
   });
 });

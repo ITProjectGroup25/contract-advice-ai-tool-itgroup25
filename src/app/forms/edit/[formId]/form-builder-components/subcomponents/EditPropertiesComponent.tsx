@@ -18,6 +18,7 @@ import {
 } from "../types/FormTemplateTypes";
 import { FormControlNames, FormItemTypes } from "../utils/formBuilderUtils";
 import ManageItemsListComponent from "./ManageItemsListComponent";
+import findOptionIdFromOptionName from "./helpers/findOptionIdFromOptionName";
 import listAllControlDisplayNames from "./helpers/listAllControlDisplayNames";
 import retrieveOptionsFromControl from "./helpers/retrieveOptionsFromControl";
 import searchForTargetedControl from "./helpers/searchForTargetedControl";
@@ -81,6 +82,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   });
 
   const [selectedControlOption, setSelectedControlOption] = useState("");
+  const [selectedControlOptionId, setSelectedControlOptionId] = useState("");
 
   const [targetControl, setTargetControl] =
     useState<FormLayoutComponentChildrenType>();
@@ -221,8 +223,16 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   };
 
   const handleSetSelectedControlOption = (e: any) => {
+    console.log({ e });
     const optionName = e.target.value;
-    const optionId = ''
+    const optionId = findOptionIdFromOptionName({
+      optionName,
+      formTemplate: selectedTemplate!,
+    });
+
+    console.log({ selectedTemplate });
+
+    console.log({ optionId });
 
     console.log({ optionName });
 

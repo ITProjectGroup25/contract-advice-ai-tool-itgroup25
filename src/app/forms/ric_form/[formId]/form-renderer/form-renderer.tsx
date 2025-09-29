@@ -37,8 +37,8 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     }>
   >(initialVisibleSteps);
 
-  const handleFieldChange = (fieldId: string, value: any) => {
-    console.log({ fieldId, value });
+  const handleFieldChange = (fieldId: string, value: any, field: any) => {
+    console.log({ fieldId, value, field });
     setFormData((prev) => ({ ...prev, [fieldId]: value }));
   };
 
@@ -70,7 +70,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
               field,
               formData[field.id],
               // @ts-ignore
-              (value) => handleFieldChange(field.id, value)
+              (value) => handleFieldChange(field.id, value, field)
             );
           })}
         </CardContent>
