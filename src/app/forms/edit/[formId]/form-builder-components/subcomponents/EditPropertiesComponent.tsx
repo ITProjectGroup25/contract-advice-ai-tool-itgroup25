@@ -81,6 +81,8 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
 
   const [selectedControlOption, setSelectedControlOption] = useState("");
 
+  // const targetedControl = 
+
   useEffect(() => {
     if (selectedControl) {
       if ((selectedControl as FormLayoutComponentChildrenType).items) {
