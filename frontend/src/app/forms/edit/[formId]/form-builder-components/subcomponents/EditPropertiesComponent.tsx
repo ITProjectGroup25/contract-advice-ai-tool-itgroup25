@@ -107,10 +107,9 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   };
 
   const addItemInList = (item: FormLayoutComponentChildrenItemsType) => {
-    const newItems = _.cloneDeep(
-      (updatedItem as FormLayoutComponentChildrenType).items
-    );
-    newItems.push(item);
+    const currentItems =
+      _.cloneDeep((updatedItem as FormLayoutComponentChildrenType).items) ?? [];
+    const newItems = [...currentItems, item];
     setUpdatedItem((prevState) => ({
       ...prevState,
       items: newItems,
@@ -118,25 +117,26 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   };
 
   const deleteItemFromList = (item: FormLayoutComponentChildrenItemsType) => {
-    const newItems = (
-      updatedItem as FormLayoutComponentChildrenType
-    ).items?.filter((i) => i.id !== item.id);
+    const existingItems =
+      _.cloneDeep((updatedItem as FormLayoutComponentChildrenType).items) ?? [];
+    const filteredItems = existingItems.filter((existingItem) => existingItem.id !== item.id);
     setUpdatedItem((prevState) => ({
       ...prevState,
-      items: newItems,
+      items: filteredItems,
     }));
   };
 
   const editIteminList = (item: FormLayoutComponentChildrenItemsType) => {
-    const newItems: FormLayoutComponentChildrenItemsType[] = _.cloneDeep(
-      (updatedItem as FormLayoutComponentChildrenType).items
+    const clonedItems =
+      _.cloneDeep((updatedItem as FormLayoutComponentChildrenType).items) ?? [];
+    const updatedItems = clonedItems.map((existingItem) =>
+      existingItem.id === item.id
+        ? { ...existingItem, value: item.value, label: item.label }
+        : existingItem
     );
-    const itemToBeReplaced = newItems.filter((i) => i.id === item.id)[0];
-    itemToBeReplaced.value = item.value;
-    itemToBeReplaced.label = item.label;
     setUpdatedItem((prevState) => ({
       ...prevState,
-      items: newItems,
+      items: updatedItems,
     }));
   };
 
@@ -453,3 +453,4 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
 };
 
 export default EditPropertiesComponent;
+

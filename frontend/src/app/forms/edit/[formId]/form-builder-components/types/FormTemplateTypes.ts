@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // Leaf type
 export const FormLayoutComponentChildrenItemsSchema = z.object({
-  id: z.number(),
+  id: z.union([z.number(), z.string()]),
   value: z.string(),
   label: z.string(),
 });
@@ -77,3 +77,4 @@ export const TemplateSchema = z.object({
   creator: z.string().optional(),
 });
 export type TemplateType = z.infer<typeof TemplateSchema>;
+

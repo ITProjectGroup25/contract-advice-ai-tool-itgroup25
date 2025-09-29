@@ -19,90 +19,76 @@ import {
   FormWithQuestions,
   QuestionSelectModel,
 } from "@shared";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { PlusIcon } from "@radix-ui/react-icons";
-import { Loader, RefreshCcw, RotateCw, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { getCurrentForm } from "../actions/getUserForms";
+import { deleteForm } from "../actions/deleteForm";
 import FormField from "./FormField";
 import FormPublishSucces from "./FormPublishSucces";
-const API_KEY = process.env.GEMINI_API_KEY || "";
-
-const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 type Props = {
   form: FormWithQuestions;
   editMode?: boolean;
 };
 
-
-interface AllQuestionModel extends Array<string> {}
-
-
-const Form = (props: Props) => {
-  const [prompt, setPrompt] = useState<string>("");
-  const [allQuestions, setAllQuestions] = useState<any[]>([]);
-  const [currentFormId, setCurrentFormId] = useState({ formID: "", id: 0 });
-  const [addingNewFields, setAddingNewFields] = useState(false);
-  const [toatalQuestions, setTotalQuestions] = useState(0);
-  const [submittingForm, setSubmittingForm] = useState(false);
-
-  const { name, description, questions } = props.form;
-  const form = useForm();
-  const { editMode } = props;
+const Form = ({ form: formData, editMode = false }: Props) => {
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [deletingForm, setDeletingForm] = useState(false);
-  console.log("props", props);
+  const [submittingForm, setSubmittingForm] = useState(false);
+
+  const { name, description, questions, formID, id } = formData;
+  const form = useForm();
   const router = useRouter();
 
-  const onSubmit = async (data: any) => {
-    console.log(data);
-    if (editMode && props.form.formID !== null) {
-      await publishForm(props.form.formID);
+  const onSubmit = async (data: Record<string, unknown>) => {
+    if (editMode) {
       setSuccessDialogOpen(true);
-    } else {
-      setSubmittingForm(true);
-      let answers = [];
-      for (const [questionId, value] of Object.entries(data)) {
-        const id = parseInt(questionId.replace("question_", ""));
-        let fieldOptionsId = null;
-        let textValue = null;
+      return;
+    }
 
-        if (typeof value == "string" && value.includes("answerId_")) {
-          fieldOptionsId = parseInt(value.replace("answerId_", ""));
-        } else {
-          textValue = value as string;
-        }
+    setSubmittingForm(true);
 
-        answers.push({
-          questionId: id,
-          fieldOptionsId,
-          value: textValue,
-        });
+    const answers = Object.entries(data).map(([questionId, value]) => {
+      const idNumber = parseInt(questionId.replace("question_", ""), 10);
+
+      if (typeof value === "string" && value.includes("answerId_")) {
+        return {
+          questionId: idNumber,
+          fieldOptionsId: parseInt(value.replace("answerId_", ""), 10),
+          value: null as string | null,
+        };
       }
 
-      const baseUrl =
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      return {
+        questionId: idNumber,
+        fieldOptionsId: null as number | null,
+        value: typeof value === "string" ? value : null,
+      };
+    });
 
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+    try {
       const response = await fetch(`${baseUrl}/api/form/new`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ formId: props.form.id, answers }),
+        body: JSON.stringify({ formId: formData.id, answers }),
       });
-      console.log(response);
-      if (response.status === 200) {
-        router.push(`/forms/${props.form.formID}/success`);
-        // setSubmittingForm(false);
+
+      if (response.ok) {
+        router.push(`/forms/${formID}/success`);
       } else {
-        console.error("Error submitting form");
+        console.error("Error submitting form", await response.text());
         alert("Error submitting form. Please try again later");
-        setSubmittingForm(false);
       }
+    } catch (error) {
+      console.error("Error submitting form", error);
+      alert("Error submitting form. Please try again later");
+    } finally {
+      setSubmittingForm(false);
     }
   };
 
@@ -111,178 +97,93 @@ const Form = (props: Props) => {
   };
 
   const handleDeleteForm = async () => {
+    if (!editMode) {
+      return;
+    }
+
     try {
       setDeletingForm(true);
-      await deleteForm(props.form.formID || "");
+      await deleteForm({ id });
       router.push("/view-forms");
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.error("Failed to delete form", error);
     } finally {
       setDeletingForm(false);
     }
   };
 
-  const getCurrentFormInfo = async () => {
-    try {
-      const response = await getCurrentForm(props.form.formID || "");
-      if (response) {
-        setPrompt(response?.user_prompt || "");
-        const currentQuestions = response?.questions
-          .map((question) => question.text)
-          .filter(Boolean) as AllQuestionModel;
-        setAllQuestions(currentQuestions);
-        console.log("ALL QUE", response.questions.length);
-        setTotalQuestions(response.questions.length);
-        setCurrentFormId({ formID: response?.formID || "", id: response.id });
-        console.log("RESPONSE", response);
-      } else {
-        console.log("Form not found.");
-      }
-    } catch (err) {
-      console.log("Error occurred while fetching current form:", err);
-    }
-  };
-
-  console.log("CURENT FORM", currentFormId);
-
-  const handleAllMoreQuestions = async () => {
-    try {
-      setAddingNewFields(true);
-      const resp = await addMoreQuestion(
-        prompt,
-        currentFormId.id,
-        props.form.formID || "",
-        allQuestions.join(",")
-      );
-      if (resp !== undefined && resp !== null) {
-        setAllQuestions((prevQuestions) => [...prevQuestions, ...resp]);
-        setTotalQuestions(resp.length || 0);
-        router.refresh();
-        console.log(resp);
-        console.log("Response:", resp);
-      } else {
-        console.log("Response is undefined or null");
-      }
-      // setAllQuestions((prevQuestions) => [...prevQuestions, ...resp]);
-      // setTotalQuestions(resp?.length || 0);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setAddingNewFields(false);
-    }
-  };
-
-  useEffect(() => {
-    getCurrentFormInfo();
-  }, []);
-  console.log(allQuestions.length);
   return (
-    <div
-      className="text-center min-w-[320px] md:min-w-[540px] max-w-[620px] border px-8 py-4 rounded-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border-gray-100
-    "
-    >
+    <div className="text-center min-w-[320px] md:min-w-[540px] max-w-[620px] border px-8 py-4 rounded-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border-gray-100">
       <div className="hidden">
         <ThemeChange />
       </div>
       <div className="flex items-center justify-center gap-2">
         <h1 className="text-3xl font-semibold py-3 text-red">{name}</h1>
 
-        {editMode && !deletingForm && (
+        {editMode && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Trash2
-                  className="hover:text-red-900 hover:cursor-pointer"
+                <button
+                  type="button"
+                  className="text-inherit"
                   onClick={handleDeleteForm}
-                />
+                  disabled={deletingForm}
+                >
+                  {deletingForm ? (
+                    <span className="animate-spin">⏳</span>
+                  ) : (
+                    <Trash2 className="hover:text-red-900" />
+                  )}
+                </button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Delete this form!</p>
+                <p>Delete this form</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         )}
-
-        {editMode && deletingForm && <RotateCw className="animate-spin" />}
       </div>
 
-      <h3 className="text-md italic">{description}</h3>
+      {description && <h3 className="text-md italic">{description}</h3>}
+
       <FormComponent {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="grid w-full max-w-3xl items-center gap-6 my-4 text-left"
         >
-          {questions.map(
-            (question: QuestionSelectModel, index: number) => {
-              return (
-                <ShadcdnFormField
-                  control={form.control}
-                  name={`question_${question.id}`}
-                  key={`${question.text}_${index}`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex justify-around items-center">
-                        <FormLabel className="text-base mt-3 mr-3 flex-1">
-                          {index + 1}. {question.text}
-                        </FormLabel>
-                        {/* <Pencil
-                          size={20}
-                          className="hover:cursor-pointer"
-                          onClick={() => console.log(question)}
-                        /> */}
-                      </div>
-                      <FormControl>
-                        <FormField
-                          element={question}
-                          key={index}
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              );
-            }
-          )}
-          {editMode && toatalQuestions < 8 && (
-            <Button
-              onClick={handleAllMoreQuestions}
-              type="button"
-              variant="outline"
-              disabled={addingNewFields}
-            >
-              {!addingNewFields ? (
-                <>
-                  <PlusIcon className="mr-3 animate-ping" />
-                  Generate More Fields
-                </>
-              ) : (
-                <>
-                  <RefreshCcw className="mr-3 animate-spin" />
-                  Generating...
-                </>
+          {questions.map((question: QuestionSelectModel, index: number) => (
+            <ShadcdnFormField
+              control={form.control}
+              name={`question_${question.id}`}
+              key={`${question.text}_${question.id}`}
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex justify-around items-center">
+                    <FormLabel className="text-base mt-3 mr-3 flex-1">
+                      {index + 1}. {question.text}
+                    </FormLabel>
+                  </div>
+                  <FormControl>
+                    <FormField
+                      element={question}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
               )}
-            </Button>
-          )}
+            />
+          ))}
 
           <Button type="submit" disabled={submittingForm}>
-            {editMode ? (
-              "Publish"
-            ) : submittingForm ? (
-              <>
-                <Loader className="mr-3 animate-spin" />
-                Submitting
-              </>
-            ) : (
-              "Submit"
-            )}
+            {editMode ? "Publish" : submittingForm ? "Submitting" : "Submit"}
           </Button>
         </form>
       </FormComponent>
 
       <FormPublishSucces
-        formId={props.form.formID || ""}
+        formId={formID ?? ""}
         open={successDialogOpen}
         onOpenChange={handleDialogChange}
       />

@@ -13,15 +13,23 @@ import {
   TableRow,
 } from "@nextui-org/react";
 
-type Props = any;
+import type { SubmissionTable, SubmissionColumn, SubmissionRow } from "./types";
 
-const Res = ({ data, cols, rows }: Props) => {
+type ResultsProps = {
+  data: SubmissionTable | null;
+  cols: SubmissionColumn[];
+  rows: SubmissionRow[];
+};
+
+const Res = ({ data, cols, rows }: ResultsProps) => {
+  const hasData = Boolean(data?.columns.length && data.data.length);
+
   return (
     <div className="overflow-x-auto">
-      {data && cols && (
-        <Table aria-label="Example static collection table">
+      {hasData && (
+        <Table aria-label="Form submissions">
           <TableHeader columns={cols}>
-            {(column) => (
+            {(column: SubmissionColumn) => (
               <TableColumn key={column.text} className="font-semibold">
                 <TooltipProvider>
                   <Tooltip>
@@ -46,13 +54,13 @@ const Res = ({ data, cols, rows }: Props) => {
             )}
           </TableHeader>
           <TableBody>
-            {(rows || []).map((row, index) => (
+            {rows.map((row, index) => (
               <TableRow key={index}>
                 {row.answers.map((answer, idx) => (
                   <TableCell key={idx} className="font-light">
                     <div className="line-clamp-2">
                       {answer.value == null
-                        ? answer?.fieldOption?.text
+                        ? answer.fieldOption?.text ?? ""
                         : answer.value}
                     </div>
                   </TableCell>
@@ -67,3 +75,4 @@ const Res = ({ data, cols, rows }: Props) => {
 };
 
 export default Res;
+

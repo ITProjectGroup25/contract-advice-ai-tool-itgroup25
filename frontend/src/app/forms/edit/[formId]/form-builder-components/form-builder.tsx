@@ -62,12 +62,12 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
 
       // Convert your form layout/components into FormData
       const formData = new FormData();
-      formData.append("formName", selectedTemplate?.formName);
+      formData.append("formName", selectedTemplate?.formName ?? "");
       formData.append(
         "formLayoutComponents",
         JSON.stringify(formLayoutComponents)
       );
-      formData.append("id", selectedTemplate?.id);
+      formData.append("id", String(selectedTemplate?.id ?? ""));
 
       console.log({ formLayoutComponents });
 
@@ -232,3 +232,8 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
 };
 
 export default FormBuilder;
+
+
+
+
+

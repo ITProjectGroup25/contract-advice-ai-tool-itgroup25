@@ -3,9 +3,10 @@ import FormList from "@/app/forms/FormList";
 
 type Props = {};
 
+export const dynamic = "force-dynamic";
+
 const page = async (props: Props) => {
   const forms = await getUserForms();
-  console.log({ forms });
   return (
     <div>
       <h1 className="text-4xl font-normal px-4 m-5">My Forms</h1>
@@ -15,3 +16,5 @@ const page = async (props: Props) => {
 };
 
 export default page;
+
+

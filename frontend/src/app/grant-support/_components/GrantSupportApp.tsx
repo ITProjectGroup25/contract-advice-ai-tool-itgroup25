@@ -12,7 +12,7 @@ import { Toaster } from "./ui/sonner";
 import { Settings } from "lucide-react";
 import { defaultQuestions, defaultSections } from "../_data/defaultQuestions";
 
-type AppState = 'form' | 'simple-response' | 'success' | 'admin';
+type AppState = 'form' | 'simple-response' | 'success' | 'admin' | 'chatbot';
 
 export default function App() {
   const [currentState, setCurrentState] = useState<AppState>('form');

@@ -49,40 +49,41 @@ export function DynamicFormRenderer({
   }, [formValues, questions]);
 
   const isQuestionVisible = useCallback((question: Question, checkingStack: Set<string> = new Set()): boolean => {
-    // Prevent infinite recursion
     if (checkingStack.has(question.id)) {
       return false;
     }
-    
-    // Check query type visibility
+
+    const conditional = question.conditional;
+
+    if (!conditional) {
+      return true;
+    }
+
     const queryType = getQueryType();
-    if (question.conditional?.dependsOn === "query-type") {
-      return question.conditional.showWhen.includes(queryType);
+    if (conditional.dependsOn === "query-type") {
+      return conditional.showWhen.includes(queryType);
     }
 
-    // Check other conditional dependencies
-    if (question.conditional) {
-      const dependentValue = formValues[question.conditional.dependsOn];
-      
-      // First check if the question we depend on is itself visible
-      const dependentQuestion = questions.find(q => q.id === question.conditional.dependsOn);
-      if (dependentQuestion) {
-        checkingStack.add(question.id);
-        const isParentVisible = isQuestionVisible(dependentQuestion, checkingStack);
-        checkingStack.delete(question.id);
-        
-        if (!isParentVisible) {
-          return false;
-        }
+    const dependentValue = formValues[conditional.dependsOn];
+    const dependentQuestion = questions.find(
+      (candidate) => candidate.id === conditional.dependsOn,
+    );
+
+    if (dependentQuestion) {
+      checkingStack.add(question.id);
+      const isParentVisible = isQuestionVisible(dependentQuestion, checkingStack);
+      checkingStack.delete(question.id);
+
+      if (!isParentVisible) {
+        return false;
       }
-      
-      if (Array.isArray(dependentValue)) {
-        return question.conditional.showWhen.some(val => dependentValue.includes(val));
-      }
-      return question.conditional.showWhen.includes(dependentValue);
     }
 
-    return true;
+    if (Array.isArray(dependentValue)) {
+      return conditional.showWhen.some((value) => dependentValue.includes(value));
+    }
+
+    return conditional.showWhen.includes(dependentValue);
   }, [formValues, questions, getQueryType]);
 
   // Clear values for invisible questions
