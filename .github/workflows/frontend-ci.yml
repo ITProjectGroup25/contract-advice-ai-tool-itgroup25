@@ -56,7 +56,13 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
+      - name: Vercel pull (project & env)
+        working-directory: frontend
+        run: |
+          npx vercel pull --yes --environment=production --token ${{ secrets.VERCEL_TOKEN }}
+
       - name: Deploy to Vercel
+        working-directory: frontend
         run: |
           npx vercel deploy \
             --prod \
