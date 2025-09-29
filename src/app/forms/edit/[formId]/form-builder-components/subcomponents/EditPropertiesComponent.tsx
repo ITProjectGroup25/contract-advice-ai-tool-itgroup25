@@ -251,7 +251,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     const annotatedTargetControl = {
       ...targetControl,
       containerToMakeVisible: selectedControl?.id,
-      optionThatMakesVisible: optionName,
+      optionThatMakesVisible: optionId,
     };
 
     if (!targetControl) {

@@ -38,8 +38,13 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
   >(initialVisibleSteps);
 
   const handleFieldChange = (fieldId: string, value: any, field: any) => {
-    console.log({ fieldId, value, field });
     setFormData((prev) => ({ ...prev, [fieldId]: value }));
+    
+    const optionValueThatMakesVisible = field.items.find(
+      (item: { id: string }) => item.id === field.optionThatMakesVisible
+    ).value;
+
+    console.log({ optionValueThatMakesVisible });
   };
 
   // Step Renderer Function
