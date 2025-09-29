@@ -8,6 +8,7 @@ import { Box, Card, CardContent, Typography } from "@mui/material";
 import { User } from "lucide-react";
 import React, { useState } from "react";
 import { renderField } from "./control-field-renderer";
+import { retrieveVisibleSteps } from "./retrieveVisibleSteps/retrieveVisibleSteps";
 
 // Main Form Parser Component
 interface FormParserProps {
@@ -76,11 +77,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
   };
 
   // Filter visible steps
-  const visibleSteps = formTemplate.formLayoutComponents.filter(
-    (step) =>
-      step.container.alwaysVisible ||
-      currentStep === formTemplate.formLayoutComponents.indexOf(step)
-  );
+  const visibleSteps = retrieveVisibleSteps({ formTemplate });
 
   console.log({ visibleSteps });
 

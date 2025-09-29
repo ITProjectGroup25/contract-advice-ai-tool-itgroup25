@@ -50,6 +50,7 @@ export const renderField = (
     case FormControlNames.INPUTMULTILINE:
       return (
         <TextField
+          key={field.id}
           fullWidth
           multiline
           rows={field.rows || 4}
@@ -68,6 +69,7 @@ export const renderField = (
         <FormControlLabel
           control={
             <Checkbox
+              key={field.id}
               checked={value || false}
               onChange={(e) => onChange(e.target.checked)}
             />
@@ -78,7 +80,11 @@ export const renderField = (
 
     case FormControlNames.RADIOGROUP:
       return (
-        <FormControl component="fieldset" required={field.required}>
+        <FormControl
+          key={field.id}
+          component="fieldset"
+          required={field.required}
+        >
           <FormLabel component="legend">
             {field.labelName + (field.required ? " *" : "")}
           </FormLabel>
