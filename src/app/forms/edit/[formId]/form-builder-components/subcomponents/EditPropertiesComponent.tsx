@@ -214,7 +214,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     }));
   };
 
-  const handleSetSelectedControloption = (e: any) => {
+  const handleSetSelectedControlOption = (e: any) => {
     const optionName = e.target.value;
 
     console.log({ optionName });
@@ -230,6 +230,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const onFormSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     editControlProperties(updatedItem as FormLayoutComponentChildrenType);
+    
   };
 
   const onContainerFormSubmit: React.FormEventHandler<HTMLFormElement> = (
@@ -349,7 +350,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                         <Select
                           value={selectedControlOption}
                           label="control-options"
-                          onChange={handleSetSelectedControloption}
+                          onChange={handleSetSelectedControlOption}
                         >
                           {controlOptions.length === 0 ? (
                             <MenuItem value="">
