@@ -192,8 +192,8 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     const isVisible = e.currentTarget.checked;
     setItemIsAlwaysVisible(isVisible);
 
-    setSelectedControlHeading("");
     setSelectedControlOption("");
+    setSelectedControlHeading("");
 
     console.log({ isVisible });
 
@@ -263,6 +263,8 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
       updatedItem,
     });
     editContainerProperties(updatedItem as FormLayoutComponentContainerType);
+
+    console.log({ targetControl });
 
     if (targetControl) {
       editControlProperties(targetControl);

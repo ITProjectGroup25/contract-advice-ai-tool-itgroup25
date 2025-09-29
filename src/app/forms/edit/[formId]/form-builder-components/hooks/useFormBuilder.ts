@@ -108,22 +108,62 @@ const useFormBuilder = (props: useFormBuilderProps) => {
   };
 
   // Edit properties of the control from Sidebar
+  // const editControlProperties = (item: FormLayoutComponentChildrenType) => {
+  //   console.log({ formLayoutComponents });
+  //   console.log({ item });
+  //   const newState = formLayoutComponents.slice();
+  //   const formContainerId = newState.findIndex(
+  //     (comp) => comp.container.id === item.containerId
+  //   );
+  //   console.log({ formContainerId });
+  //   let formContainer = { ...newState[formContainerId] };
+  //   console.log({ formContainer });
+  //   formContainer.children.forEach((cont, ind) => {
+  //     if (cont.id === item.id) {
+  //       const newChildren = formContainer.children.slice();
+  //       newChildren[ind] = item;
+  //       formContainer.children = newChildren;
+  //       return;
+  //     }
+  //   });
+  //   console.log({ formContainer });
+  //   newState[formContainerId] = formContainer;
+  //   console.log({ newState });
+  //   setFormLayoutComponents(newState);
+  // };
   const editControlProperties = (item: FormLayoutComponentChildrenType) => {
-    const newState = formLayoutComponents.slice();
-    const formContainerId = newState.findIndex(
-      (comp) => comp.container.id === item.containerId
-    );
-    let formContainer = { ...newState[formContainerId] };
-    formContainer.children.forEach((cont, ind) => {
-      if (cont.id === item.id) {
-        const newChildren = formContainer.children.slice();
-        newChildren[ind] = item;
-        formContainer.children = newChildren;
-        return;
-      }
+    setFormLayoutComponents((prevFormLayoutComponents) => {
+      console.log({ prevFormLayoutComponents });
+      console.log({ item });
+
+      const newState = prevFormLayoutComponents.slice();
+      const formContainerId = newState.findIndex(
+        (comp) => comp.container.id === item.containerId
+      );
+
+      console.log({ formContainerId });
+
+      if (formContainerId === -1) return prevFormLayoutComponents; // container not found
+
+      const formContainer = { ...newState[formContainerId] };
+      console.log({ formContainer });
+
+      const childIndex = formContainer.children.findIndex(
+        (cont) => cont.id === item.id
+      );
+
+      if (childIndex === -1) return prevFormLayoutComponents; // child not found
+
+      const newChildren = formContainer.children.slice();
+      newChildren[childIndex] = item;
+
+      formContainer.children = newChildren;
+      newState[formContainerId] = formContainer;
+
+      console.log({ newState });
+
+      return newState;
     });
-    newState[formContainerId] = formContainer;
-    setFormLayoutComponents(newState);
   };
 
   // Edit properties of the container
