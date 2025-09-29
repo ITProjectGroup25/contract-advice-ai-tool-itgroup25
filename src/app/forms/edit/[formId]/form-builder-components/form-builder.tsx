@@ -45,7 +45,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
     selectedTemplate,
     formLayoutComponents,
     selectedControl,
-  } = useFormBuilder({ template: props.template });
+  } = useFormBuil54r5444der({ template: props.template });
 
   const router = useRouter();
 

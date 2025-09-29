@@ -81,7 +81,10 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
 
   const [selectedControlOption, setSelectedControlOption] = useState("");
 
-  // const targetedControl = 
+  const [targetControl, setTargetControl] =
+    useState<FormLayoutComponentChildrenType>();
+
+  // const targetedControl =
 
   useEffect(() => {
     if (selectedControl) {
@@ -232,7 +235,6 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const onFormSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     editControlProperties(updatedItem as FormLayoutComponentChildrenType);
-    
   };
 
   const onContainerFormSubmit: React.FormEventHandler<HTMLFormElement> = (
