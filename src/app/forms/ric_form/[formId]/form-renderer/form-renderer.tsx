@@ -61,11 +61,11 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     if (!isVisible) return null;
 
     return (
-      <Card className="border border-gray-200 bg-white">
-        <CardContent className="p-6">
+      <Card className="border border-gray-200 bg-white w-full">
+        <CardContent className="flex flex-col items-start p-6 w-full">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg font-medium text-gray-900">
+            <h2 className=" text-lg font-medium text-gray-900">
               {container.heading}
             </h2>
           </div>
@@ -74,14 +74,14 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
             <p className="text-sm text-gray-600 mb-6">{container.subHeading}</p>
           ) : null}
 
-          {children.map((field) => (
-            <Box key={field.id}>
-              {renderField(field, formData[field.id], (value) =>
-                // @ts-ignore
-                handleFieldChange(field.id, value)
-              )}
-            </Box>
-          ))}
+          {children.map((field) => {
+            return renderField(
+              field,
+              formData[field.id],
+              // @ts-ignore
+              (value) => handleFieldChange(field.id, value)
+            );
+          })}
         </CardContent>
       </Card>
     );

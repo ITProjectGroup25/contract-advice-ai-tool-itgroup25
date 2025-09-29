@@ -35,7 +35,6 @@ export const renderField = (
       return (
         <TextField
           type={field.dataType || "text"}
-          fullWidth
           label={field.labelName + (field.required ? " *" : "")}
           placeholder={field.placeholder}
           value={value || ""}
@@ -43,6 +42,7 @@ export const renderField = (
           required={field.required}
           helperText={field.description}
           variant="outlined"
+          fullWidth
         />
       );
 
