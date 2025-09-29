@@ -269,7 +269,7 @@ export function DynamicFormRenderer({
       if (!description) return null;
       
       // Check if description contains a URL
-      const urlPattern = /(https?:\/\/[^\s]+)/g;
+      const urlPattern = /((?:https?:)?\/\/[^\s)]+|\/[^\s)]+)/g;
       const parts = description.split(urlPattern);
       
       return (
