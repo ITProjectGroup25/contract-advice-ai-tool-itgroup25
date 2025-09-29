@@ -25,20 +25,21 @@ interface FormParserProps {
 
 const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
   const [formData, setFormData] = useState<Record<string, any>>({});
-  const [currentStep, setCurrentStep] = useState(0);
+
+  const initialVisibleSteps = retrieveVisibleSteps({ formTemplate });
+
+  console.log({ initialVisibleSteps });
+
+  const [visibleSteps, setVisibleStepIds] = useState<
+    Array<{
+      container: FormLayoutComponentContainerType;
+      children: FormLayoutComponentChildrenType[];
+    }>
+  >(initialVisibleSteps);
 
   const handleFieldChange = (fieldId: string, value: any) => {
     setFormData((prev) => ({ ...prev, [fieldId]: value }));
   };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (onSubmit) {
-      onSubmit(formData);
-    }
-  };
-
-  // Field Renderer Function
 
   // Step Renderer Function
 
@@ -75,11 +76,6 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
       </Card>
     );
   };
-
-  // Filter visible steps
-  const visibleSteps = retrieveVisibleSteps({ formTemplate });
-
-  console.log({ visibleSteps });
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
