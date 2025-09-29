@@ -30,15 +30,29 @@ jobs:
         with:
           version: latest
 
+      - name: Authenticate Supabase CLI
+        if: env.SUPABASE_ACCESS_TOKEN != ''
+        run: |
+          supabase login --token "$SUPABASE_ACCESS_TOKEN"
+
       - name: Link Supabase project
+        if: env.SUPABASE_PROJECT_REF != '' && env.SUPABASE_DB_PASSWORD != ''
         working-directory: backend
         run: |
           supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
 
       - name: Validate database migrations (linked)
+        if: env.SUPABASE_PROJECT_REF != ''
         working-directory: backend
         run: |
           supabase db lint --linked --fail-on error
+
+      - name: Validate database migrations (local fallback)
+        if: env.SUPABASE_PROJECT_REF == ''
+        working-directory: backend
+        run: |
+          echo "SUPABASE_PROJECT_REF not set; running local lint instead." && \
+          supabase db lint --local --fail-on error
 
   deploy:
     needs: validate
@@ -59,16 +73,27 @@ jobs:
         with:
           version: latest
 
+      - name: Authenticate Supabase CLI
+        if: env.SUPABASE_ACCESS_TOKEN != ''
+        run: |
+          supabase login --token "$SUPABASE_ACCESS_TOKEN"
+
+      - name: Link Supabase project
+        if: env.SUPABASE_PROJECT_REF != '' && env.SUPABASE_DB_PASSWORD != ''
+        working-directory: backend
+        run: |
+          supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+
       - name: Push database migrations
         working-directory: backend
         run: |
-          supabase db push --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+          supabase db push --linked --password "$SUPABASE_DB_PASSWORD"
 
       - name: Deploy edge functions
         working-directory: backend
         run: |
           if [ -d "supabase/functions" ]; then
-            supabase functions deploy --project-ref "$SUPABASE_PROJECT_REF"
+            supabase functions deploy
           else
             echo "No supabase/functions directory found; skipping function deploy."
           fi
