@@ -25,8 +25,10 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install Supabase CLI
-        run: npm install -g supabase
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
 
       - name: Validate database migrations
         working-directory: backend
@@ -47,8 +49,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Supabase CLI
-        run: npm install -g supabase
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
 
       - name: Push database migrations
         working-directory: backend
