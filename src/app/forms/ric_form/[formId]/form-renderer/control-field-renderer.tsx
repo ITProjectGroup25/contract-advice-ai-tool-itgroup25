@@ -34,6 +34,7 @@ export const renderField = (
     case FormControlNames.INPUTTEXTFIELD:
       return (
         <TextField
+          key={field.id}
           type={field.dataType || "text"}
           label={field.labelName + (field.required ? " *" : "")}
           placeholder={field.placeholder}

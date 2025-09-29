@@ -30,18 +30,6 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     setFormData((prev) => ({ ...prev, [fieldId]: value }));
   };
 
-  const handleNext = () => {
-    if (currentStep < formTemplate.formLayoutComponents.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSubmit) {
@@ -93,6 +81,8 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
       step.container.alwaysVisible ||
       currentStep === formTemplate.formLayoutComponents.indexOf(step)
   );
+
+  console.log({ visibleSteps });
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
