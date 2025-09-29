@@ -1,4 +1,5 @@
 import { auth, signOut } from "@backend";
+import type { Session } from "next-auth";
 import { LayoutDashboard, LogOut } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,7 +25,7 @@ function SignOut() {
 }
 
 const Header = async (props: Props) => {
-  const session = await auth();
+  const session = (await auth()) as Session | null;
 
   return (
     <header className="border bottom-1">
