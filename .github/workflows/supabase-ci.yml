@@ -30,10 +30,15 @@ jobs:
         with:
           version: latest
 
-      - name: Validate database migrations
+      - name: Link Supabase project
         working-directory: backend
         run: |
-          supabase db lint --project-ref "$SUPABASE_PROJECT_REF"
+          supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+
+      - name: Validate database migrations (linked)
+        working-directory: backend
+        run: |
+          supabase db lint --linked --fail-on error
 
   deploy:
     needs: validate
