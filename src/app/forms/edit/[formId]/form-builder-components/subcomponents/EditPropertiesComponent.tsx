@@ -222,6 +222,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
 
   const handleSetSelectedControlOption = (e: any) => {
     const optionName = e.target.value;
+    const optionId = ''
 
     console.log({ optionName });
 

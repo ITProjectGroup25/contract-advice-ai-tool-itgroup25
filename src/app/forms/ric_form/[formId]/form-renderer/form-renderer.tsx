@@ -30,7 +30,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
 
   console.log({ initialVisibleSteps });
 
-  const [visibleSteps, setVisibleStepIds] = useState<
+  const [visibleSteps, setVisibleSteps] = useState<
     Array<{
       container: FormLayoutComponentContainerType;
       children: FormLayoutComponentChildrenType[];
@@ -38,6 +38,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
   >(initialVisibleSteps);
 
   const handleFieldChange = (fieldId: string, value: any) => {
+    console.log({ fieldId, value });
     setFormData((prev) => ({ ...prev, [fieldId]: value }));
   };
 

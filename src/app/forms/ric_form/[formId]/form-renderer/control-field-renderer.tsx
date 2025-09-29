@@ -28,7 +28,7 @@ import moment from "moment";
 export const renderField = (
   field: FormLayoutComponentChildrenType,
   value: any,
-  
+
   onChange: (value: any) => void
 ) => {
   switch (field.controlName) {
