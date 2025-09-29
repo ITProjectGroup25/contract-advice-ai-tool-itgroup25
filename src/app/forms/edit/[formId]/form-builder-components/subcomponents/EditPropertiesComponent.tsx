@@ -237,11 +237,17 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
       template: selectedTemplate!,
     });
 
+    const annotatedTargetControl = {
+      ...targetControl,
+      containerToMakeVisible: selectedControl?.id,
+      optionThatMakesVisible: optionName,
+    };
+
     if (!targetControl) {
       throw new Error("Target control not found");
     }
 
-    setTargetControl(targetControl);
+    setTargetControl(annotatedTargetControl);
   };
 
   const onFormSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {

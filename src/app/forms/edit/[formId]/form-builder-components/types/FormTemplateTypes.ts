@@ -29,6 +29,8 @@ export const FormLayoutComponentChildrenSchema = z.object({
   rows: z.number().optional(),
   dataType: z.string().optional(),
   position: z.number().optional(),
+  containerToMakeVisible: z.string().optional(),
+  optionThatMakesVisible: z.string().optional(),
 });
 export type FormLayoutComponentChildrenType = z.infer<
   typeof FormLayoutComponentChildrenSchema
