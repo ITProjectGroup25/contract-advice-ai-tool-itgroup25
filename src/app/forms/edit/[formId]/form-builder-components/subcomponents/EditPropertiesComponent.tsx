@@ -20,6 +20,7 @@ import { FormControlNames, FormItemTypes } from "../utils/formBuilderUtils";
 import ManageItemsListComponent from "./ManageItemsListComponent";
 import listAllControlDisplayNames from "./helpers/listAllControlDisplayNames";
 import retrieveOptionsFromControl from "./helpers/retrieveOptionsFromControl";
+import searchForTargetedControl from "./helpers/searchForTargetedControl";
 
 const textboxStyle = {
   minWidth: "100%",
@@ -230,6 +231,17 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
       ...prevState,
       selectedControlOption: optionName,
     }));
+
+    const targetControl = searchForTargetedControl({
+      controlLabelName: selectedControlHeading,
+      template: selectedTemplate!,
+    });
+
+    if (!targetControl) {
+      throw new Error("Target control not found");
+    }
+
+    setTargetControl(targetControl);
   };
 
   const onFormSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
@@ -245,6 +257,10 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
       updatedItem,
     });
     editContainerProperties(updatedItem as FormLayoutComponentContainerType);
+
+    if (targetControl) {
+      editControlProperties(targetControl);
+    }
   };
 
   return (
