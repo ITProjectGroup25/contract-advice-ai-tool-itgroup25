@@ -34,7 +34,7 @@ jobs:
 
   deploy-vercel:
     needs: lint-test-build
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/IPGCRT-79/ci-cd') && github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
@@ -59,14 +59,12 @@ jobs:
       - name: Vercel pull (project & env)
         working-directory: frontend
         run: |
-          # Prefer explicit link by slug if provided, to avoid wrong IDs / auto-created projects
-          if [ -n "${{ secrets.VERCEL_TEAM_SLUG }}" ] && [ -n "${{ secrets.VERCEL_PROJECT_NAME }}" ]; then
-            npx vercel link \
-              --yes \
-              --token ${{ secrets.VERCEL_TOKEN }} \
-              --scope ${{ secrets.VERCEL_TEAM_SLUG }} \
-              --project ${{ secrets.VERCEL_PROJECT_NAME }}
-          fi
+          # Plan A: explicit link by slug to avoid wrong IDs / auto-created projects
+          npx vercel link \
+            --yes \
+            --token ${{ secrets.VERCEL_TOKEN }} \
+            --scope ${{ secrets.VERCEL_TEAM_SLUG }} \
+            --project ${{ secrets.VERCEL_PROJECT_NAME }}
           npx vercel pull --yes --environment=production --token ${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -87,58 +85,4 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
-  deploy-vercel-preview:
-    needs: lint-test-build
-    if: github.ref == 'refs/heads/IPGCRT-79/ci-cd' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install workspaces
-        run: npm install
-
-      - name: Build frontend for preview
-        run: npm run build --workspace frontend
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-      - name: Vercel link (optional by slug)
-        if: ${{ secrets.VERCEL_TEAM_SLUG != '' && secrets.VERCEL_PROJECT_NAME != '' }}
-        working-directory: frontend
-        run: |
-          npx vercel link \
-            --yes \
-            --token ${{ secrets.VERCEL_TOKEN }} \
-            --scope ${{ secrets.VERCEL_TEAM_SLUG }} \
-            --project ${{ secrets.VERCEL_PROJECT_NAME }}
-
-      - name: Vercel pull (preview env)
-        working-directory: frontend
-        run: |
-          npx vercel pull --yes --environment=preview --token ${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Deploy Preview to Vercel
-        working-directory: frontend
-        run: |
-          npx vercel deploy \
-            --yes \
-            --token ${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+  # Preview deployment job removed to make IPGCRT-79/ci-cd identical to main (production deploy)

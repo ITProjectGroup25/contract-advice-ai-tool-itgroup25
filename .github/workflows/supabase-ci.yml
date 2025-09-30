@@ -70,7 +70,7 @@ jobs:
 
   deploy:
     needs: validate
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/IPGCRT-79/ci-cd') && github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
@@ -112,45 +112,4 @@ jobs:
             echo "No supabase/functions directory found; skipping function deploy."
           fi
 
-  deploy-staging:
-    needs: validate
-    if: github.ref == 'refs/heads/IPGCRT-79/ci-cd' && github.event_name == 'push' && env.SUPABASE_STAGING_PROJECT_REF != ''
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-
-      - name: Authenticate Supabase CLI (staging)
-        if: env.SUPABASE_STAGING_ACCESS_TOKEN != ''
-        run: |
-          supabase login --token "$SUPABASE_STAGING_ACCESS_TOKEN"
-
-      - name: Link staging project
-        working-directory: backend
-        run: |
-          supabase link --project-ref "$SUPABASE_STAGING_PROJECT_REF" --password "$SUPABASE_STAGING_DB_PASSWORD"
-
-      - name: Push migrations to staging
-        working-directory: backend
-        run: |
-          supabase db push --linked --password "$SUPABASE_STAGING_DB_PASSWORD"
-
-      - name: Deploy edge functions to staging (if any)
-        working-directory: backend
-        run: |
-          if [ -d "supabase/functions" ]; then
-            supabase functions deploy
-          else
-            echo "No supabase/functions directory found; skipping function deploy."
-          fi
+  # Removed staging deploy job to make IPGCRT-79/ci-cd identical to main
