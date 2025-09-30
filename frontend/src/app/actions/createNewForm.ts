@@ -1,6 +1,7 @@
 "use server";
 
 import { db, form, formDetails } from "@backend";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 export async function createNewForm(
@@ -9,8 +10,6 @@ export async function createNewForm(
   },
   formData: FormData
 ) {
-  console.log({ formData });
-
   const schema = z.object({
     formName: z.string(),
   });
@@ -27,21 +26,33 @@ export async function createNewForm(
   }
 
   const data = parse.data;
-  console.log(data);
 
-  const [newForm] = await db
-    .insert(form)
-    .values({ name: data.formName })
-    .returning();
+  try {
+    const inserted = await db
+      .insert(form)
+      .values({ name: data.formName })
+      .returning({ id: form.id });
 
-  await db.insert(formDetails).values({
-    formId: newForm.id,
-    formFields: "[]",
-  });
+    const formId = inserted[0]?.id;
 
-  return {
-    message: "success",
-    data: { formId: newForm.id },
-  };
+    if (!formId) {
+      throw new Error("Insert did not return an id");
+    }
+
+    await db.insert(formDetails).values({
+      formId,
+      formFields: "[]",
+    });
+
+    return {
+      message: "success",
+      data: { formId },
+    };
+  } catch (error) {
+    console.error("createNewForm failed", error);
+    return {
+      message: "Failed to create form",
+    };
+  }
 }
 

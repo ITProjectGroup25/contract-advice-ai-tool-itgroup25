@@ -2,9 +2,9 @@ name: Frontend CI
 
 on:
   push:
-    branches: [develop, emailJS, main]
+    branches: [develop, emailJS, main, IPGCRT-79/ci-cd]
   pull_request:
-    branches: [develop, emailJS, main]
+    branches: [develop, emailJS, main, IPGCRT-79/ci-cd]
 
 jobs:
   lint-test-build:
@@ -34,7 +34,11 @@ jobs:
 
   deploy-vercel:
     needs: lint-test-build
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (
+          (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/IPGCRT-79/ci-cd'))
+        ) || (
+          (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'IPGCRT-79/ci-cd')
+        )
     runs-on: ubuntu-latest
 
     steps:
@@ -57,16 +61,18 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
       - name: Vercel pull (project & env)
-        working-directory: frontend
         run: |
+          # Plan A: explicit link by slug to avoid wrong IDs / auto-created projects
+          npx vercel link \
+            --yes \
+            --token ${{ secrets.VERCEL_TOKEN }} \
+            --scope ${{ secrets.VERCEL_TEAM_SLUG }} \
+            --project ${{ secrets.VERCEL_PROJECT_NAME }}
           npx vercel pull --yes --environment=production --token ${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy to Vercel
-        working-directory: frontend
         run: |
           npx vercel deploy \
             --prod \
@@ -74,7 +80,7 @@ jobs:
             --token ${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+  # Preview deployment job removed to make IPGCRT-79/ci-cd identical to main (production deploy)

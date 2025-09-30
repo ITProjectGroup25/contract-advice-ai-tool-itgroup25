@@ -1,9 +1,9 @@
 "use server";
 
-import { db } from "@backend";
+import { db, form } from "@backend";
 
 export async function getUserForms() {
-  const forms = await db.query.form.findMany({});
-
-  return forms;
+  // Use select/from to avoid relying on db.query in serverless builds
+  const rows = await db.select().from(form);
+  return rows;
 }

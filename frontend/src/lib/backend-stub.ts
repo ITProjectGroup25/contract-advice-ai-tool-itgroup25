@@ -12,6 +12,12 @@ export const db = {
 // Mock schema
 export const form = {} as any;
 export const formDetails = {} as any;
+export const formResults = {} as any;
+export const schema = {
+  form,
+  formDetails,
+  formResults,
+} as any;
 
 // Mock auth
 export const auth = () => Promise.resolve(null);

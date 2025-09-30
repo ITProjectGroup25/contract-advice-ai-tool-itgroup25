@@ -8,6 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
@@ -43,19 +44,17 @@ const FormGenerator = (props: Props) => {
     console.log("State", state);
     if (state?.message == "success") {
       setOpen(false);
-      navigate(state.data.formId);
+      navigate(String(state.data.formId));
       // navigate(state.data.formId, "Additional value i am passing");
     }
     console.log(state?.data);
   }, [state?.message]);
 
-  const onFormCreate = () => {
-    setOpen(true);
-  };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Button onClick={onFormCreate}>Create Form</Button>
+      <DialogTrigger asChild>
+        <Button>Create Form</Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create New Form</DialogTitle>

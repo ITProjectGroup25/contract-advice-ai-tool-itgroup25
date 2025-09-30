@@ -1,20 +1,65 @@
-import { getUserForms } from "@/app/actions/getUserForms";
+"use client";
+
+import { useEffect, useState } from "react";
 import FormList from "@/app/forms/FormList";
 
-type Props = {};
+type FormSummary = {
+  id: number;
+  name: string | null;
+  createdAt?: string | null;
+};
 
-export const dynamic = "force-dynamic";
+const Page = () => {
+  const [forms, setForms] = useState<FormSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-const page = async (props: Props) => {
-  const forms = await getUserForms();
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchForms = async () => {
+      try {
+        const response = await fetch("/api/forms", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const payload = (await response.json()) as {
+          forms?: FormSummary[];
+        };
+
+        if (!isMounted) {
+          return;
+        }
+
+        setForms(payload.forms ?? []);
+      } catch (error) {
+        console.error("Failed to fetch forms", error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchForms();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <div>
       <h1 className="text-4xl font-normal px-4 m-5">My Forms</h1>
-      <FormList forms={forms} />
+      {isLoading ? (
+        <p className="px-4">Loading forms...</p>
+      ) : (
+        <FormList forms={forms} />
+      )}
     </div>
   );
 };
 
-export default page;
+export default Page;
 
 

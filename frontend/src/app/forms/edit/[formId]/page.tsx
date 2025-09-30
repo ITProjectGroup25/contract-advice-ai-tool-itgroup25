@@ -19,17 +19,21 @@ const page = async ({ params }: PageParams) => {
     return <div>Form not Found!</div>;
   }
 
-  const singleForm = await db.query.form.findFirst({
-    where: eq(form.id, formId),
-  });
+  const singleForm = (await db
+    .select()
+    .from(form)
+    .where(eq(form.id, formId))
+    .limit(1))[0];
 
   if (!singleForm) {
     return <div>Form not Found!</div>;
   }
 
-  const formData = await db.query.formDetails.findFirst({
-    where: eq(formDetails.formId, formId),
-  });
+  const formData = (await db
+    .select()
+    .from(formDetails)
+    .where(eq(formDetails.formId, formId))
+    .limit(1))[0];
 
   const formFields = formData?.formFields
     ? z.string().parse(formData.formFields)

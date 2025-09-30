@@ -2,14 +2,18 @@ name: Supabase CI
 
 on:
   push:
-    branches: [develop, emailJS, main]
+    branches: [develop, emailJS, main, IPGCRT-79/ci-cd]
   pull_request:
-    branches: [develop, emailJS, main]
+    branches: [develop, emailJS, main, IPGCRT-79/ci-cd]
 
 env:
   SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
   SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
   SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+  # Optional staging credentials for feature branch testing
+  SUPABASE_STAGING_ACCESS_TOKEN: ${{ secrets.SUPABASE_STAGING_ACCESS_TOKEN }}
+  SUPABASE_STAGING_PROJECT_REF: ${{ secrets.SUPABASE_STAGING_PROJECT_REF }}
+  SUPABASE_STAGING_DB_PASSWORD: ${{ secrets.SUPABASE_STAGING_DB_PASSWORD }}
 
 jobs:
   validate:
@@ -30,25 +34,35 @@ jobs:
         with:
           version: latest
 
-      - name: Authenticate Supabase CLI
+      - name: Authenticate Supabase CLI (staging if available)
         if: env.SUPABASE_ACCESS_TOKEN != ''
         run: |
-          supabase login --token "$SUPABASE_ACCESS_TOKEN"
+          if [ -n "$SUPABASE_STAGING_ACCESS_TOKEN" ]; then
+            supabase login --token "$SUPABASE_STAGING_ACCESS_TOKEN"
+          else
+            supabase login --token "$SUPABASE_ACCESS_TOKEN"
+          fi
 
-      - name: Link Supabase project
-        if: env.SUPABASE_PROJECT_REF != '' && env.SUPABASE_DB_PASSWORD != ''
+      - name: Link Supabase project (staging)
+        if: env.SUPABASE_STAGING_PROJECT_REF != '' && env.SUPABASE_STAGING_DB_PASSWORD != ''
+        working-directory: backend
+        run: |
+          supabase link --project-ref "$SUPABASE_STAGING_PROJECT_REF" --password "$SUPABASE_STAGING_DB_PASSWORD"
+
+      - name: Link Supabase project (production)
+        if: env.SUPABASE_STAGING_PROJECT_REF == '' && env.SUPABASE_PROJECT_REF != '' && env.SUPABASE_DB_PASSWORD != ''
         working-directory: backend
         run: |
           supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
 
       - name: Validate database migrations (linked)
-        if: env.SUPABASE_PROJECT_REF != ''
+        if: env.SUPABASE_STAGING_PROJECT_REF != '' || env.SUPABASE_PROJECT_REF != ''
         working-directory: backend
         run: |
           supabase db lint --linked --fail-on error
 
       - name: Validate database migrations (local fallback)
-        if: env.SUPABASE_PROJECT_REF == ''
+        if: env.SUPABASE_STAGING_PROJECT_REF == '' && env.SUPABASE_PROJECT_REF == ''
         working-directory: backend
         run: |
           echo "SUPABASE_PROJECT_REF not set; running local lint instead." && \
@@ -56,7 +70,11 @@ jobs:
 
   deploy:
     needs: validate
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (
+          (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/IPGCRT-79/ci-cd'))
+        ) || (
+          (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'IPGCRT-79/ci-cd')
+        )
     runs-on: ubuntu-latest
 
     steps:
@@ -97,3 +115,5 @@ jobs:
           else
             echo "No supabase/functions directory found; skipping function deploy."
           fi
+
+  # Removed staging deploy job to make IPGCRT-79/ci-cd identical to main
