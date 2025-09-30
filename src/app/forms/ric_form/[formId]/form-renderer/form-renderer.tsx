@@ -212,7 +212,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
         key={container.id}
         className="border border-gray-200 bg-white w-full mb-4"
       >
-        <CardContent className="flex flex-col items-start p-6 w-full space-y-4">
+        <CardContent className="flex flex-col items-start p-6 w-full">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-gray-600" />
             <h2 className="text-lg font-medium text-gray-900">
@@ -224,14 +224,16 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
             <p className="text-sm text-gray-600 mb-6">{container.subHeading}</p>
           ) : null}
 
-          {children.map((field) => {
-            return renderField(
-              field,
-              formData[field.id],
-              // @ts-ignore
-              (value) => handleFieldChange(field.id, value, field)
-            );
-          })}
+          <div className="flex flex-col items-start w-full space-y-3">
+            {children.map((field) => {
+              return renderField(
+                field,
+                formData[field.id],
+                // @ts-ignore
+                (value) => handleFieldChange(field.id, value, field)
+              );
+            })}
+          </div>
         </CardContent>
       </Card>
     );

@@ -8,7 +8,6 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
-  FormGroup,
   FormLabel,
   InputLabel,
   MenuItem,
@@ -291,39 +290,45 @@ export const renderField = (
 
     case FormControlNames.CHECKLIST:
       return (
-        <FormControl component="fieldset" required={field.required}>
-          <FormLabel component="legend">
-            {field.labelName + (field.required ? " *" : "")}
-          </FormLabel>
-          <FormGroup>
+        <div key={field.id} className="flex flex-col space-y-2">
+          <Label
+            htmlFor={field.id.toString()}
+            className="text-sm font-normal text-gray-800 mb-2 text-left pl-4"
+          >
+            {field.labelName}{" "}
+            {field.required && <span className="text-red-500">*</span>}
+          </Label>
+          <div className="space-y-2">
             {field.items?.map((item) => (
-              <FormControlLabel
-                key={item.id}
-                control={
-                  <Checkbox
-                    checked={value?.includes(item.value) || false}
-                    onChange={(e) => {
-                      const currentValues = value || [];
-                      if (e.target.checked) {
-                        onChange([...currentValues, item.value]);
-                      } else {
-                        onChange(
-                          currentValues.filter((v: any) => v !== item.value)
-                        );
-                      }
-                    }}
-                  />
-                }
-                label={item.label}
-              />
+              <div key={item.id} className="flex items-center space-x-3">
+                <Checkbox
+                  id={item.id.toString()}
+                  checked={value?.includes(item.value) || false}
+                  onChange={(e) => {
+                    const currentValues = value || [];
+                    if (e.target.checked) {
+                      onChange([...currentValues, item.value]);
+                    } else {
+                      onChange(
+                        currentValues.filter((v: any) => v !== item.value)
+                      );
+                    }
+                  }}
+                  className="border-gray-300"
+                />
+                <Label
+                  htmlFor={item.id.toString()}
+                  className="text-md text-gray-700 font-normal cursor-pointer"
+                >
+                  {item.label}
+                </Label>
+              </div>
             ))}
-          </FormGroup>
+          </div>
           {field.description && (
-            <Typography variant="caption" color="text.secondary">
-              {field.description}
-            </Typography>
+            <p className="mt-1 text-xs text-gray-500">{field.description}</p>
           )}
-        </FormControl>
+        </div>
       );
 
     case FormControlNames.SIGNATURE:
