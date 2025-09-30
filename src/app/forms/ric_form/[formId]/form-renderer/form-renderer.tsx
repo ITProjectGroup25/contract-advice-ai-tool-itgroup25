@@ -7,7 +7,8 @@ import {
 } from "@/app/forms/edit/[formId]/form-builder-components/types/FormTemplateTypes";
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import { CheckCircle, Loader2, User } from "lucide-react";
-import React, { useState, useTransition } from "react";
+import React, { useRef, useState, useTransition } from "react";
+import { toast } from "sonner";
 import sendEmail from "../emailjs";
 import processContainerResponses from "../helpers/processContainerResponses";
 import ContactDetailsCard from "./contact-container";
@@ -33,6 +34,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
   const [contactEmail, setContactEmail] = useState<string>("");
   const [isPending, startTransition] = useTransition();
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const fieldRefs = useRef<{ [key: string]: HTMLElement | null }>({});
 
   const initialVisibleSteps = retrieveVisibleSteps({ formTemplate });
 
@@ -45,7 +47,57 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     }>
   >(initialVisibleSteps);
 
+  const validateForm = () => {
+    // Check contact details first
+    if (!contactName.trim()) {
+      toast.error("Please enter your name");
+      return false;
+    }
+    if (!contactEmail.trim()) {
+      toast.error("Please enter your email address");
+      return false;
+    }
+
+    // Validate all visible fields
+    for (const step of visibleSteps) {
+      for (const field of step.children) {
+        if (field.required) {
+          const value = formData[field.id];
+          const isEmpty =
+            value === undefined ||
+            value === null ||
+            value === "" ||
+            (Array.isArray(value) && value.length === 0);
+
+          if (isEmpty) {
+            // Scroll to the field
+            const fieldElement = fieldRefs.current[field.id.toString()];
+            if (fieldElement) {
+              fieldElement.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            }
+
+            // Show toast error
+            toast.error(
+              `Please fill in the required field: ${field.labelName}`
+            );
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
+  };
+
   const handleSubmit = () => {
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
+
     startTransition(async () => {
       // Collate form results by container
       const collatedResults: Record<string, any[]> = {};
@@ -89,6 +141,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
         if (result.message === "success") {
           console.log("Form results saved with ID:", result.data?.id);
           setIsConfirmed(true);
+          toast.success("Form submitted successfully!");
 
           // Reset confirmed state after 3 seconds
           setTimeout(() => setIsConfirmed(false), 3000);
@@ -101,7 +154,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
         }
       } catch (error) {
         console.error("Form submission failed:", error);
-        // TODO: Show error message to user
+        toast.error("Failed to submit form. Please try again.");
       }
     });
   };
@@ -226,11 +279,21 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
 
           <div className="flex flex-col items-start w-full space-y-3">
             {children.map((field) => {
-              return renderField(
-                field,
-                formData[field.id],
-                // @ts-ignore
-                (value) => handleFieldChange(field.id, value, field)
+              return (
+                <div
+                  key={field.id}
+                  ref={(el) => {
+                    fieldRefs.current[field.id.toString()] = el;
+                  }}
+                  className="w-full"
+                >
+                  {renderField(
+                    field,
+                    formData[field.id],
+                    // @ts-ignore
+                    (value) => handleFieldChange(field.id, value, field)
+                  )}
+                </div>
               );
             })}
           </div>

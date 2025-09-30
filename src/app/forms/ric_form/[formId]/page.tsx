@@ -4,6 +4,7 @@ import { z } from "zod";
 import { form, formDetails } from "../../../../../drizzle/schema";
 import { TemplateSchema } from "../../edit/[formId]/form-builder-components/types/FormTemplateTypes";
 import FormParser from "./form-renderer/form-renderer";
+import { Toaster } from "@/components/ui/toaster";
 
 type Props = {};
 
@@ -49,7 +50,7 @@ const page = async ({
   //   creator: "",
   // };
 
-  const formTemplate = JSON.parse(formFields)
+  const formTemplate = JSON.parse(formFields);
 
   console.log({ formTemplate });
 
@@ -57,7 +58,12 @@ const page = async ({
 
   console.log({ validatedFormTemplate });
 
-  return <FormParser formTemplate={validatedFormTemplate} />;
+  return (
+    <div>
+      <FormParser formTemplate={validatedFormTemplate} />;
+      <Toaster/>
+    </div>
+  );
 };
 
 export default page;
