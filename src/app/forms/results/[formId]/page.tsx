@@ -1,6 +1,8 @@
 import { db } from "@/db";
 import { desc, eq } from "drizzle-orm";
+import { z } from "zod";
 import { form, formDetails, formResults } from "../../../../../drizzle/schema";
+import { FormResultSchema } from "../../edit/[formId]/form-builder-components/types/FormTemplateTypes";
 import FormResultsPage from "./results-table";
 
 type Props = {};
@@ -39,15 +41,22 @@ const page = async ({
   console.log({ formData });
 
   // Get all results for this form (many-to-one relationship)
-  const results = await db
+  const rawResults = await db
     .select()
     .from(formResults)
     .where(eq(formResults.formId, formId))
     .orderBy(desc(formResults.submittedAt));
 
-  console.log({ results });
+  console.log({ rawResults });
 
-  return <FormResultsPage formName={singleForm.name} results={results} />;
+  // Validate each result through the FormResultSchema
+  const validatedResults = z.array(FormResultSchema).parse(rawResults);
+
+  console.log({ validatedResults });
+
+  return (
+    <FormResultsPage formName={singleForm.name} results={validatedResults} />
+  );
 };
 
 export default page;

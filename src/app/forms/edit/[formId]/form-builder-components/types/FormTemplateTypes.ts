@@ -121,3 +121,12 @@ export const SingleResultSchema = z.record(
 );
 
 export type SingleResult = z.infer<typeof SingleResultSchema>;
+
+export const FormResultSchema = z.object({
+  id: z.number(),
+  formId: z.number(),
+  submittedAt: z.date(),
+  results: SingleResultSchema,
+});
+
+export type FormResult = z.infer<typeof FormResultSchema>;
