@@ -26,6 +26,8 @@ interface FormParserProps {
 
 const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
   const [formData, setFormData] = useState<Record<string, any>>({});
+  const [contactName, setContactName] = useState<string>("");
+  const [contactEmail, setContactEmail] = useState<string>("");
 
   const initialVisibleSteps = retrieveVisibleSteps({ formTemplate });
 
@@ -37,6 +39,28 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
       children: FormLayoutComponentChildrenType[];
     }>
   >(initialVisibleSteps);
+
+  const handleSubmit = () => {
+    // TODO: Add form validation here
+    const submissionData = {
+      formData,
+      contactName,
+      contactEmail,
+      formId: formTemplate.id,
+      formName: formTemplate.formName,
+      submittedAt: new Date().toISOString(),
+    };
+
+    console.log("Form submitted:", submissionData);
+
+    // Call the onSubmit prop if provided
+    if (onSubmit) {
+      onSubmit(submissionData);
+    }
+
+    // TODO: Add your submission logic here
+    // e.g., API call to save the form data
+  };
 
   const handleFieldChange = (
     fieldId: string,
@@ -179,7 +203,9 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
 
           <button
             className="text-black bg-gray-200 px-4 py-2 rounded mb-4"
-            onClick={() => console.log({ visibleSteps, formData })}
+            onClick={() =>
+              console.log({ visibleSteps, formData, contactName, contactEmail })
+            }
           >
             Debug: Log State
           </button>
@@ -190,11 +216,21 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
           )}
 
           <ContactDetailsCard
-            contactName={""}
-            contactEmail={""}
-            onNameChange={() => {}}
-            onEmailChange={() => {}}
+            contactName={contactName}
+            contactEmail={contactEmail}
+            onNameChange={setContactName}
+            onEmailChange={setContactEmail}
           />
+
+          {/* Submit Button */}
+          <div className="w-full flex justify-center mt-6">
+            <button
+              onClick={handleSubmit}
+              className="px-8 py-3 bg-blue-600 text-white font-medium text-base rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+            >
+              Submit Form
+            </button>
+          </div>
 
           {/* Debug info - remove in production */}
           <Box
@@ -220,6 +256,13 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
                 null,
                 2
               )}
+            </pre>
+
+            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+              Contact Details (Debug):
+            </Typography>
+            <pre style={{ fontSize: "12px", overflow: "auto" }}>
+              {JSON.stringify({ contactName, contactEmail }, null, 2)}
             </pre>
           </Box>
         </div>
