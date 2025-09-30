@@ -45,7 +45,7 @@ export const renderField = (
         <div key={field.id} className="flex flex-col items-start w-full">
           <Label
             htmlFor={field.id.toString()}
-            className="text-sm font-normal text-gray-800 mb-2"
+            className="text-sm font-normal text-gray-800 mb-1"
           >
             {field.labelName}{" "}
             {field.required && <span className="text-red-500">*</span>}

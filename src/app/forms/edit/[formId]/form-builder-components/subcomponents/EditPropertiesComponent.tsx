@@ -342,7 +342,10 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
         <>
           {containerUpdatedItem.itemType === FormItemTypes.CONTAINER ? (
             <>
-              <div className="main-form">
+              <div
+                className="main-form"
+                style={{ maxHeight: "80vm", overflowY: "auto" }}
+              >
                 <button
                   onClick={() => {
                     console.log({ updatedItem });
@@ -353,7 +356,11 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                 </button>
                 <form
                   onSubmit={onContainerFormSubmit}
-                  style={{ minWidth: "100%" }}
+                  style={{
+                    minWidth: "100%",
+                    maxHeight: "80vm",
+                    overflowY: "auto",
+                  }}
                 >
                   <div className="main-form-title">
                     Edit Container Properties
@@ -553,6 +560,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                       }
                     }}
                   />
+                  <div className="py-16"></div>
                 </form>
               </div>
             </>
