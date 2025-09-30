@@ -1,4 +1,4 @@
-import { db, form } from "@backend";
+import { db, form, formResults } from "@backend";
 import { eq } from "drizzle-orm";
 
 type Props = {
@@ -6,32 +6,24 @@ type Props = {
 };
 
 const ResultsDisplay = async ({ formId }: Props) => {
-  const singleForm = await db.query.form.findFirst({
-    where: eq(form.id, formId),
-    with: {
-      questions: {
-        with: {
-          fieldOptions: true,
-        },
-      },
-      submissions: {
-        with: {
-          answers: {
-            with: {
-              fieldOption: true,
-            },
-          },
-        },
-      },
-    },
-  });
+  const singleForm = (await db
+    .select()
+    .from(form)
+    .where(eq(form.id, formId))
+    .limit(1))?.[0];
 
   if (!singleForm) return null;
-  if (!singleForm.submissions) {
-    return <p>No submissions on this singleForm yet!</p>;
+
+  const submissions = await db
+    .select()
+    .from(formResults)
+    .where(eq(formResults.formId, formId));
+
+  if (!submissions || submissions.length === 0) {
+    return <p>No submissions on this form yet!</p>;
   }
-  console.log("singleForm", singleForm);
-  return <div></div>;
+
+  return <div>Submissions: {submissions.length}</div>;
 };
 
 export default ResultsDisplay;
