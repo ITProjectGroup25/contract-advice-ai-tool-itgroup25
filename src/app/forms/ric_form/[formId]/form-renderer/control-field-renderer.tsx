@@ -1,11 +1,11 @@
 import { FormLayoutComponentChildrenType } from "@/app/forms/edit/[formId]/form-builder-components/types/FormTemplateTypes";
 import { FormControlNames } from "@/app/forms/edit/[formId]/form-builder-components/utils/formBuilderUtils";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Box,
   Button,
-  Checkbox,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -293,14 +293,14 @@ export const renderField = (
         <div key={field.id} className="flex flex-col space-y-2">
           <Label
             htmlFor={field.id.toString()}
-            className="text-lg font-semi-boldtext-gray-800 text-left pl-3"
+            className="text-md font-semi-boldtext-gray-800 text-left mb-2"
           >
             {field.labelName}{" "}
             {field.required && <span className="text-red-500">*</span>}
           </Label>
           <div className="space-y-2">
             {field.items?.map((item) => (
-              <div key={item.id} className="flex items-center">
+              <div key={item.id} className="flex items-center space-x-4">
                 <Checkbox
                   id={item.id.toString()}
                   checked={value?.includes(item.value) || false}
