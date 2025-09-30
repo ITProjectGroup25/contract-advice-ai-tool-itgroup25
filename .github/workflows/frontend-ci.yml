@@ -2,9 +2,9 @@ name: Frontend CI
 
 on:
   push:
-    branches: [develop, emailJS, main, IPGCRT-79/ci-cd]
+    branches: ['**']  # Trigger on all branches
   pull_request:
-    branches: [develop, emailJS, main, IPGCRT-79/ci-cd]
+    branches: ['**']  # Trigger on all PRs
 
 jobs:
   lint-test-build:
