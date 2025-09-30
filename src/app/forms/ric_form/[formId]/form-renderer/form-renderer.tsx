@@ -37,12 +37,36 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     }>
   >(initialVisibleSteps);
 
-  const handleFieldChange = (fieldId: string, value: any, field: any) => {
-    setFormData((prev) => ({ ...prev, [fieldId]: value }));
-    
+  const handleFieldChange = (
+    fieldId: string,
+    selectedValue: any,
+    field: any
+  ) => {
+    setFormData((prev) => ({ ...prev, [fieldId]: selectedValue }));
+
     const optionValueThatMakesVisible = field.items.find(
       (item: { id: string }) => item.id === field.optionThatMakesVisible
-    ).value;
+    )?.value;
+
+    if (selectedValue === optionValueThatMakesVisible) {
+      // Find original index of made non-visible container
+      // Then insert container into non -visible steps array
+      const containerIdToMakeVisible = field.containerToMakeVisible;
+      const containerToMakeVisible = formTemplate.formLayoutComponents.find(
+        (comp) => comp.container.id === containerIdToMakeVisible
+      );
+
+      const containerToMakeVisibleIdx =
+        formTemplate.formLayoutComponents.findIndex(
+          (comp) => comp.container.id === containerIdToMakeVisible
+        );
+
+      console.log({ containerToMakeVisibleIdx });
+
+      console.log({ containerToMakeVisible });
+
+      console.log({ visibleSteps });
+    }
 
     console.log({ optionValueThatMakesVisible });
   };
