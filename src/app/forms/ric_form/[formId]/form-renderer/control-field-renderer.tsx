@@ -84,18 +84,21 @@ export const renderField = (
 
     case FormControlNames.CHECKBOX:
       return (
-        <FormControlLabel
-          control={
-            <Checkbox
-              key={field.id}
-              checked={value || false}
-              onChange={(e) => onChange(e.target.checked)}
-            />
-          }
-          label={field.labelName + (field.required ? " *" : "")}
-        />
+        <div key={field.id} className="flex items-center space-x-3">
+          <Checkbox
+            id={field.id.toString()}
+            checked={value || false}
+            onChange={(e) => onChange(e.target.checked)}
+            className="border-gray-300"
+          />
+          <Label
+            htmlFor={field.id.toString()}
+            className="text-sm text-gray-700 font-normal cursor-pointer"
+          >
+            {field.labelName}
+          </Label>
+        </div>
       );
-
     case FormControlNames.RADIOGROUP:
       return (
         <FormControl
