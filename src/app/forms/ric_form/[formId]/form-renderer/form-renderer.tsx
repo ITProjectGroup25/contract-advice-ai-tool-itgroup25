@@ -37,6 +37,11 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     }>
   >(initialVisibleSteps);
 
+  // Track which containers are controlled by which fields
+  const [conditionalContainers, setConditionalContainers] = useState<
+    Record<string, string>
+  >({});
+
   const handleFieldChange = (
     fieldId: string,
     selectedValue: any,
@@ -44,51 +49,67 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
   ) => {
     setFormData((prev) => ({ ...prev, [fieldId]: selectedValue }));
 
-    const optionValueThatMakesVisible = field.items.find(
-      (item: { id: string }) => item.id === field.optionThatMakesVisible
-    )?.value;
+    // Check if this field has conditional visibility logic
+    if (field.containerToMakeVisible && field.optionThatMakesVisible) {
+      const optionValueThatMakesVisible = field.items.find(
+        (item: { id: string }) => item.id === field.optionThatMakesVisible
+      )?.value;
 
-    if (selectedValue === optionValueThatMakesVisible) {
-      // Find original index of made non-visible container
-      // Then insert container into non -visible steps array
       const containerIdToMakeVisible = field.containerToMakeVisible;
-      const containerToMakeVisible = formTemplate.formLayoutComponents.find(
-        (comp) => comp.container.id === containerIdToMakeVisible
-      );
 
-      const containerToMakeVisibleIdx =
-        formTemplate.formLayoutComponents.findIndex(
+      // If the selected value matches the visibility trigger
+      if (selectedValue === optionValueThatMakesVisible) {
+        const containerToMakeVisible = formTemplate.formLayoutComponents.find(
           (comp) => comp.container.id === containerIdToMakeVisible
         );
 
-      console.log({ containerToMakeVisibleIdx });
+        const containerToMakeVisibleIdx =
+          formTemplate.formLayoutComponents.findIndex(
+            (comp) => comp.container.id === containerIdToMakeVisible
+          );
 
-      console.log({ containerToMakeVisible });
+        console.log({ containerToMakeVisibleIdx, containerToMakeVisible });
 
-      console.log({ visibleSteps });
+        setVisibleSteps((prevSteps) => {
+          const alreadyVisible = prevSteps.some(
+            (step) => step.container.id === containerToMakeVisible!.container.id
+          );
 
-      setVisibleSteps((prevSteps) => {
-        const alreadyVisible = prevSteps.some(
-          (step) => step.container.id === containerToMakeVisible!.container.id
+          if (alreadyVisible) {
+            return prevSteps;
+          }
+
+          return [
+            ...prevSteps.slice(0, containerToMakeVisibleIdx),
+            containerToMakeVisible,
+            ...prevSteps.slice(containerToMakeVisibleIdx),
+          ];
+        });
+
+        // Track that this container is controlled by this field
+        setConditionalContainers((prev) => ({
+          ...prev,
+          [containerIdToMakeVisible]: fieldId,
+        }));
+      } else {
+        // Different option selected - hide the container if it was previously made visible
+        setVisibleSteps((prevSteps) =>
+          prevSteps.filter(
+            (step) => step.container.id !== containerIdToMakeVisible
+          )
         );
 
-        if (alreadyVisible) {
-          return prevSteps; // no change if already in list
-        }
-
-        return [
-          ...prevSteps.slice(0, containerToMakeVisibleIdx),
-          containerToMakeVisible,
-          ...prevSteps.slice(containerToMakeVisibleIdx),
-        ];
-      });
+        // Remove from conditional containers tracking
+        setConditionalContainers((prev) => {
+          const newTracking = { ...prev };
+          delete newTracking[containerIdToMakeVisible];
+          return newTracking;
+        });
+      }
     }
-
-    console.log({ optionValueThatMakesVisible });
   };
 
   // Step Renderer Function
-
   const renderStep = (
     container: FormLayoutComponentContainerType,
     children: FormLayoutComponentChildrenType[],
