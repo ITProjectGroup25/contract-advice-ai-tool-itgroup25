@@ -114,3 +114,10 @@ export const FormSubmissionSchema = z.object({
 });
 
 export type FormSubmissionType = z.infer<typeof FormSubmissionSchema>;
+
+export const SingleResultSchema = z.record(
+  z.string(), // Container name
+  z.array(ContainerResponseItemSchema)
+);
+
+export type SingleResult = z.infer<typeof SingleResultSchema>;
