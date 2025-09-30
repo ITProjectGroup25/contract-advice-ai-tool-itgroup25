@@ -69,6 +69,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
         JSON.stringify(formLayoutComponents)
       );
       formData.append("id", selectedTemplate?.id);
+      formData.append("adminEmailToSendResultsTo", selectedTemplate?.adminEmailToSendResultsTo);
 
       console.log({ formLayoutComponents });
 
