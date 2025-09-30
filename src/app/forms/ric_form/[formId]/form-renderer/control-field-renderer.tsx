@@ -8,11 +8,8 @@ import {
   Button,
   FormControl,
   FormControlLabel,
-  FormLabel,
   InputLabel,
   MenuItem,
-  Radio,
-  RadioGroup,
   Select,
   Switch,
   TextField,
@@ -100,33 +97,39 @@ export const renderField = (
       );
     case FormControlNames.RADIOGROUP:
       return (
-        <FormControl
-          key={field.id}
-          component="fieldset"
-          required={field.required}
-        >
-          <FormLabel component="legend">
-            {field.labelName + (field.required ? " *" : "")}
-          </FormLabel>
-          <RadioGroup
-            value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+        <div key={field.id} className="flex flex-col space-y-2">
+          <Label
+            htmlFor={field.id.toString()}
+            className="text-md font-semi-bold text-gray-800 text-left mb-2"
           >
+            {field.labelName}{" "}
+            {field.required && <span className="text-red-500">*</span>}
+          </Label>
+          <div className="space-y-2">
             {field.items?.map((item) => (
-              <FormControlLabel
-                key={item.id}
-                value={item.value}
-                control={<Radio />}
-                label={item.label}
-              />
+              <div key={item.id} className="flex items-center space-x-4">
+                <input
+                  type="radio"
+                  id={item.id.toString()}
+                  name={field.id.toString()}
+                  value={item.value}
+                  checked={value === item.value}
+                  onChange={(e) => onChange(e.target.value)}
+                  className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                />
+                <Label
+                  htmlFor={item.id.toString()}
+                  className="text-md text-gray-700 font-normal cursor-pointer"
+                >
+                  {item.label}
+                </Label>
+              </div>
             ))}
-          </RadioGroup>
+          </div>
           {field.description && (
-            <Typography variant="caption" color="text.secondary">
-              {field.description}
-            </Typography>
+            <p className="mt-1 text-xs text-gray-500">{field.description}</p>
           )}
-        </FormControl>
+        </div>
       );
 
     case FormControlNames.SELECTDROPDOWN:
