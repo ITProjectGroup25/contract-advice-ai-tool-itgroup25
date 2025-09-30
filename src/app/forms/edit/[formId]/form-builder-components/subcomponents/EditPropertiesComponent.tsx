@@ -248,6 +248,11 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
       template: selectedTemplate!,
     });
 
+    const toMakeVisible = {
+      containerToMakeVisible: selectedControl?.id,
+      optionThatMakesVisible: optionId,
+    };
+
     const annotatedTargetControl = {
       ...targetControl,
       containerToMakeVisible: selectedControl?.id,

@@ -10,6 +10,15 @@ export type FormLayoutComponentChildrenItemsType = z.infer<
   typeof FormLayoutComponentChildrenItemsSchema
 >;
 
+const ComponentToMakeVisibleSchema = z.object({
+  containerToMakeVisible: z.string(),
+  optionThatMakesVisible: z.string(),
+});
+
+export type ComponentToMakeVisibleSchemaType = z.infer<
+  typeof ComponentToMakeVisibleSchema
+>;
+
 // Children type
 export const FormLayoutComponentChildrenSchema = z.object({
   controlName: z.string(),
@@ -29,8 +38,7 @@ export const FormLayoutComponentChildrenSchema = z.object({
   rows: z.number().optional(),
   dataType: z.string().optional(),
   position: z.number().optional(),
-  containerToMakeVisible: z.string().optional(),
-  optionThatMakesVisible: z.string().optional(),
+  containersToMakeVisible: z.array(ComponentToMakeVisibleSchema).optional(),
 });
 export type FormLayoutComponentChildrenType = z.infer<
   typeof FormLayoutComponentChildrenSchema

@@ -86,6 +86,7 @@ export const FormControlList = [
     itemType: FormItemTypes.CONTROL,
     icon: "far fa-dot-circle",
     required: false,
+    containersToMakeVisible: [],
     items: [
       {
         id: generateID(),
