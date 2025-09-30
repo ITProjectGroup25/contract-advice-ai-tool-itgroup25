@@ -27,7 +27,7 @@ function SignOut() {
 }
 
 const Header = async (props: Props) => {
-  const session: Session | null = await getServerSession(authOptions);
+  const session: Session | null = await getServerSession(authOptions as any);
 
   return (
     <header className="border bottom-1">

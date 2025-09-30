@@ -14,8 +14,9 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token }) {
-      if (token && session?.user) {
-        session.user.id = token.sub || "";
+      // In JWT strategy, add user id from token to session
+      if (token?.sub && session.user) {
+        (session.user as any).id = token.sub;
       }
       return session;
     },
