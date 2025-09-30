@@ -66,6 +66,22 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
       console.log({ containerToMakeVisible });
 
       console.log({ visibleSteps });
+
+      setVisibleSteps((prevSteps) => {
+        const alreadyVisible = prevSteps.some(
+          (step) => step.container.id === containerToMakeVisible!.container.id
+        );
+
+        if (alreadyVisible) {
+          return prevSteps; // no change if already in list
+        }
+
+        return [
+          ...prevSteps.slice(0, containerToMakeVisibleIdx),
+          containerToMakeVisible,
+          ...prevSteps.slice(containerToMakeVisibleIdx),
+        ];
+      });
     }
 
     console.log({ optionValueThatMakesVisible });
