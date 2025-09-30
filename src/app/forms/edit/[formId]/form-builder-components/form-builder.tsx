@@ -45,6 +45,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
     selectedTemplate,
     formLayoutComponents,
     selectedControl,
+    addAdminEmailToSendFormResultsTo
   } = useFormBuilder({ template: props.template });
 
   const router = useRouter();
@@ -248,6 +249,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                     moveControlFromSide={moveControlFromSide}
                     editContainerProperties={editContainerProperties}
                     editControlProperties={editControlProperties}
+                    addAdminEmailToSendFormResultsTo={addAdminEmailToSendFormResultsTo}
                   />
                 </div>
               </div>

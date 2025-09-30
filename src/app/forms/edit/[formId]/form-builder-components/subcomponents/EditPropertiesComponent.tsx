@@ -31,6 +31,7 @@ const textboxStyle = {
 };
 
 interface EditPropertiesComponentProps {
+  addAdminEmailToSendFormResultsTo: (email: string) => void;
   selectedTemplate?: ReturnType<typeof useFormBuilder>["selectedTemplate"];
   selectedControl?:
     | undefined
@@ -55,12 +56,14 @@ interface EditPropertiesComponentProps {
 
 const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const {
+    addAdminEmailToSendFormResultsTo,
     selectedTemplate,
     selectedControl,
     selectControl,
     editControlProperties,
     editContainerProperties,
   } = props;
+
   const [updatedItem, setUpdatedItem] = useState<
     FormLayoutComponentChildrenType | FormLayoutComponentContainerType | {}
   >({});

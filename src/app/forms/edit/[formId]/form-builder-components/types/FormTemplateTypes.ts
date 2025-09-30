@@ -89,5 +89,6 @@ export const TemplateSchema = z.object({
   formLayoutComponents: z.array(FormLayoutComponentsSchema),
   publishHistory: z.array(FormLayoutHistorySchema).optional(),
   creator: z.string().optional(),
+  adminEmailToSendResultsTo: z.string().optional(),
 });
 export type TemplateType = z.infer<typeof TemplateSchema>;
