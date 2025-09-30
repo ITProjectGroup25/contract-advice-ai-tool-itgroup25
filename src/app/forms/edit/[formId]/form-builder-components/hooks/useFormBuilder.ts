@@ -263,14 +263,15 @@ const useFormBuilder = (props: useFormBuilderProps) => {
   };
 
   const addAdminEmailToSendFormResultsTo = (email: string) => {
-    setFormLayoutComponents((prev) => {
+    console.log({ selectedTemplate });
+    setSelectedTemplate((prev) => {
+      if (!prev) return prev;
       return {
         ...prev,
         adminEmailToSendResultsTo: email,
       };
     });
   };
-
   return {
     handleItemAdded,
     deleteContainer,
@@ -284,7 +285,7 @@ const useFormBuilder = (props: useFormBuilderProps) => {
     formLayoutComponents,
     selectedControl,
     setFormLayoutComponents,
-    addAdminEmailToSendFormResultsTo
+    addAdminEmailToSendFormResultsTo,
   };
 };
 
