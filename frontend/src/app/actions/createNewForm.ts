@@ -1,7 +1,7 @@
 "use server";
 
 import { db, form, formDetails } from "@backend";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 
 export async function createNewForm(
@@ -33,7 +33,17 @@ export async function createNewForm(
       .values({ name: data.formName })
       .returning({ id: form.id });
 
-    const formId = inserted[0]?.id;
+    let formId = inserted[0]?.id;
+
+    if (!formId) {
+      const fallback = await db
+        .select({ id: form.id })
+        .from(form)
+        .where(eq(form.name, data.formName))
+        .orderBy(desc(form.id));
+
+      formId = fallback[0]?.id ?? null;
+    }
 
     if (!formId) {
       throw new Error("Insert did not return an id");
