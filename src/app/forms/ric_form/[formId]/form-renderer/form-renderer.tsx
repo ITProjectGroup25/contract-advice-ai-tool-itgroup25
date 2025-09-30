@@ -49,18 +49,22 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
 
   const validateForm = () => {
     // Check contact details first
+    console.log("TEST");
     if (!contactName.trim()) {
-      toast.error("Please enter your name");
+      console.log("Hi");
+      toast.error("Contact details is empty! Please enter your contact name");
       return false;
     }
     if (!contactEmail.trim()) {
-      toast.error("Please enter your email address");
+      toast.error("Contact details is empty! Please enter your contact email");
       return false;
     }
 
     // Validate all visible fields
     for (const step of visibleSteps) {
+      console.log({ step });
       for (const field of step.children) {
+        console.log({ field });
         if (field.required) {
           const value = formData[field.id];
           const isEmpty =
@@ -68,6 +72,8 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
             value === null ||
             value === "" ||
             (Array.isArray(value) && value.length === 0);
+
+          console.log({ value, isEmpty });
 
           if (isEmpty) {
             // Scroll to the field
