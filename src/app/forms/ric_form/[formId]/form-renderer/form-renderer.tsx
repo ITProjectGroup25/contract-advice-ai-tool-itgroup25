@@ -190,11 +190,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
 
           {/* Render visible steps */}
           {visibleSteps.map((step, index) =>
-            renderStep(
-              step.container,
-              step.children,
-              step.container.alwaysVisible || index === 0
-            )
+            renderStep(step.container, step.children, true)
           )}
 
           {/* Debug info - remove in production */}
