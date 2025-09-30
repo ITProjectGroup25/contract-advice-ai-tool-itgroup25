@@ -17,14 +17,7 @@ import {
   FileText,
 } from "lucide-react";
 import React, { useState } from "react";
-import { SingleResult } from "../../edit/[formId]/form-builder-components/types/FormTemplateTypes";
-
-interface FormResult {
-  id: number;
-  formId: number;
-  submittedAt: string | null;
-  results: SingleResult;
-}
+import { FormResult } from "../../edit/[formId]/form-builder-components/types/FormTemplateTypes";
 
 interface FormResultsPageProps {
   formName: string;
