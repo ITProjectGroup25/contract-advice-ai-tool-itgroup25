@@ -7,6 +7,8 @@ import {
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import { User } from "lucide-react";
 import React, { useState } from "react";
+import sendEmail from "../emailjs";
+import processContainerResponses from "../helpers/processContainerResponses";
 import ContactDetailsCard from "./contact-container";
 import { renderField } from "./control-field-renderer";
 import { retrieveVisibleSteps } from "./retrieveVisibleSteps/retrieveVisibleSteps";
@@ -40,43 +42,16 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     }>
   >(initialVisibleSteps);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Collate form results by container
     const collatedResults: Record<string, any[]> = {};
 
     // Iterate through each visible step/container
     visibleSteps.forEach((step) => {
       const containerName = step.container.heading;
-      const containerResponses: any[] = [];
+      const containerResponses = processContainerResponses(step, formData);
 
-      // Process each child field in the container
-      step.children.forEach((child) => {
-        const fieldId = child.id.toString();
-        const fieldValue = formData[fieldId];
-
-        // Skip if no value was provided
-        if (
-          fieldValue === undefined ||
-          fieldValue === null ||
-          fieldValue === ""
-        ) {
-          return;
-        }
-
-        // Create response object based on field type
-        const response: Record<string, any> = {};
-
-        // For checklist (array values)
-        if (Array.isArray(fieldValue)) {
-          response[child.labelName] = fieldValue;
-        }
-        // For single-select fields (radio, dropdown, etc.)
-        else {
-          response[child.labelName] = fieldValue;
-        }
-
-        containerResponses.push(response);
-      });
+      console.log({ containerResponses });
 
       // Only add container if it has responses
       if (containerResponses.length > 0) {
@@ -99,13 +74,20 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
 
     console.log("Form submitted:", submissionData);
 
+    // Send email with the collated data
+    try {
+      await sendEmail({ data: submissionData });
+      console.log("Email sent successfully");
+      // TODO: Show success message to user
+    } catch (error) {
+      console.error("Failed to send email:", error);
+      // TODO: Show error message to user
+    }
+
     if (onSubmit) {
       onSubmit(submissionData);
     }
-
-    // TODO: Add your submission logic here
   };
-
   const handleFieldChange = (
     fieldId: string,
     selectedValue: any,
