@@ -63,26 +63,44 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
           (comp) => comp.container.id === containerIdToMakeVisible
         );
 
-        const containerToMakeVisibleIdx =
-          formTemplate.formLayoutComponents.findIndex(
-            (comp) => comp.container.id === containerIdToMakeVisible
-          );
-
-        console.log({ containerToMakeVisibleIdx, containerToMakeVisible });
+        if (!containerToMakeVisible) return;
 
         setVisibleSteps((prevSteps) => {
           const alreadyVisible = prevSteps.some(
-            (step) => step.container.id === containerToMakeVisible!.container.id
+            (step) => step.container.id === containerToMakeVisible.container.id
           );
 
           if (alreadyVisible) {
             return prevSteps;
           }
 
+          // Find the correct insertion position based on the original template order
+          const newContainerOriginalIndex =
+            formTemplate.formLayoutComponents.findIndex(
+              (comp) =>
+                comp.container.id === containerToMakeVisible.container.id
+            );
+
+          // Find where to insert in the visible steps array
+          let insertIndex = prevSteps.length; // Default to end
+
+          for (let i = 0; i < prevSteps.length; i++) {
+            const currentStepOriginalIndex =
+              formTemplate.formLayoutComponents.findIndex(
+                (comp) => comp.container.id === prevSteps[i].container.id
+              );
+
+            if (currentStepOriginalIndex > newContainerOriginalIndex) {
+              insertIndex = i;
+              break;
+            }
+          }
+
+          // Insert at the correct position
           return [
-            ...prevSteps.slice(0, containerToMakeVisibleIdx),
+            ...prevSteps.slice(0, insertIndex),
             containerToMakeVisible,
-            ...prevSteps.slice(containerToMakeVisibleIdx),
+            ...prevSteps.slice(insertIndex),
           ];
         });
 
@@ -118,7 +136,10 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     if (!isVisible) return null;
 
     return (
-      <Card className="border border-gray-200 bg-white w-full">
+      <Card
+        key={container.id}
+        className="border border-gray-200 bg-white w-full my-4"
+      >
         <CardContent className="flex flex-col items-start p-6 w-full">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-gray-600" />
@@ -126,6 +147,14 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
               {container.heading}
             </h2>
           </div>
+
+          <button
+            onClick={() => {
+              console.log({ visibleSteps, conditionalContainers });
+            }}
+          >
+            Click ME
+          </button>
 
           {container.subHeading ? (
             <p className="text-sm text-gray-600 mb-6">{container.subHeading}</p>
