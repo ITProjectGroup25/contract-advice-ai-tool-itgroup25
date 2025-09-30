@@ -84,7 +84,7 @@ export const renderField = (
           <Checkbox
             id={field.id.toString()}
             checked={value || false}
-            onChange={(e) => onChange(e.target.checked)}
+            onCheckedChange={(e) => onChange(e.target.checked)}
             className="border-gray-300"
           />
           <Label
@@ -307,9 +307,9 @@ export const renderField = (
                 <Checkbox
                   id={item.id.toString()}
                   checked={value?.includes(item.value) || false}
-                  onChange={(e) => {
+                  onCheckedChange={(checked) => {
                     const currentValues = value || [];
-                    if (e.target.checked) {
+                    if (checked) {
                       onChange([...currentValues, item.value]);
                     } else {
                       onChange(
