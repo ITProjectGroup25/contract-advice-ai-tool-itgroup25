@@ -41,25 +41,69 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
   >(initialVisibleSteps);
 
   const handleSubmit = () => {
-    // TODO: Add form validation here
+    // Collate form results by container
+    const collatedResults: Record<string, any[]> = {};
+
+    // Iterate through each visible step/container
+    visibleSteps.forEach((step) => {
+      const containerName = step.container.heading;
+      const containerResponses: any[] = [];
+
+      // Process each child field in the container
+      step.children.forEach((child) => {
+        const fieldId = child.id.toString();
+        const fieldValue = formData[fieldId];
+
+        // Skip if no value was provided
+        if (
+          fieldValue === undefined ||
+          fieldValue === null ||
+          fieldValue === ""
+        ) {
+          return;
+        }
+
+        // Create response object based on field type
+        const response: Record<string, any> = {};
+
+        // For checklist (array values)
+        if (Array.isArray(fieldValue)) {
+          response[child.labelName] = fieldValue;
+        }
+        // For single-select fields (radio, dropdown, etc.)
+        else {
+          response[child.labelName] = fieldValue;
+        }
+
+        containerResponses.push(response);
+      });
+
+      // Only add container if it has responses
+      if (containerResponses.length > 0) {
+        collatedResults[containerName] = containerResponses;
+      }
+    });
+
+    // Add contact details as a separate container
+    collatedResults["Contact Details"] = [
+      { Name: contactName },
+      { Email: contactEmail },
+    ];
+
     const submissionData = {
-      formData,
-      contactName,
-      contactEmail,
       formId: formTemplate.id,
       formName: formTemplate.formName,
       submittedAt: new Date().toISOString(),
+      responses: collatedResults,
     };
 
     console.log("Form submitted:", submissionData);
 
-    // Call the onSubmit prop if provided
     if (onSubmit) {
       onSubmit(submissionData);
     }
 
     // TODO: Add your submission logic here
-    // e.g., API call to save the form data
   };
 
   const handleFieldChange = (
