@@ -1,5 +1,7 @@
 import { FormLayoutComponentChildrenType } from "@/app/forms/edit/[formId]/form-builder-components/types/FormTemplateTypes";
 import { FormControlNames } from "@/app/forms/edit/[formId]/form-builder-components/utils/formBuilderUtils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Box,
   Button,
@@ -25,6 +27,12 @@ import {
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import moment from "moment";
 
+{
+  /* <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+  Your Name <span className="text-red-500">*</span>
+</Label>; */
+}
+
 export const renderField = (
   field: FormLayoutComponentChildrenType,
   value: any,
@@ -34,18 +42,27 @@ export const renderField = (
   switch (field.controlName) {
     case FormControlNames.INPUTTEXTFIELD:
       return (
-        <TextField
-          key={field.id}
-          type={field.dataType || "text"}
-          label={field.labelName + (field.required ? " *" : "")}
-          placeholder={field.placeholder}
-          value={value || ""}
-          onChange={(e) => onChange(e.target.value)}
-          required={field.required}
-          helperText={field.description}
-          variant="outlined"
-          fullWidth
-        />
+        <div key={field.id} className="flex flex-col items-start w-full">
+          <Label
+            htmlFor={field.id.toString()}
+            className="text-sm font-normal text-gray-800 mb-2"
+          >
+            {field.labelName}{" "}
+            {field.required && <span className="text-red-500">*</span>}
+          </Label>
+          <Input
+            id={field.id.toString()}
+            type={field.dataType || "text"}
+            placeholder={field.placeholder}
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            required={field.required}
+            className="h-14 text-base bg-white text-gray-700 placeholder:text-gray-400 rounded-lg border-gray-300"
+          />
+          {field.description && (
+            <p className="mt-1 text-xs text-gray-500">{field.description}</p>
+          )}
+        </div>
       );
 
     case FormControlNames.INPUTMULTILINE:
