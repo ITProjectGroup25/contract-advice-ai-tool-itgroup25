@@ -13,11 +13,12 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
-  Download,
   FileText,
+  Trash2,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import { FormResult } from "../../edit/[formId]/form-builder-components/types/FormTemplateTypes";
+import { deleteSubmission } from "@/app/actions/deleteSubmission";
 
 interface FormResultsPageProps {
   formName: string;
@@ -29,6 +30,8 @@ const FormResultsPage: React.FC<FormResultsPageProps> = ({
   results,
 }) => {
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const toggleRow = (id: number) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -57,6 +60,25 @@ const FormResultsPage: React.FC<FormResultsPageProps> = ({
     };
   };
 
+  const handleDelete = (id: number) => {
+    if (!confirm("Are you sure you want to delete this submission?")) {
+      return;
+    }
+
+    setDeletingId(id);
+    startTransition(async () => {
+      try {
+        await deleteSubmission(id);
+        // Refresh will happen automatically via Next.js revalidation
+      } catch (error) {
+        console.error("Failed to delete submission:", error);
+        alert("Failed to delete submission. Please try again.");
+      } finally {
+        setDeletingId(null);
+      }
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
       {/* Background Pattern */}
@@ -81,10 +103,6 @@ const FormResultsPage: React.FC<FormResultsPageProps> = ({
                 </div>
               </div>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
-              <Download className="w-4 h-4" />
-              Export CSV
-            </button>
           </div>
 
           {/* Stats Card */}
@@ -189,6 +207,7 @@ const FormResultsPage: React.FC<FormResultsPageProps> = ({
                     results.map((result) => {
                       const contact = getContactDetails(result);
                       const isExpanded = expandedRow === result.id;
+                      const isDeleting = deletingId === result.id;
 
                       return (
                         <React.Fragment key={result.id}>
@@ -207,22 +226,32 @@ const FormResultsPage: React.FC<FormResultsPageProps> = ({
                               </div>
                             </TableCell>
                             <TableCell className="text-right">
-                              <button
-                                onClick={() => toggleRow(result.id)}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                              >
-                                {isExpanded ? (
-                                  <>
-                                    Hide
-                                    <ChevronUp className="w-4 h-4" />
-                                  </>
-                                ) : (
-                                  <>
-                                    View
-                                    <ChevronDown className="w-4 h-4" />
-                                  </>
-                                )}
-                              </button>
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => toggleRow(result.id)}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                >
+                                  {isExpanded ? (
+                                    <>
+                                      Hide
+                                      <ChevronUp className="w-4 h-4" />
+                                    </>
+                                  ) : (
+                                    <>
+                                      View
+                                      <ChevronDown className="w-4 h-4" />
+                                    </>
+                                  )}
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(result.id)}
+                                  disabled={isDeleting || isPending}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  {isDeleting ? "Deleting..." : "Delete"}
+                                </button>
+                              </div>
                             </TableCell>
                           </TableRow>
 
