@@ -1,12 +1,13 @@
 "use client";
 // FormParser.tsx - Complete form parsing system with array-based visibility
+import { uploadFormResults } from "@/app/actions/uploadFormResults";
 import {
   FormLayoutComponentChildrenType,
   FormLayoutComponentContainerType,
 } from "@/app/forms/edit/[formId]/form-builder-components/types/FormTemplateTypes";
 import { Box, Card, CardContent, Typography } from "@mui/material";
-import { User } from "lucide-react";
-import React, { useState } from "react";
+import { CheckCircle, Loader2, User } from "lucide-react";
+import React, { useState, useTransition } from "react";
 import sendEmail from "../emailjs";
 import processContainerResponses from "../helpers/processContainerResponses";
 import ContactDetailsCard from "./contact-container";
@@ -30,6 +31,8 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [contactName, setContactName] = useState<string>("");
   const [contactEmail, setContactEmail] = useState<string>("");
+  const [isPending, startTransition] = useTransition();
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   const initialVisibleSteps = retrieveVisibleSteps({ formTemplate });
 
@@ -42,52 +45,67 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     }>
   >(initialVisibleSteps);
 
-  const handleSubmit = async () => {
-    // Collate form results by container
-    const collatedResults: Record<string, any[]> = {};
+  const handleSubmit = () => {
+    startTransition(async () => {
+      // Collate form results by container
+      const collatedResults: Record<string, any[]> = {};
 
-    // Iterate through each visible step/container
-    visibleSteps.forEach((step) => {
-      const containerName = step.container.heading;
-      const containerResponses = processContainerResponses(step, formData);
+      // Iterate through each visible step/container
+      visibleSteps.forEach((step) => {
+        const containerName = step.container.heading;
+        const containerResponses = processContainerResponses(step, formData);
 
-      console.log({ containerResponses });
+        console.log({ containerResponses });
 
-      // Only add container if it has responses
-      if (containerResponses.length > 0) {
-        collatedResults[containerName] = containerResponses;
+        // Only add container if it has responses
+        if (containerResponses.length > 0) {
+          collatedResults[containerName] = containerResponses;
+        }
+      });
+
+      // Add contact details as a separate container
+      collatedResults["Contact Details"] = [
+        { Name: contactName },
+        { Email: contactEmail },
+      ];
+
+      const submissionData = {
+        formId: formTemplate.id,
+        formName: formTemplate.formName,
+        submittedAt: new Date().toISOString(),
+        responses: collatedResults,
+      };
+
+      console.log("Form submitted:", submissionData);
+
+      try {
+        // Send email first
+        await sendEmail({ data: submissionData });
+        console.log("Email sent successfully");
+
+        // Only save to database if email succeeds
+        const result = await uploadFormResults(submissionData);
+
+        if (result.message === "success") {
+          console.log("Form results saved with ID:", result.data?.id);
+          setIsConfirmed(true);
+
+          // Reset confirmed state after 3 seconds
+          setTimeout(() => setIsConfirmed(false), 3000);
+        } else {
+          throw new Error(result.error || "Failed to save results");
+        }
+
+        if (onSubmit) {
+          onSubmit(submissionData);
+        }
+      } catch (error) {
+        console.error("Form submission failed:", error);
+        // TODO: Show error message to user
       }
     });
-
-    // Add contact details as a separate container
-    collatedResults["Contact Details"] = [
-      { Name: contactName },
-      { Email: contactEmail },
-    ];
-
-    const submissionData = {
-      formId: formTemplate.id,
-      formName: formTemplate.formName,
-      submittedAt: new Date().toISOString(),
-      responses: collatedResults,
-    };
-
-    console.log("Form submitted:", submissionData);
-
-    // Send email with the collated data
-    try {
-      await sendEmail({ data: submissionData });
-      console.log("Email sent successfully");
-      // TODO: Show success message to user
-    } catch (error) {
-      console.error("Failed to send email:", error);
-      // TODO: Show error message to user
-    }
-
-    if (onSubmit) {
-      onSubmit(submissionData);
-    }
   };
+
   const handleFieldChange = (
     fieldId: string,
     selectedValue: any,
@@ -248,13 +266,32 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
             onEmailChange={setContactEmail}
           />
 
-          {/* Submit Button */}
+          {/* Submit Button with Loading and Confirmed States */}
           <div className="w-full flex justify-center mt-6">
             <button
               onClick={handleSubmit}
-              className="px-8 py-3 bg-blue-600 text-white font-medium text-base rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+              disabled={isPending || isConfirmed}
+              className={`px-8 py-3 font-medium text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 flex items-center gap-2 ${
+                isConfirmed
+                  ? "bg-green-600 text-white cursor-default"
+                  : isPending
+                  ? "bg-blue-400 text-white cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500"
+              }`}
             >
-              Submit Form
+              {isPending ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Submitting...
+                </>
+              ) : isConfirmed ? (
+                <>
+                  <CheckCircle className="w-5 h-5" />
+                  Submitted!
+                </>
+              ) : (
+                "Submit Form"
+              )}
             </button>
           </div>
 

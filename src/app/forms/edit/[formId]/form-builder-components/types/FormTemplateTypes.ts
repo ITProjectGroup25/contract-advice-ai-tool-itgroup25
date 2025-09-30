@@ -92,3 +92,25 @@ export const TemplateSchema = z.object({
   adminEmailToSendResultsTo: z.string().optional(),
 });
 export type TemplateType = z.infer<typeof TemplateSchema>;
+
+// Schema for individual field responses within a container
+const ContainerResponseItemSchema = z.record(
+  z.string(), // Field label name
+  z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])
+);
+
+// Schema for responses grouped by container
+const ResponsesByContainerSchema = z.record(
+  z.string(), // Container name
+  z.array(ContainerResponseItemSchema)
+);
+
+// Main form submission schema
+export const FormSubmissionSchema = z.object({
+  formId: z.number(),
+  formName: z.string(),
+  submittedAt: z.string().datetime(), // ISO 8601 datetime string
+  responses: ResponsesByContainerSchema,
+});
+
+export type FormSubmissionType = z.infer<typeof FormSubmissionSchema>;
