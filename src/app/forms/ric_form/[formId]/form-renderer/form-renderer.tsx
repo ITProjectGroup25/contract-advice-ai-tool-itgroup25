@@ -1,5 +1,5 @@
 "use client";
-// FormParser.tsx - Complete form parsing system in one file
+// FormParser.tsx - Complete form parsing system with array-based visibility
 import {
   FormLayoutComponentChildrenType,
   FormLayoutComponentContainerType,
@@ -37,11 +37,6 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     }>
   >(initialVisibleSteps);
 
-  // Track which containers are controlled by which fields
-  const [conditionalContainers, setConditionalContainers] = useState<
-    Record<string, string>
-  >({});
-
   const handleFieldChange = (
     fieldId: string,
     selectedValue: any,
@@ -50,80 +45,90 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
     setFormData((prev) => ({ ...prev, [fieldId]: selectedValue }));
 
     // Check if this field has conditional visibility logic
-    if (field.containerToMakeVisible && field.optionThatMakesVisible) {
-      const optionValueThatMakesVisible = field.items.find(
-        (item: { id: string }) => item.id === field.optionThatMakesVisible
-      )?.value;
-
-      const containerIdToMakeVisible = field.containerToMakeVisible;
-
-      // If the selected value matches the visibility trigger
-      if (selectedValue === optionValueThatMakesVisible) {
-        const containerToMakeVisible = formTemplate.formLayoutComponents.find(
-          (comp) => comp.container.id === containerIdToMakeVisible
-        );
-
-        if (!containerToMakeVisible) return;
-
-        setVisibleSteps((prevSteps) => {
-          const alreadyVisible = prevSteps.some(
-            (step) => step.container.id === containerToMakeVisible.container.id
+    if (
+      field.containersToMakeVisible &&
+      field.containersToMakeVisible.length > 0
+    ) {
+      // Process all visibility mappings for this field
+      field.containersToMakeVisible.forEach(
+        (mapping: {
+          containerToMakeVisible: string;
+          optionThatMakesVisible: string;
+        }) => {
+          // Find the option value that corresponds to this mapping's ID
+          const optionThatMakesVisible = field.items?.find(
+            (item: { id: string }) => item.id === mapping.optionThatMakesVisible
           );
 
-          if (alreadyVisible) {
-            return prevSteps;
+          if (!optionThatMakesVisible) {
+            console.warn(
+              `Option with ID ${mapping.optionThatMakesVisible} not found in field items`
+            );
+            return;
           }
 
-          // Find the correct insertion position based on the original template order
-          const newContainerOriginalIndex =
+          const optionValueThatMakesVisible = optionThatMakesVisible.value;
+          const containerIdToMakeVisible = mapping.containerToMakeVisible;
+
+          // Find the container that should be shown/hidden
+          const containerToMakeVisible = formTemplate.formLayoutComponents.find(
+            (comp) => comp.container.id === containerIdToMakeVisible
+          );
+
+          if (!containerToMakeVisible) {
+            console.warn(
+              `Container with ID ${containerIdToMakeVisible} not found`
+            );
+            return;
+          }
+
+          // Find the index to insert the container at the correct position
+          const containerToMakeVisibleIdx =
             formTemplate.formLayoutComponents.findIndex(
-              (comp) =>
-                comp.container.id === containerToMakeVisible.container.id
+              (comp) => comp.container.id === containerIdToMakeVisible
             );
 
-          // Find where to insert in the visible steps array
-          let insertIndex = prevSteps.length; // Default to end
+          console.log({
+            selectedValue,
+            optionValueThatMakesVisible,
+            containerIdToMakeVisible,
+            containerToMakeVisibleIdx,
+          });
 
-          for (let i = 0; i < prevSteps.length; i++) {
-            const currentStepOriginalIndex =
-              formTemplate.formLayoutComponents.findIndex(
-                (comp) => comp.container.id === prevSteps[i].container.id
+          // If the selected value matches the visibility trigger for this mapping
+          if (selectedValue === optionValueThatMakesVisible) {
+            setVisibleSteps((prevSteps) => {
+              // Check if already visible
+              const alreadyVisible = prevSteps.some(
+                (step) => step.container.id === containerIdToMakeVisible
               );
 
-            if (currentStepOriginalIndex > newContainerOriginalIndex) {
-              insertIndex = i;
-              break;
+              if (alreadyVisible) {
+                return prevSteps;
+              }
+
+              // Insert the container at the correct position
+              const newSteps = [...prevSteps];
+              newSteps.splice(
+                containerToMakeVisibleIdx,
+                0,
+                containerToMakeVisible
+              );
+
+              return newSteps;
+            });
+          } else {
+            // Different option selected - hide this specific container if it's not always visible
+            if (!containerToMakeVisible.container.alwaysVisible) {
+              setVisibleSteps((prevSteps) =>
+                prevSteps.filter(
+                  (step) => step.container.id !== containerIdToMakeVisible
+                )
+              );
             }
           }
-
-          // Insert at the correct position
-          return [
-            ...prevSteps.slice(0, insertIndex),
-            containerToMakeVisible,
-            ...prevSteps.slice(insertIndex),
-          ];
-        });
-
-        // Track that this container is controlled by this field
-        setConditionalContainers((prev) => ({
-          ...prev,
-          [containerIdToMakeVisible]: fieldId,
-        }));
-      } else {
-        // Different option selected - hide the container if it was previously made visible
-        setVisibleSteps((prevSteps) =>
-          prevSteps.filter(
-            (step) => step.container.id !== containerIdToMakeVisible
-          )
-        );
-
-        // Remove from conditional containers tracking
-        setConditionalContainers((prev) => {
-          const newTracking = { ...prev };
-          delete newTracking[containerIdToMakeVisible];
-          return newTracking;
-        });
-      }
+        }
+      );
     }
   };
 
@@ -131,30 +136,20 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
   const renderStep = (
     container: FormLayoutComponentContainerType,
     children: FormLayoutComponentChildrenType[],
-    isVisible: boolean
+    index: number
   ) => {
-    if (!isVisible) return null;
-
     return (
       <Card
         key={container.id}
-        className="border border-gray-200 bg-white w-full my-4"
+        className="border border-gray-200 bg-white w-full mb-4"
       >
         <CardContent className="flex flex-col items-start p-6 w-full">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-gray-600" />
-            <h2 className=" text-lg font-medium text-gray-900">
+            <h2 className="text-lg font-medium text-gray-900">
               {container.heading}
             </h2>
           </div>
-
-          <button
-            onClick={() => {
-              console.log({ visibleSteps, conditionalContainers });
-            }}
-          >
-            Click ME
-          </button>
 
           {container.subHeading ? (
             <p className="text-sm text-gray-600 mb-6">{container.subHeading}</p>
@@ -182,15 +177,15 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
           </h1>
 
           <button
-            className="text-black"
-            onClick={() => console.log({ visibleSteps })}
+            className="text-black bg-gray-200 px-4 py-2 rounded mb-4"
+            onClick={() => console.log({ visibleSteps, formData })}
           >
-            Submit
+            Debug: Log State
           </button>
 
           {/* Render visible steps */}
           {visibleSteps.map((step, index) =>
-            renderStep(step.container, step.children, true)
+            renderStep(step.container, step.children, index)
           )}
 
           {/* Debug info - remove in production */}
@@ -202,6 +197,21 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
             </Typography>
             <pre style={{ fontSize: "12px", overflow: "auto" }}>
               {JSON.stringify(formData, null, 2)}
+            </pre>
+
+            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+              Visible Steps (Debug):
+            </Typography>
+            <pre style={{ fontSize: "12px", overflow: "auto" }}>
+              {JSON.stringify(
+                visibleSteps.map((s) => ({
+                  id: s.container.id,
+                  heading: s.container.heading,
+                  alwaysVisible: s.container.alwaysVisible,
+                })),
+                null,
+                2
+              )}
             </pre>
           </Box>
         </div>

@@ -11,6 +11,7 @@ import _ from "lodash";
 import React, { FC, useEffect, useState } from "react";
 import useFormBuilder from "../hooks/useFormBuilder";
 import {
+  ComponentToMakeVisibleSchemaType,
   FormLayoutComponentChildrenItemsType,
   FormLayoutComponentChildrenType,
   FormLayoutComponentContainerType,
@@ -86,8 +87,6 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
 
   const [targetControl, setTargetControl] =
     useState<FormLayoutComponentChildrenType>();
-
-  // const targetedControl =
 
   useEffect(() => {
     if (selectedControl) {
@@ -248,20 +247,37 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
       template: selectedTemplate!,
     });
 
-    const toMakeVisible = {
-      containerToMakeVisible: selectedControl?.id,
-      optionThatMakesVisible: optionId,
-    };
-
-    const annotatedTargetControl = {
-      ...targetControl,
-      containerToMakeVisible: selectedControl?.id,
-      optionThatMakesVisible: optionId,
-    };
-
     if (!targetControl) {
       throw new Error("Target control not found");
     }
+
+    // Create the new visibility mapping
+    const newVisibilityMapping: ComponentToMakeVisibleSchemaType = {
+      containerToMakeVisible: selectedControl?.id as string,
+      optionThatMakesVisible: optionId,
+    };
+
+    // Get existing containersToMakeVisible array or initialize empty array
+    const existingMappings = targetControl.containersToMakeVisible || [];
+
+    // Check if this mapping already exists
+    const mappingExists = existingMappings.some(
+      (mapping) =>
+        mapping.containerToMakeVisible ===
+          newVisibilityMapping.containerToMakeVisible &&
+        mapping.optionThatMakesVisible ===
+          newVisibilityMapping.optionThatMakesVisible
+    );
+
+    // Only add if it doesn't already exist
+    const updatedMappings = mappingExists
+      ? existingMappings
+      : [...existingMappings, newVisibilityMapping];
+
+    const annotatedTargetControl = {
+      ...targetControl,
+      containersToMakeVisible: updatedMappings,
+    };
 
     setTargetControl(annotatedTargetControl);
   };
