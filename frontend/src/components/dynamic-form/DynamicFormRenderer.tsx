@@ -62,7 +62,7 @@ export function DynamicFormRenderer({
       const dependentValue = formValues[question.conditional.dependsOn];
       
       // First check if the question we depend on is itself visible
-      const dependentQuestion = questions.find(q => q.id === question.conditional.dependsOn);
+      const dependentQuestion = questions.find(q => q.id === question.conditional?.dependsOn);
       if (dependentQuestion) {
         checkingStack.add(question.id);
         const isParentVisible = isQuestionVisible(dependentQuestion, checkingStack);
@@ -73,9 +73,9 @@ export function DynamicFormRenderer({
         }
       }
       
-      if (question.conditional.showWhen) {
+      if (question.conditional?.showWhen) {
         if (Array.isArray(dependentValue)) {
-          return question.conditional.showWhen.some(val => dependentValue.includes(val));
+          return question.conditional.showWhen.some((val: string) => dependentValue.includes(val));
         }
         return question.conditional.showWhen.includes(dependentValue);
       }

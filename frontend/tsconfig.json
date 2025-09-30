@@ -25,9 +25,15 @@
         "./src/app/*"
       ],
       "@backend": [
+        "../backend/src/index.ts"
+      ],
+      "@backend/*": [
         "../backend/src/*"
       ],
       "@shared": [
+        "../shared/src/index.ts"
+      ],
+      "@shared/*": [
         "../shared/src/*"
       ]
     }
