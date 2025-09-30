@@ -293,14 +293,14 @@ export const renderField = (
         <div key={field.id} className="flex flex-col space-y-2">
           <Label
             htmlFor={field.id.toString()}
-            className="text-sm font-normal text-gray-800 mb-2 text-left pl-4"
+            className="text-lg font-semi-boldtext-gray-800 text-left pl-3"
           >
             {field.labelName}{" "}
             {field.required && <span className="text-red-500">*</span>}
           </Label>
           <div className="space-y-2">
             {field.items?.map((item) => (
-              <div key={item.id} className="flex items-center space-x-3">
+              <div key={item.id} className="flex items-center">
                 <Checkbox
                   id={item.id.toString()}
                   checked={value?.includes(item.value) || false}
