@@ -1,7 +1,6 @@
 "use server";
 
-import { db, formDetails } from "@backend";
-import { eq } from "drizzle-orm";
+import postgres from "postgres";
 import { TemplateSchema } from "../forms/edit/[formId]/form-builder-components/types/FormTemplateTypes";
 import { formDataToObject } from "./fromDataToObject";
 
@@ -27,17 +26,39 @@ export async function publishForm(
   }
 
   const data = parse.data;
-  console.log(data);
+  console.log("Publishing form with data:", data);
 
-  await db
-    .update(formDetails)
-    .set({
-      formFields: JSON.stringify(data.formLayoutComponents),
-    })
-    .where(eq(formDetails.formId, data.id));
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    return {
+      message: "Database configuration error",
+    };
+  }
 
-  return {
-    message: "success",
-  };
+  const sql = postgres(connectionString);
+  
+  try {
+    // Update form_details with the form layout
+    const result = await sql`
+      UPDATE form_details
+      SET form_fields = ${JSON.stringify(data.formLayoutComponents)}
+      WHERE form_id = ${data.id}
+      RETURNING *
+    `;
+    
+    console.log("Form published successfully:", result);
+    
+    await sql.end();
+    
+    return {
+      message: "success",
+    };
+  } catch (error) {
+    console.error("Failed to publish form:", error);
+    await sql.end({ timeout: 1 });
+    return {
+      message: "Failed to publish form: " + (error instanceof Error ? error.message : "Unknown error"),
+    };
+  }
 }
 
