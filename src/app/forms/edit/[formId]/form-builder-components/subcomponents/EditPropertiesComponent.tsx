@@ -71,6 +71,10 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const [isUpdatedItemRequired, setIsUpdatedItemRequired] = useState(false);
   const [itemIsAlwaysVisible, setItemIsAlwaysVisible] = useState(true);
 
+  // Email delivery configuration state
+  const [deliveryMethod, setDeliveryMethod] = useState<string>("");
+  const [deliveryEmail, setDeliveryEmail] = useState<string>("");
+
   console.log({ selectedTemplate });
 
   const controlDisplayNames = listAllControlDisplayNames(selectedTemplate!);
@@ -280,6 +284,23 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     };
 
     setTargetControl(annotatedTargetControl);
+  };
+
+  const handleDeliveryMethodChange = (e: any) => {
+    const method = e.target.value;
+    setDeliveryMethod(method);
+    if (method !== "email") {
+      setDeliveryEmail("");
+    }
+  };
+
+  const handleDeliveryEmailChange: React.ChangeEventHandler<
+    HTMLInputElement
+  > = (e) => {
+    const email = e.target.value;
+    setDeliveryEmail(email);
+    console.log("Form delivery email:", email);
+    // TODO: Save this to your form template configuration
   };
 
   const onFormSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
@@ -534,6 +555,40 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
           >
             <h4>Note!</h4>
             You need to select a container/control to edit properties.
+          </div>
+
+          {/* Email Delivery Configuration */}
+          <div style={{ marginTop: "20px" }}>
+            <FormControl fullWidth style={textboxStyle}>
+              <InputLabel id="delivery-method-label">
+                On Submit, Do What?
+              </InputLabel>
+              <Select
+                labelId="delivery-method-label"
+                id="delivery-method-select"
+                value={deliveryMethod}
+                label="On Submit, Do What?"
+                onChange={handleDeliveryMethodChange}
+              >
+                <MenuItem value="">
+                  <em>Select an action</em>
+                </MenuItem>
+                <MenuItem value="email">Deliver Email</MenuItem>
+              </Select>
+            </FormControl>
+
+            {deliveryMethod === "email" && (
+              <TextField
+                fullWidth
+                label="Email Address"
+                placeholder="recipient@example.com"
+                value={deliveryEmail}
+                onChange={handleDeliveryEmailChange}
+                type="email"
+                style={textboxStyle}
+                helperText="Enter the email address where form results will be sent"
+              />
+            )}
           </div>
         </>
       )}
