@@ -40,14 +40,16 @@ const page = async ({
 
   console.log({ formFields });
 
-  const formTemplate = {
-    formName: singleForm?.name!,
-    id: singleForm?.id!,
-    createdAt: singleForm?.createdAt!,
-    formLayoutComponents: JSON.parse(formFields),
-    publishHistory: [],
-    creator: "",
-  };
+  // const formTemplate = {
+  //   formName: singleForm?.name!,
+  //   id: singleForm?.id!,
+  //   createdAt: singleForm?.createdAt!,
+  //   formLayoutComponents: JSON.parse(formFields),
+  //   publishHistory: [],
+  //   creator: "",
+  // };
+
+  const formTemplate = JSON.parse(formFields)
 
   console.log({ formTemplate });
 

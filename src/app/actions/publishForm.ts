@@ -33,7 +33,7 @@ export async function publishForm(
   await db
     .update(formDetails)
     .set({
-      formFields: JSON.stringify(data.formLayoutComponents),
+      formFields: JSON.stringify(data),
     })
     .where(eq(formDetails.formId, data.id));
 

@@ -7,6 +7,7 @@ import {
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import { User } from "lucide-react";
 import React, { useState } from "react";
+import ContactDetailsCard from "./contact-container";
 import { renderField } from "./control-field-renderer";
 import { retrieveVisibleSteps } from "./retrieveVisibleSteps/retrieveVisibleSteps";
 
@@ -187,6 +188,13 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
           {visibleSteps.map((step, index) =>
             renderStep(step.container, step.children, index)
           )}
+
+          <ContactDetailsCard
+            contactName={""}
+            contactEmail={""}
+            onNameChange={() => {}}
+            onEmailChange={() => {}}
+          />
 
           {/* Debug info - remove in production */}
           <Box
