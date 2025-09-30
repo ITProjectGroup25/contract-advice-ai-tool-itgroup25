@@ -30,9 +30,33 @@ const nextConfig = {
     
     // For server-side, externalize certain packages to avoid bundling issues
     if (isServer) {
-      config.externals = config.externals || [];
-      // Don't bundle jose and crypto libraries
-      config.externals.push('jose', '@panva/hkdf', 'oauth4webapi');
+      // More aggressive externalization
+      const originalExternals = config.externals || [];
+      config.externals = [
+        ...originalExternals,
+        // Externalize auth-related packages
+        'jose',
+        '@panva/hkdf',
+        'oauth4webapi',
+        'next-auth',
+        '@auth/core',
+        '@auth/drizzle-adapter',
+        'preact',
+        'preact-render-to-string',
+        // Externalize anything from @auth namespace  
+        ({ request }, callback) => {
+          if (
+            request?.startsWith('@auth/') ||
+            request?.startsWith('jose') ||
+            request?.startsWith('oauth4webapi') ||
+            request === 'drizzle-orm' ||
+            request?.startsWith('drizzle-orm/')
+          ) {
+            return callback(null, `commonjs ${request}`);
+          }
+          callback();
+        },
+      ];
     }
     
     return config;
