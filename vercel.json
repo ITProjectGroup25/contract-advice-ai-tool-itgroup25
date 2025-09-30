@@ -3,10 +3,5 @@
   "buildCommand": "npm run build",
   "outputDirectory": "frontend/.next",
   "installCommand": "npm install",
-  "framework": "nextjs",
-  "functions": {
-    "frontend/src/app/api/**/route.ts": {
-      "maxDuration": 35
-    }
-  }
+  "framework": "nextjs"
 }
