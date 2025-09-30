@@ -131,4 +131,3 @@ desktop.ini
 # Supabase
 .branches
 .temp
-docker/.env

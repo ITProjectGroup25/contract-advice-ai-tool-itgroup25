@@ -28,7 +28,7 @@ The root `package.json` wires the three workspaces together and exposes convenie
 
 - Node.js >= 18.17
 - npm (comes with Node.js)
-- Docker Desktop (or Docker Engine)
+- Supabase account (for database)
 
 #### ⚠️ Environment Files (create first)
 
@@ -38,7 +38,7 @@ These files contain sensitive information and should not be committed to GitHub.
 - Root level:
   - `.env`
 ```bash
-DATABASE_URL=postgres://contract_user:contract_password@localhost:5432/contract_db
+DATABASE_URL=your-supabase-connection-string
 NEXTAUTH_SECRET=change-me
 NEXTAUTH_URL=http://localhost:3000
 
@@ -47,41 +47,27 @@ NEXTAUTH_URL=http://localhost:3000
 - /frontend level:
   - `.env.local`
 ```bash
-DATABASE_URL=postgres://contract_user:contract_password@localhost:5432/contract_db
+DATABASE_URL=your-supabase-connection-string
 NEXTAUTH_SECRET=change-me
 NEXTAUTH_URL=http://localhost:3000
-
-```
-
-- /docker level:
-  - `.env`
-```bash
-POSTGRES_USER=contract_user
-POSTGRES_PASSWORD=contract_password
-POSTGRES_DB=contract_db
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 
 ```
 
 ### 1. Install dependencies
 
 ```bash
-POSTGRES_USER=contract_user
-POSTGRES_PASSWORD=contract_password
-POSTGRES_DB=contract_db
-
+npm install
 
 ```
 
-### 2. Start the Postgres container
+### 2. Set up Supabase database
 
-```bash
-cd docker
-docker compose up -d
-cd ..
-
-
-```
-The container exposes Postgres at __localhost:5432__ (keep this port free if possible).
+1. Create a free account at [Supabase](https://supabase.com)
+2. Create a new project
+3. Copy the connection string from Settings > Database
+4. Update your `.env` files with the Supabase credentials
 
 ### 3. Run database migrations
 
@@ -102,28 +88,11 @@ npm run dev
 
 The app will be available at: [http://localhost:3000](http://localhost:3000)
 
-### 6. Stop the database
-
-```bash
-cd docker
-docker compose down
-
-
-```
-To remove data as well:
-```bash
-docker compose down --volumes
-
-
-```
-### 😎Additional: Han's quick startup Code
-first line for terminal limit bypass
+### 😎 Quick startup Code
+For Windows PowerShell (first line bypasses execution policy):
 ```bash
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 npm install
-cd docker
-docker compose up -d
-cd ..
 npm run db:push --workspace backend
 npm run dev
 

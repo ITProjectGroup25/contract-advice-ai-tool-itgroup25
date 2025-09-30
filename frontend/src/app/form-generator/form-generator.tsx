@@ -16,6 +16,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { Input } from "@/components/ui/input";
 import { useSession } from "next-auth/react";
 import { createNewForm } from "../actions/createNewForm";
+import { toast } from "sonner";
 
 type Props = {};
 
@@ -43,9 +44,12 @@ const FormGenerator = (props: Props) => {
   useEffect(() => {
     console.log("State", state);
     if (state?.message == "success") {
+      toast.success("Form created successfully!");
       setOpen(false);
       navigate(String(state.data.formId));
-      // navigate(state.data.formId, "Additional value i am passing");
+    } else if (state?.message && state?.message !== "") {
+      // Show error message if there's a failure
+      toast.error(state.message || "Failed to create form. Please try again.");
     }
     console.log(state?.data);
   }, [state?.message]);
