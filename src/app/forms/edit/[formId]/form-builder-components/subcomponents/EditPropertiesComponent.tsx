@@ -31,7 +31,6 @@ const textboxStyle = {
 };
 
 interface EditPropertiesComponentProps {
-  addAdminEmailToSendFormResultsTo: (email: string) => void;
   selectedTemplate?: ReturnType<typeof useFormBuilder>["selectedTemplate"];
   selectedControl?:
     | undefined
@@ -52,18 +51,18 @@ interface EditPropertiesComponentProps {
     selectedControl: FormLayoutComponentChildrenType,
     moveControlObj: FormLayoutComponentChildrenType
   ) => void;
+  addAdminEmailToSendFormResultsTo: (email: string) => void;
 }
 
 const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const {
-    addAdminEmailToSendFormResultsTo,
     selectedTemplate,
     selectedControl,
     selectControl,
     editControlProperties,
     editContainerProperties,
+    addAdminEmailToSendFormResultsTo,
   } = props;
-
   const [updatedItem, setUpdatedItem] = useState<
     FormLayoutComponentChildrenType | FormLayoutComponentContainerType | {}
   >({});
@@ -76,7 +75,9 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
 
   // Email delivery configuration state
   const [deliveryMethod, setDeliveryMethod] = useState<string>("");
-  const [deliveryEmail, setDeliveryEmail] = useState<string>("");
+  const [deliveryEmail, setDeliveryEmail] = useState<string>(
+    selectedTemplate?.adminEmailToSendResultsTo || ""
+  );
 
   console.log({ selectedTemplate });
 
@@ -135,6 +136,14 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     }
   }, [selectedControl]);
 
+  // Set delivery method and email when selectedTemplate changes
+  useEffect(() => {
+    if (selectedTemplate?.adminEmailToSendResultsTo) {
+      setDeliveryMethod("email");
+      setDeliveryEmail(selectedTemplate.adminEmailToSendResultsTo);
+    }
+  }, [selectedTemplate]);
+
   const handleChange: React.ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
   > = (e) => {
@@ -149,7 +158,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     const newItems = _.cloneDeep(
       (updatedItem as FormLayoutComponentChildrenType).items
     );
-    newItems.push(item);
+    newItems!.push(item);
     setUpdatedItem((prevState) => ({
       ...prevState,
       items: newItems,
@@ -168,7 +177,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
 
   const editIteminList = (item: FormLayoutComponentChildrenItemsType) => {
     const newItems: FormLayoutComponentChildrenItemsType[] = _.cloneDeep(
-      (updatedItem as FormLayoutComponentChildrenType).items
+      (updatedItem as FormLayoutComponentChildrenType).items!
     );
     const itemToBeReplaced = newItems.filter((i) => i.id === item.id)[0];
     itemToBeReplaced.value = item.value;
@@ -302,8 +311,8 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   > = (e) => {
     const email = e.target.value;
     setDeliveryEmail(email);
-    console.log("Form delivery email:", email);
-    // TODO: Save this to your form template configuration
+    addAdminEmailToSendFormResultsTo(email);
+    console.log("Form delivery email saved:", email);
   };
 
   const onFormSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
