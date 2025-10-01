@@ -15,7 +15,11 @@ interface FAQ {
   answer: string;
 }
 
-export default function AdminFAQManager() {
+type Props = {
+  FAQs: FAQ[];
+};
+
+export default function AdminFAQManager({ FAQs }: Props) {
   const [faqs, setFaqs] = useState<FAQ[]>([
     {
       id: 1,
