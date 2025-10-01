@@ -10,12 +10,14 @@ import { Box, Card, CardContent, Typography } from "@mui/material";
 import { CheckCircle, Loader2, User } from "lucide-react";
 import React, { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
-import sendEmail from "../emailjs";
+import sendEmail from "../email/emailjs";
 import processContainerResponses from "../helpers/processContainerResponses";
 import RICChatbot from "./chatbot/chatbot";
 import ContactDetailsCard from "./contact-container";
 import { renderField } from "./control-field-renderer";
 import { retrieveVisibleSteps } from "./retrieveVisibleSteps/retrieveVisibleSteps";
+import { sendEmailToRICStaff } from "../email/sendEmailToRICStaff";
+import { sendEmailToSender } from "../email/sendEmailToSender";
 
 // Main Form Parser Component
 interface FormParserProps {
@@ -165,9 +167,12 @@ const FormParser: React.FC<FormParserProps> = ({
       console.log("Form submitted:", submissionData);
 
       try {
-        // Send email first
-        await sendEmail({ data: submissionData });
+        // Send email first to RIC Staff
+        await sendEmailToRICStaff({ data: submissionData });
         console.log("Email sent successfully");
+
+        // Send email to sender as confirmation
+        await sendEmailToSender({ data: submissionData, senderName: contactName });
 
         // Only save to database if email succeeds
         const result = await uploadFormResults(submissionData);

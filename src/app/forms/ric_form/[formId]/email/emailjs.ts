@@ -1,16 +1,18 @@
 import emailjs from "@emailjs/browser";
 
+type TemplateParams = {
+  to_name: string;
+  from_name: string;
+  subject: string;  
+  message: string;
+}
+
 type Args = {
   data: any;
+  templateParams: TemplateParams
 };
 
-const sendEmail = async ({ data }: Args) => {
-  const templateParams = {
-    to_name: "RIC Staff",
-    from_name: "IT_Project Group 25",
-    subject: "You have received a new request",
-    message: `New From Contact Us, details: ${JSON.stringify(data)}`,
-  };
+const sendEmail = async ({ data, templateParams }: Args) => {
 
   const serviceId = "service_010xydf";
   const templateName = "template_1dcm4rn";
