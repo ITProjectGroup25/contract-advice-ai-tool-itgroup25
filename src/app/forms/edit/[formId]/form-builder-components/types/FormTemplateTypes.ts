@@ -94,9 +94,25 @@ export const TemplateSchema = z.object({
 export type TemplateType = z.infer<typeof TemplateSchema>;
 
 // Schema for individual field responses within a container
+// Schema for file upload data
+const FileUploadSchema = z.object({
+  fileName: z.string(),
+  fileType: z.string(),
+  fileSize: z.number(),
+  filePath: z.string(),
+  fileUrl: z.string().url(),
+});
+
+// Updated container response item schema to include file uploads
 const ContainerResponseItemSchema = z.record(
   z.string(), // Field label name
-  z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])
+  z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.array(z.string()),
+    FileUploadSchema, // Add file upload object
+  ])
 );
 
 // Schema for responses grouped by container
@@ -114,7 +130,6 @@ export const FormSubmissionSchema = z.object({
 });
 
 export type FormSubmissionType = z.infer<typeof FormSubmissionSchema>;
-
 export const SingleResultSchema = z.record(
   z.string(), // Container name
   z.array(ContainerResponseItemSchema)

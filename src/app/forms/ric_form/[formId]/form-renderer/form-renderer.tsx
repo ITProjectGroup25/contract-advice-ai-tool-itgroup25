@@ -199,6 +199,8 @@ const FormParser: React.FC<FormParserProps> = ({
         // Save to database
         const result = await uploadFormResults(submissionData);
 
+        console.log({ submissionData });
+
         if (result.message === "success") {
           console.log("Form results saved with ID:", result.data?.id);
           setIsConfirmed(true);
