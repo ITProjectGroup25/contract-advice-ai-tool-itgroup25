@@ -11,10 +11,10 @@ import React, { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import sendEmail from "../emailjs";
 import processContainerResponses from "../helpers/processContainerResponses";
+import RICChatbot from "./chatbot/chatbot";
 import ContactDetailsCard from "./contact-container";
 import { renderField } from "./control-field-renderer";
 import { retrieveVisibleSteps } from "./retrieveVisibleSteps/retrieveVisibleSteps";
-import RICChatbot from "./chatbot/chatbot";
 
 // Main Form Parser Component
 interface FormParserProps {
@@ -153,7 +153,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
           // Reset confirmed state after 3 seconds
           setTimeout(() => setIsConfirmed(false), 3000);
         } else {
-          throw new Error(result.error || "Failed to save results");
+          throw new Error(result.error?.toString() || "Failed to save results");
         }
 
         if (onSubmit) {

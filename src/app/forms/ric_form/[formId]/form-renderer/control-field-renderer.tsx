@@ -84,7 +84,7 @@ export const renderField = (
           <Checkbox
             id={field.id.toString()}
             checked={value || false}
-            onCheckedChange={(e) => onChange(e.target.checked)}
+            onCheckedChange={(checked) => onChange(checked)}
             className="border-gray-300"
           />
           <Label
