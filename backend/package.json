@@ -12,7 +12,7 @@
     "@auth/drizzle-adapter": "0.7.0",
     "dotenv": "^17.2.2",
     "drizzle-orm": "^0.29.4",
-    "next-auth": "5.0.0-beta.13",
+    "next-auth": "^4.24.11",
     "pg": "^8.11.3",
     "postgres": "^3.4.3"
   },

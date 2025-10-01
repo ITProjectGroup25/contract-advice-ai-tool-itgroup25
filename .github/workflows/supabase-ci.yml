@@ -2,9 +2,9 @@ name: Supabase CI
 
 on:
   push:
-    branches: [develop, emailJS, main, IPGCRT-79/ci-cd]
+    branches: ['**']  # Trigger on all branches
   pull_request:
-    branches: [develop, emailJS, main, IPGCRT-79/ci-cd]
+    branches: ['**']  # Trigger on all PRs
 
 env:
   SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}

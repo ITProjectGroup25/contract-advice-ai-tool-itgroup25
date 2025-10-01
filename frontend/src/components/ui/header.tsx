@@ -1,31 +1,17 @@
-import { auth, signOut } from "@backend";
+import { authOptions } from "@backend";
+import { getServerSession } from "next-auth";
 import type { Session } from "next-auth";
-import { LayoutDashboard, LogOut } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ThemeChange } from "./ThemeChange";
 import { Button } from "./button";
+import SignOutButton from "./sign-out-button";
 
 type Props = {};
 
-function SignOut() {
-  return (
-    <form
-      action={async () => {
-        "use server";
-        await signOut();
-      }}
-    >
-      <Button type="submit">
-        <LogOut className="md:hidden" />
-        <span className="hidden md:block">Sign out</span>
-      </Button>
-    </form>
-  );
-}
-
 const Header = async (props: Props) => {
-  const session = (await auth()) as Session | null;
+  const session: Session | null = await getServerSession(authOptions as any);
 
   return (
     <header className="border bottom-1">
@@ -53,7 +39,7 @@ const Header = async (props: Props) => {
                     className="rounded-full hidden md:block"
                   />
                 )}
-                <SignOut />
+                <SignOutButton />
               </div>
             ) : (
               <div className="flex">

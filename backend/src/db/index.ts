@@ -6,7 +6,19 @@ const connectionString =
   process.env.DATABASE_URL ??
   "postgres://postgres:postgres@localhost:5432/postgres";
 
-const client = postgres(connectionString);
+if (!process.env.DATABASE_URL) {
+  console.warn("DATABASE_URL not set, using default connection string");
+}
+
+console.log("Connecting to database...");
+
+// Configure postgres client with better options for Supabase
+const client = postgres(connectionString, {
+  max: 10,
+  idle_timeout: 20,
+  connect_timeout: 10,
+});
+
 export const db = drizzle(client, { schema });
 export { schema };
 

@@ -1,7 +1,7 @@
 import DashboardNav from "@/components/navigation/navbar";
 import Header from "@/components/ui/header";
 import { SidebarNavItem } from "@/types/nav-types";
-import { SessionProvider } from "next-auth/react";
+import SessionProvider from "@/components/providers/session-provider";
 import FormGenerator from "../form-generator/form-generator";
 
 export default function AdminLayout({
