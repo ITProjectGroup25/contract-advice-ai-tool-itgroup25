@@ -1,5 +1,6 @@
 "use client";
 
+import { deleteSubmission } from "@/app/actions/deleteSubmission";
 import {
   Table,
   TableBody,
@@ -8,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Download } from "@mui/icons-material";
 import { Card, CardContent } from "@mui/material";
 import {
   Calendar,
@@ -18,7 +20,8 @@ import {
 } from "lucide-react";
 import React, { useState, useTransition } from "react";
 import { FormResult } from "../../edit/[formId]/form-builder-components/types/FormTemplateTypes";
-import { deleteSubmission } from "@/app/actions/deleteSubmission";
+import { formatFileSize } from "./helpers/formatFileSize";
+import { isFileUpload } from "./helpers/isFile";
 
 interface FormResultsPageProps {
   formName: string;
@@ -58,6 +61,31 @@ const FormResultsPage: React.FC<FormResultsPageProps> = ({
       name: nameObj?.Name || "N/A",
       email: emailObj?.Email || "N/A",
     };
+  };
+
+  const renderValue = (value: any) => {
+    if (isFileUpload(value)) {
+      return (
+        <a
+          href={value.fileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+        >
+          <Download className="w-4 h-4" />
+          <span className="font-medium">{value.fileName}</span>
+          <span className="text-xs text-gray-500">
+            ({formatFileSize(value.fileSize)})
+          </span>
+        </a>
+      );
+    }
+
+    if (Array.isArray(value)) {
+      return value.join(", ");
+    }
+
+    return String(value);
   };
 
   const handleDelete = (id: number) => {
@@ -288,9 +316,7 @@ const FormResultsPage: React.FC<FormResultsPageProps> = ({
                                                       {field}:
                                                     </span>
                                                     <span className="text-sm text-gray-900">
-                                                      {Array.isArray(value)
-                                                        ? value.join(", ")
-                                                        : String(value)}
+                                                      {renderValue(value)}
                                                     </span>
                                                   </div>
                                                 )
