@@ -16,6 +16,7 @@ import EditPropertiesComponent from "./subcomponents/EditPropertiesComponent";
 import FormPreview from "./subcomponents/FormPreview";
 import { TemplateType } from "./types/FormTemplateTypes";
 import { FormItemTypes } from "./utils/formBuilderUtils";
+import { updateFormName } from "@/app/actions/updateFormName";
 
 interface FormBuilderProps {
   template: TemplateType;
@@ -83,8 +84,20 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
       const res = await publishForm({ message: "" }, formData);
 
       if (res.message === "success") {
-        // Optionally navigate to the newly published form
+        // Update the form name after successful publish
+        if (selectedTemplate?.id && selectedTemplate?.formName) {
+          const updateResult = await updateFormName({
+            formId: Number(selectedTemplate.id),
+            name: selectedTemplate.formName,
+          });
 
+          if (updateResult.message !== "success") {
+            console.error("Failed to update form name:", updateResult);
+            // You might want to handle this error differently
+          }
+        }
+
+        // Optionally navigate to the newly published form
         window.location.href = "/view-forms-redirect";
       } else {
         console.error(res.message);
@@ -95,7 +108,6 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
       setIsPublishing(false);
     }
   };
-
   const handleCancel = () => {
     router.refresh();
 
