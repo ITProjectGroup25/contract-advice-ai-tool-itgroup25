@@ -37,7 +37,7 @@ export const formResults = pgTable("form_results", {
 
 export const formFaqs = pgTable("form_faqs", {
 	id: serial("id").primaryKey().notNull(),
-	formDetailsId: integer("form_details_id").notNull().references(() => formDetails.id, { onDelete: "cascade" } ),
+	formId: integer("form_id").notNull().references(() => form.id),
 	question: text("question").notNull(),
 	answer: text("answer").notNull(),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
