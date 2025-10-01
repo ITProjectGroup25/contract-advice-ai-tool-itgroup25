@@ -367,7 +367,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
             </button>
           </div>
 
-          <RICChatbot />
+          {/* <RICChatbot faqs={} /> */}
 
           {/* Debug info - remove in production */}
           <Box
