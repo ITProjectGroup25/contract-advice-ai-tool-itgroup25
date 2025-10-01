@@ -1,5 +1,6 @@
 "use client";
 // FormParser.tsx - Complete form parsing system with array-based visibility
+import { uploadFileToSupabase } from "@/app/actions/uploadFileToSupabase";
 import { uploadFormResults } from "@/app/actions/uploadFormResults";
 import {
   FormLayoutComponentChildrenType,
@@ -10,14 +11,13 @@ import { Box, Card, CardContent, Typography } from "@mui/material";
 import { CheckCircle, Loader2, User } from "lucide-react";
 import React, { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
-import sendEmail from "../email/emailjs";
+import { sendEmailToRICStaff } from "../email/sendEmailToRICStaff";
+import { sendEmailToSender } from "../email/sendEmailToSender";
 import processContainerResponses from "../helpers/processContainerResponses";
 import RICChatbot from "./chatbot/chatbot";
 import ContactDetailsCard from "./contact-container";
 import { renderField } from "./control-field-renderer";
 import { retrieveVisibleSteps } from "./retrieveVisibleSteps/retrieveVisibleSteps";
-import { sendEmailToRICStaff } from "../email/sendEmailToRICStaff";
-import { sendEmailToSender } from "../email/sendEmailToSender";
 
 // Main Form Parser Component
 interface FormParserProps {
@@ -129,52 +129,74 @@ const FormParser: React.FC<FormParserProps> = ({
     return true;
   };
   const handleSubmit = () => {
-    // Validate form before submission
     if (!validateForm()) {
       return;
     }
 
     startTransition(async () => {
-      // Collate form results by container
-      const collatedResults: Record<string, any[]> = {};
-
-      // Iterate through each visible step/container
-      visibleSteps.forEach((step) => {
-        const containerName = step.container.heading;
-        const containerResponses = processContainerResponses(step, formData);
-
-        console.log({ containerResponses });
-
-        // Only add container if it has responses
-        if (containerResponses.length > 0) {
-          collatedResults[containerName] = containerResponses;
-        }
-      });
-
-      // Add contact details as a separate container
-      collatedResults["Contact Details"] = [
-        { Name: contactName },
-        { Email: contactEmail },
-      ];
-
-      const submissionData = {
-        formId: formTemplate.id,
-        formName: formTemplate.formName,
-        submittedAt: new Date().toISOString(),
-        responses: collatedResults,
-      };
-
-      console.log("Form submitted:", submissionData);
-
       try {
-        // Send email first to RIC Staff
+        // Process files first - upload to Supabase
+        const processedFormData: Record<string, any> = {};
+
+        for (const [fieldId, value] of Object.entries(formData)) {
+          if (value instanceof File) {
+            // Upload file to Supabase
+            const formDataToUpload = new FormData();
+            formDataToUpload.append("file", value);
+
+            const uploadResult = await uploadFileToSupabase(formDataToUpload);
+
+            if (uploadResult.message === "success") {
+              processedFormData[fieldId] = uploadResult.data;
+            } else {
+              throw new Error(`Failed to upload file: ${uploadResult.error}`);
+            }
+          } else {
+            processedFormData[fieldId] = value;
+          }
+        }
+
+        // Collate form results by container
+        const collatedResults: Record<string, any[]> = {};
+
+        visibleSteps.forEach((step) => {
+          const containerName = step.container.heading;
+          const containerResponses = processContainerResponses(
+            step,
+            processedFormData
+          );
+
+          if (containerResponses.length > 0) {
+            collatedResults[containerName] = containerResponses;
+          }
+        });
+
+        // Add contact details
+        collatedResults["Contact Details"] = [
+          { Name: contactName },
+          { Email: contactEmail },
+        ];
+
+        const submissionData = {
+          formId: formTemplate.id,
+          formName: formTemplate.formName,
+          submittedAt: new Date().toISOString(),
+          responses: collatedResults,
+        };
+
+        console.log("Form submitted:", submissionData);
+
+        // Send emails
         await sendEmailToRICStaff({ data: submissionData });
-        console.log("Email sent successfully");
+        console.log("Email sent to RIC staff");
 
-        // Send email to sender as confirmation
-        await sendEmailToSender({ data: submissionData, senderName: contactName });
+        await sendEmailToSender({
+          data: submissionData,
+          senderName: contactName,
+        });
+        console.log("Email sent to sender");
 
-        // Only save to database if email succeeds
+        // Save to database
         const result = await uploadFormResults(submissionData);
 
         if (result.message === "success") {
@@ -182,7 +204,6 @@ const FormParser: React.FC<FormParserProps> = ({
           setIsConfirmed(true);
           toast.success("Form submitted successfully!");
 
-          // Reset confirmed state after 3 seconds
           setTimeout(() => setIsConfirmed(false), 3000);
         } else {
           throw new Error(result.error?.toString() || "Failed to save results");
@@ -197,7 +218,6 @@ const FormParser: React.FC<FormParserProps> = ({
       }
     });
   };
-
   const handleFieldChange = (
     fieldId: string,
     selectedValue: any,
