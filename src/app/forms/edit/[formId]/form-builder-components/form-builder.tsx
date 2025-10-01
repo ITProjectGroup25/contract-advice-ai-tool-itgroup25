@@ -2,7 +2,15 @@ import { deleteForm } from "@/app/actions/deleteForm";
 import { publishForm } from "@/app/actions/publishForm";
 import { updateFormName } from "@/app/actions/updateFormName";
 import { Publish, RemoveRedEye } from "@mui/icons-material";
-import { Button, TextField } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+} from "@mui/material";
 import { useRouter } from "next/navigation";
 import { FunctionComponent, useState, useTransition } from "react";
 import { DndProvider } from "react-dnd";
@@ -57,8 +65,8 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
   const { classes } = useStyles();
 
   const [isPublishing, setIsPublishing] = useState(false);
-
   const [isEditingFormName, setIsEditingFormName] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const handlePublishForm = async () => {
     try {
@@ -107,9 +115,9 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
       setIsPublishing(false);
     }
   };
+
   const handleCancel = () => {
     router.refresh();
-
     window.location.href = "/view-forms-redirect";
   };
 
@@ -117,12 +125,20 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
 
   const [isDeleting, startIsDeletingTransition] = useTransition();
 
-  const handleDelete = () => {
+  const handleDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    setOpenDeleteDialog(false);
     startIsDeletingTransition(() => {
       deleteForm({ id: selectedTemplate?.id! });
-
       window.location.href = "/view-forms-redirect";
     });
+  };
+
+  const handleDeleteCancel = () => {
+    setOpenDeleteDialog(false);
   };
 
   const handleGoToResults = () => {
@@ -191,7 +207,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                         <div>
                           <div className="action-buttons d-flex">
                             <Button
-                              onClick={handleDelete}
+                              onClick={handleDeleteClick}
                               className="mx-2 text-red"
                               disabled={isDeleting}
                             >
@@ -208,20 +224,18 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                             <Button
                               className="mx-2"
                               variant="outlined"
+                              onClick={() => {
+                                if (selectedTemplate?.id) {
+                                  window.open(
+                                    `/forms/ric_form/${selectedTemplate.id}`,
+                                    "_blank"
+                                  );
+                                }
+                              }}
                               endIcon={<RemoveRedEye />}
                               disabled={!selectedTemplate?.id}
                             >
-                              <a
-                                href={`/forms/ric_form/${selectedTemplate?.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                  textDecoration: "none",
-                                  color: "inherit",
-                                }}
-                              >
-                                Preview
-                              </a>
+                              Preview
                             </Button>
                             <Button
                               onClick={handlePublishForm}
@@ -314,6 +328,36 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
             formLayoutComponents={formLayoutComponents}
             closePreviewDrawer={closePreviewDrawer}
           />
+
+          {/* Delete Confirmation Dialog */}
+          <Dialog
+            open={openDeleteDialog}
+            onClose={handleDeleteCancel}
+            aria-labelledby="delete-dialog-title"
+            aria-describedby="delete-dialog-description"
+          >
+            <DialogTitle id="delete-dialog-title">Delete Form?</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="delete-dialog-description">
+                Are you sure you want to delete "
+                {selectedTemplate?.formName || "this form"}"? This action cannot
+                be undone.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleDeleteCancel} color="primary">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDeleteConfirm}
+                color="error"
+                variant="contained"
+                autoFocus
+              >
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
         </DndProvider>
       </>
     </>
