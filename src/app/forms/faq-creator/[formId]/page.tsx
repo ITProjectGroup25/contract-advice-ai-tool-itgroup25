@@ -26,7 +26,7 @@ const page = async ({
     .from(formFaqs)
     .where(eq(formFaqs.formId, formId));
 
-  return <AdminFAQManager FAQs={faqs} />;
+  return <AdminFAQManager FAQs={faqs} formId={formId} />;
 };
 
 export default page;

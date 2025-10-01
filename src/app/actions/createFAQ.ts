@@ -5,23 +5,25 @@ import { z } from "zod";
 import { formFaqs } from "../../../drizzle/schema";
 
 type FAQData = {
-  formDetailsId: number;
+  formId: number;
   question: string;
   answer: string;
 };
 
 type Args = FAQData;
 
-export async function createFAQ({ formDetailsId, question, answer }: Args) {
+export async function createFAQ({ formId, question, answer }: Args) {
   // Validate input data
   const schema = z.object({
-    formDetailsId: z.number().positive(),
+    formId: z.number().positive(),
     question: z.string().min(1, "Question cannot be empty"),
     answer: z.string().min(1, "Answer cannot be empty"),
   });
 
+  console.log({ formId, question, answer });
+
   const parse = schema.safeParse({
-    formDetailsId,
+    formId,
     question,
     answer,
   });
@@ -40,7 +42,7 @@ export async function createFAQ({ formDetailsId, question, answer }: Args) {
     const [newFAQ] = await db
       .insert(formFaqs)
       .values({
-        formDetailsId: data.formDetailsId,
+        formId: data.formId,
         question: data.question,
         answer: data.answer,
       })

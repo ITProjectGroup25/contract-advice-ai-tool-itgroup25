@@ -6,8 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { Edit3, Plus, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { Edit3, Plus, Trash2, X, Loader2 } from "lucide-react";
+import { useState, useTransition } from "react";
+import { createFAQ } from "@/app/actions/createFAQ";
+import { editFAQ } from "@/app/actions/editFAQ";
+import { deleteFAQ } from "@/app/actions/deleteFAQ";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface FAQ {
   id: number;
@@ -17,54 +22,60 @@ interface FAQ {
 
 type Props = {
   FAQs: FAQ[];
+  formId: number;
 };
 
-export default function AdminFAQManager({ FAQs }: Props) {
-  const [faqs, setFaqs] = useState<FAQ[]>([
-    {
-      id: 1,
-      question: "What is your return policy?",
-      answer:
-        "We offer a 30-day return policy for all unused items in their original packaging. Please contact our support team to initiate a return.",
-    },
-    {
-      id: 2,
-      question: "How long does shipping take?",
-      answer:
-        "Standard shipping typically takes 3-5 business days. Express shipping options are available for faster delivery.",
-    },
-  ]);
+export default function AdminFAQManager({ FAQs, formId }: Props) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleAddFAQ = () => {
     if (!question.trim() || !answer.trim()) return;
 
-    if (editingId) {
-      // Update existing FAQ
-      setFaqs((prev) =>
-        prev.map((faq) =>
-          faq.id === editingId
-            ? { ...faq, question: question.trim(), answer: answer.trim() }
-            : faq
-        )
-      );
-      setEditingId(null);
-    } else {
-      // Add new FAQ
-      const newFAQ: FAQ = {
-        id: Date.now(),
-        question: question.trim(),
-        answer: answer.trim(),
-      };
-      setFaqs((prev) => [...prev, newFAQ]);
-    }
+    startTransition(async () => {
+      try {
+        if (editingId) {
+          // Update existing FAQ
+          const result = await editFAQ({
+            faqId: editingId,
+            question: question.trim(),
+            answer: answer.trim(),
+          });
 
-    setQuestion("");
-    setAnswer("");
-    setShowForm(false);
+          if (result.message === "success") {
+            toast.success("FAQ updated successfully");
+            setEditingId(null);
+          } else {
+            toast.error(result.message);
+          }
+        } else {
+          // Create new FAQ
+          const result = await createFAQ({
+            formId,
+            question: question.trim(),
+            answer: answer.trim(),
+          });
+
+          if (result.message === "success") {
+            toast.success("FAQ created successfully");
+          } else {
+            toast.error(result.message);
+          }
+        }
+
+        setQuestion("");
+        setAnswer("");
+        setShowForm(false);
+        router.refresh();
+      } catch (error) {
+        toast.error("An error occurred. Please try again.");
+        console.error(error);
+      }
+    });
   };
 
   const handleEditFAQ = (faq: FAQ) => {
@@ -75,7 +86,23 @@ export default function AdminFAQManager({ FAQs }: Props) {
   };
 
   const handleDeleteFAQ = (id: number) => {
-    setFaqs((prev) => prev.filter((faq) => faq.id !== id));
+    if (!confirm("Are you sure you want to delete this FAQ?")) return;
+
+    startTransition(async () => {
+      try {
+        const result = await deleteFAQ({ faqId: id });
+
+        if (result.message === "success") {
+          toast.success("FAQ deleted successfully");
+          router.refresh();
+        } else {
+          toast.error(result.message);
+        }
+      } catch (error) {
+        toast.error("Failed to delete FAQ. Please try again.");
+        console.error(error);
+      }
+    });
   };
 
   const handleCancel = () => {
@@ -103,7 +130,7 @@ export default function AdminFAQManager({ FAQs }: Props) {
           <Button
             onClick={() => setShowForm(true)}
             className="flex items-center gap-2 font-medium"
-            disabled={showForm}
+            disabled={showForm || isPending}
           >
             <Plus className="w-4 h-4" />
             Create New FAQ
@@ -123,6 +150,7 @@ export default function AdminFAQManager({ FAQs }: Props) {
                   size="icon"
                   onClick={handleCancel}
                   className="h-8 w-8"
+                  disabled={isPending}
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -139,6 +167,7 @@ export default function AdminFAQManager({ FAQs }: Props) {
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   className="border-border/50"
+                  disabled={isPending}
                 />
               </div>
 
@@ -152,6 +181,7 @@ export default function AdminFAQManager({ FAQs }: Props) {
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
                   className="min-h-[120px] border-border/50 resize-none"
+                  disabled={isPending}
                 />
               </div>
 
@@ -159,15 +189,25 @@ export default function AdminFAQManager({ FAQs }: Props) {
                 <Button
                   onClick={handleAddFAQ}
                   className="flex items-center gap-2 font-medium"
-                  disabled={!question.trim() || !answer.trim()}
+                  disabled={!question.trim() || !answer.trim() || isPending}
                 >
-                  <Plus className="w-4 h-4" />
-                  {editingId ? "Update FAQ" : "Add FAQ"}
+                  {isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {editingId ? "Updating..." : "Adding..."}
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      {editingId ? "Update FAQ" : "Add FAQ"}
+                    </>
+                  )}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={handleCancel}
                   className="font-medium bg-transparent"
+                  disabled={isPending}
                 >
                   Cancel
                 </Button>
@@ -183,11 +223,11 @@ export default function AdminFAQManager({ FAQs }: Props) {
         <div className="space-y-4">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-medium text-foreground">
-              Existing FAQs ({faqs.length})
+              Existing FAQs ({FAQs.length})
             </h2>
           </div>
 
-          {faqs.length === 0 ? (
+          {FAQs.length === 0 ? (
             <Card className="border-dashed border-2 border-border/50">
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
@@ -204,6 +244,7 @@ export default function AdminFAQManager({ FAQs }: Props) {
                   onClick={() => setShowForm(true)}
                   className="mt-4 font-medium"
                   variant="outline"
+                  disabled={isPending}
                 >
                   Create Your First FAQ
                 </Button>
@@ -211,7 +252,7 @@ export default function AdminFAQManager({ FAQs }: Props) {
             </Card>
           ) : (
             <div className="space-y-4">
-              {faqs.map((faq, index) => (
+              {FAQs.map((faq, index) => (
                 <Card
                   key={faq.id}
                   className="border-border/50 shadow-sm hover:shadow-md transition-shadow"
@@ -234,6 +275,7 @@ export default function AdminFAQManager({ FAQs }: Props) {
                           size="icon"
                           onClick={() => handleEditFAQ(faq)}
                           className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          disabled={isPending}
                         >
                           <Edit3 className="w-4 h-4" />
                         </Button>
@@ -242,6 +284,7 @@ export default function AdminFAQManager({ FAQs }: Props) {
                           size="icon"
                           onClick={() => handleDeleteFAQ(faq.id)}
                           className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          disabled={isPending}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
