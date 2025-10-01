@@ -2,7 +2,7 @@ import { deleteForm } from "@/app/actions/deleteForm";
 import { publishForm } from "@/app/actions/publishForm";
 import { SAMPLE_GRANT_FORM_URL } from "@/app/contact/community-showcase";
 import { Publish, RemoveRedEye } from "@mui/icons-material";
-import { Button } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { FunctionComponent, useState, useTransition } from "react";
 import { DndProvider } from "react-dnd";
@@ -45,7 +45,8 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
     selectedTemplate,
     formLayoutComponents,
     selectedControl,
-    addAdminEmailToSendFormResultsTo
+    addAdminEmailToSendFormResultsTo,
+    editFormName,
   } = useFormBuilder({ template: props.template });
 
   const router = useRouter();
@@ -56,6 +57,8 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
   const { classes } = useStyles();
 
   const [isPublishing, setIsPublishing] = useState(false);
+
+  const [isEditingFormName, setIsEditingFormName] = useState(false);
 
   const handlePublishForm = async () => {
     try {
@@ -69,7 +72,10 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
         JSON.stringify(formLayoutComponents)
       );
       formData.append("id", selectedTemplate?.id);
-      formData.append("adminEmailToSendResultsTo", selectedTemplate?.adminEmailToSendResultsTo);
+      formData.append(
+        "adminEmailToSendResultsTo",
+        selectedTemplate?.adminEmailToSendResultsTo
+      );
 
       console.log({ formLayoutComponents });
 
@@ -147,7 +153,29 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                     <div className="col-12">
                       <div className="d-flex justify-content-between align-items-between">
                         <div>
-                          <h4 className="mb-0">{selectedTemplate?.formName}</h4>
+                          {isEditingFormName ? (
+                            <TextField
+                              variant="outlined"
+                              size="small"
+                              autoFocus
+                              value={selectedTemplate?.formName ?? ""}
+                              onChange={(e) => editFormName(e.target.value)}
+                              onBlur={() => setIsEditingFormName(false)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  setIsEditingFormName(false);
+                                }
+                              }}
+                            />
+                          ) : (
+                            <h4
+                              className="mb-0"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => setIsEditingFormName(true)}
+                            >
+                              {selectedTemplate?.formName || "Untitled Form"}
+                            </h4>
+                          )}
                         </div>
                         <div>
                           <div className="action-buttons d-flex">
@@ -250,7 +278,9 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                     moveControlFromSide={moveControlFromSide}
                     editContainerProperties={editContainerProperties}
                     editControlProperties={editControlProperties}
-                    addAdminEmailToSendFormResultsTo={addAdminEmailToSendFormResultsTo}
+                    addAdminEmailToSendFormResultsTo={
+                      addAdminEmailToSendFormResultsTo
+                    }
                   />
                 </div>
               </div>

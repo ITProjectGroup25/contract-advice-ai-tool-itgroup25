@@ -272,6 +272,17 @@ const useFormBuilder = (props: useFormBuilderProps) => {
       };
     });
   };
+
+  const editFormName = (newName: string) => {
+    setSelectedTemplate((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        formName: newName,
+      };
+    });
+  };
+
   return {
     handleItemAdded,
     deleteContainer,
@@ -286,6 +297,7 @@ const useFormBuilder = (props: useFormBuilderProps) => {
     selectedControl,
     setFormLayoutComponents,
     addAdminEmailToSendFormResultsTo,
+    editFormName
   };
 };
 
