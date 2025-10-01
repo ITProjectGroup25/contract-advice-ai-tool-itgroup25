@@ -23,20 +23,27 @@ import {
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import moment from "moment";
 
-{
-  /* <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-  Your Name <span className="text-red-500">*</span>
-</Label>; */
-}
+// Email validation helper function
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// Check if field label contains "email"
+const isEmailField = (labelName: string): boolean => {
+  return labelName.toLowerCase().includes("email");
+};
 
 export const renderField = (
   field: FormLayoutComponentChildrenType,
   value: any,
-
   onChange: (value: any) => void
 ) => {
   switch (field.controlName) {
     case FormControlNames.INPUTTEXTFIELD:
+      const shouldValidateEmail = isEmailField(field.labelName);
+      const emailError = shouldValidateEmail && value && !isValidEmail(value);
+
       return (
         <div key={field.id} className="flex flex-col items-start w-full">
           <Label
@@ -48,14 +55,21 @@ export const renderField = (
           </Label>
           <Input
             id={field.id.toString()}
-            type={field.dataType || "text"}
+            type={shouldValidateEmail ? "email" : field.dataType || "text"}
             placeholder={field.placeholder}
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
             required={field.required}
-            className="h-14 text-base bg-white text-gray-700 placeholder:text-gray-400 rounded-lg border-gray-300"
+            className={`h-14 text-base bg-white text-gray-700 placeholder:text-gray-400 rounded-lg border-gray-300 ${
+              emailError ? "border-red-500" : ""
+            }`}
           />
-          {field.description && (
+          {emailError && (
+            <p className="mt-1 text-xs text-red-500">
+              Please enter a valid email address
+            </p>
+          )}
+          {field.description && !emailError && (
             <p className="mt-1 text-xs text-gray-500">{field.description}</p>
           )}
         </div>
@@ -78,6 +92,7 @@ export const renderField = (
         />
       );
 
+    // ... rest of the cases remain the same
     case FormControlNames.CHECKBOX:
       return (
         <div key={field.id} className="flex items-center space-x-3">
@@ -343,7 +358,6 @@ export const renderField = (
           <Button
             variant="outlined"
             onClick={() => {
-              // Implement signature capture logic here
               console.log("Open signature capture");
             }}
             sx={{ width: 270, height: 100 }}

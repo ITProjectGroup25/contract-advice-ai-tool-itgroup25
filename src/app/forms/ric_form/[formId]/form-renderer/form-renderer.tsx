@@ -67,44 +67,65 @@ const FormParser: React.FC<FormParserProps> = ({
       return false;
     }
 
+    // Validate email format for contact email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(contactEmail)) {
+      toast.error("Please enter a valid email address for contact email");
+      return false;
+    }
+
     // Validate all visible fields
     for (const step of visibleSteps) {
       console.log({ step });
       for (const field of step.children) {
         console.log({ field });
-        if (field.required) {
-          const value = formData[field.id];
-          const isEmpty =
-            value === undefined ||
-            value === null ||
-            value === "" ||
-            (Array.isArray(value) && value.length === 0);
 
-          console.log({ value, isEmpty });
+        const value = formData[field.id];
+        const isEmpty =
+          value === undefined ||
+          value === null ||
+          value === "" ||
+          (Array.isArray(value) && value.length === 0);
 
-          if (isEmpty) {
-            // Scroll to the field
-            const fieldElement = fieldRefs.current[field.id.toString()];
-            if (fieldElement) {
-              fieldElement.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-            }
-
-            // Show toast error
-            toast.error(
-              `Please fill in the required field: ${field.labelName}`
-            );
-            return false;
+        // Check required fields
+        if (field.required && isEmpty) {
+          const fieldElement = fieldRefs.current[field.id.toString()];
+          if (fieldElement) {
+            fieldElement.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
           }
+
+          toast.error(`Please fill in the required field: ${field.labelName}`);
+          return false;
+        }
+
+        // Email validation for text fields with "email" in the label
+        if (
+          field.controlName === "INPUT_TEXT_FIELD" &&
+          field.labelName.toLowerCase().includes("email") &&
+          value &&
+          !emailRegex.test(value)
+        ) {
+          const fieldElement = fieldRefs.current[field.id.toString()];
+          if (fieldElement) {
+            fieldElement.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }
+
+          toast.error(
+            `Please enter a valid email address for: ${field.labelName}`
+          );
+          return false;
         }
       }
     }
 
     return true;
   };
-
   const handleSubmit = () => {
     // Validate form before submission
     if (!validateForm()) {
