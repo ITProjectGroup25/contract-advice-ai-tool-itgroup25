@@ -1,24 +1,24 @@
 "use client";
 
+import { createFAQ } from "@/app/actions/createFAQ";
+import { deleteFAQ } from "@/app/actions/deleteFAQ";
+import { editFAQ } from "@/app/actions/editFAQ";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { Edit3, Plus, Trash2, X, Loader2 } from "lucide-react";
-import { useState, useTransition } from "react";
-import { createFAQ } from "@/app/actions/createFAQ";
-import { editFAQ } from "@/app/actions/editFAQ";
-import { deleteFAQ } from "@/app/actions/deleteFAQ";
-import { toast } from "sonner";
+import { Edit3, Loader2, Plus, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 
-interface FAQ {
+export type FAQ = {
   id: number;
   question: string;
   answer: string;
-}
+};
 
 type Props = {
   FAQs: FAQ[];

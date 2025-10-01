@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { form, formDetails } from "../../../../../drizzle/schema";
+import { form, formDetails, formFaqs } from "../../../../../drizzle/schema";
 import { TemplateSchema } from "../../edit/[formId]/form-builder-components/types/FormTemplateTypes";
 import FormParser from "./form-renderer/form-renderer";
 
@@ -37,18 +37,21 @@ const page = async ({
 
   console.log({ formData });
 
+  // Fetch FAQs for this form
+  const faqs = await db
+    .select({
+      id: formFaqs.id,
+      question: formFaqs.question,
+      answer: formFaqs.answer,
+    })
+    .from(formFaqs)
+    .where(eq(formFaqs.formId, formId));
+
+  console.log({ faqs });
+
   const formFields = z.string().parse(formData?.formFields);
 
   console.log({ formFields });
-
-  // const formTemplate = {
-  //   formName: singleForm?.name!,
-  //   id: singleForm?.id!,
-  //   createdAt: singleForm?.createdAt!,
-  //   formLayoutComponents: JSON.parse(formFields),
-  //   publishHistory: [],
-  //   creator: "",
-  // };
 
   const formTemplate = JSON.parse(formFields);
 
@@ -60,7 +63,7 @@ const page = async ({
 
   return (
     <div>
-      <FormParser formTemplate={validatedFormTemplate} />;
+      <FormParser formTemplate={validatedFormTemplate} faqs={faqs} />
       <Toaster />
     </div>
   );

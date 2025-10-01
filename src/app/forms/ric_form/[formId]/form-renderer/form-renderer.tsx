@@ -5,19 +5,21 @@ import {
   FormLayoutComponentChildrenType,
   FormLayoutComponentContainerType,
 } from "@/app/forms/edit/[formId]/form-builder-components/types/FormTemplateTypes";
+import { FAQ } from "@/app/forms/faq-creator/[formId]/faq-creator";
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import { CheckCircle, Loader2, User } from "lucide-react";
 import React, { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import sendEmail from "../emailjs";
 import processContainerResponses from "../helpers/processContainerResponses";
-import RICChatbot from "./chatbot/chatbot";
 import ContactDetailsCard from "./contact-container";
 import { renderField } from "./control-field-renderer";
 import { retrieveVisibleSteps } from "./retrieveVisibleSteps/retrieveVisibleSteps";
+import RICChatbot from "./chatbot/chatbot";
 
 // Main Form Parser Component
 interface FormParserProps {
+  faqs: FAQ[];
   formTemplate: {
     formName: string;
     id: number;
@@ -29,7 +31,11 @@ interface FormParserProps {
   onSubmit?: (formData: Record<string, any>) => void;
 }
 
-const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
+const FormParser: React.FC<FormParserProps> = ({
+  formTemplate,
+  onSubmit,
+  faqs,
+}) => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [contactName, setContactName] = useState<string>("");
   const [contactEmail, setContactEmail] = useState<string>("");
@@ -367,7 +373,7 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
             </button>
           </div>
 
-          {/* <RICChatbot faqs={} /> */}
+          <RICChatbot faqs={faqs} />
 
           {/* Debug info - remove in production */}
           <Box
