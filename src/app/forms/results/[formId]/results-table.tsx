@@ -23,6 +23,9 @@ import { FormResult } from "../../edit/[formId]/form-builder-components/types/Fo
 import { formatFileSize } from "./helpers/formatFileSize";
 import { isFileUpload } from "./helpers/isFile";
 
+import { FileDown } from "lucide-react"; // Add to existing lucide-react imports
+import * as XLSX from "xlsx";
+
 interface FormResultsPageProps {
   formName: string;
   results: FormResult[];
@@ -48,6 +51,68 @@ const FormResultsPage: React.FC<FormResultsPageProps> = ({
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  // Add this function inside your component, after the handleDelete function
+  const handleExportToExcel = () => {
+    // Prepare data for Excel
+    const excelData: any[] = [];
+
+    results.forEach((result) => {
+      const contact = getContactDetails(result);
+      const row: any = {
+        "Submission ID": result.id,
+        Name: contact.name,
+        Email: contact.email,
+        "Submitted At": formatDate(
+          result.submittedAt.toLocaleDateString() ?? ""
+        ),
+      };
+
+      // Add all responses from each container
+      Object.entries(result.results).forEach(([containerName, responses]) => {
+        responses.forEach((response) => {
+          Object.entries(response).forEach(([field, value]) => {
+            // Handle file uploads
+            if (isFileUpload(value)) {
+              row[field] = value.fileUrl; // Use URL for files
+            } else if (Array.isArray(value)) {
+              row[field] = value.join(", ");
+            } else {
+              row[field] = value;
+            }
+          });
+        });
+      });
+
+      excelData.push(row);
+    });
+
+    // Create worksheet and workbook
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Form Submissions");
+
+    // Auto-size columns
+    const maxWidth = 50;
+    const colWidths = Object.keys(excelData[0] || {}).map((key) => ({
+      wch: Math.min(
+        Math.max(
+          key.length,
+          ...excelData.map((row) => String(row[key] || "").length)
+        ),
+        maxWidth
+      ),
+    }));
+    worksheet["!cols"] = colWidths;
+
+    // Generate file name with current date
+    const fileName = `${formName.replace(/\s+/g, "_")}_submissions_${
+      new Date().toISOString().split("T")[0]
+    }.xlsx`;
+
+    // Download file
+    XLSX.writeFile(workbook, fileName);
   };
 
   const getContactDetails = (result: FormResult) => {
@@ -131,6 +196,14 @@ const FormResultsPage: React.FC<FormResultsPageProps> = ({
                 </div>
               </div>
             </div>
+            <button
+              onClick={handleExportToExcel}
+              disabled={results.length === 0}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FileDown className="w-5 h-5" />
+              Export to Excel
+            </button>
           </div>
 
           {/* Stats Card */}
@@ -158,7 +231,9 @@ const FormResultsPage: React.FC<FormResultsPageProps> = ({
                     <p className="text-sm text-gray-600">Latest Submission</p>
                     <p className="text-lg font-semibold text-gray-900 mt-1">
                       {results.length > 0
-                        ? formatDate(results[0].submittedAt ?? "").split(",")[0]
+                        ? formatDate(
+                            results[0].submittedAt.toLocaleDateString() ?? ""
+                          ).split(",")[0]
                         : "N/A"}
                     </p>
                   </div>

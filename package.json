@@ -75,6 +75,7 @@
     "tailwindcss-animate": "^1.0.7",
     "tss-react": "^4.9.19",
     "uuid": "^9.0.1",
+    "xlsx": "^0.18.5",
     "zod": "^3.22.4"
   },
   "devDependencies": {
