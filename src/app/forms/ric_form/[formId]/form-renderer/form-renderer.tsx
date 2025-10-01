@@ -14,6 +14,7 @@ import processContainerResponses from "../helpers/processContainerResponses";
 import ContactDetailsCard from "./contact-container";
 import { renderField } from "./control-field-renderer";
 import { retrieveVisibleSteps } from "./retrieveVisibleSteps/retrieveVisibleSteps";
+import RICChatbot from "./chatbot/chatbot";
 
 // Main Form Parser Component
 interface FormParserProps {
@@ -365,6 +366,8 @@ const FormParser: React.FC<FormParserProps> = ({ formTemplate, onSubmit }) => {
               )}
             </button>
           </div>
+
+          <RICChatbot />
 
           {/* Debug info - remove in production */}
           <Box
