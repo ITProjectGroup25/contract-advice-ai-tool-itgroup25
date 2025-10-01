@@ -12,10 +12,10 @@ import React, { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import sendEmail from "../emailjs";
 import processContainerResponses from "../helpers/processContainerResponses";
+import RICChatbot from "./chatbot/chatbot";
 import ContactDetailsCard from "./contact-container";
 import { renderField } from "./control-field-renderer";
 import { retrieveVisibleSteps } from "./retrieveVisibleSteps/retrieveVisibleSteps";
-import RICChatbot from "./chatbot/chatbot";
 
 // Main Form Parser Component
 interface FormParserProps {
@@ -320,7 +320,7 @@ const FormParser: React.FC<FormParserProps> = ({
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-semibold text-gray-900 mb-2">
-            Referral Request Form
+            {formTemplate.formName}
           </h1>
 
           <button
