@@ -1,6 +1,6 @@
 import { deleteForm } from "@/app/actions/deleteForm";
 import { publishForm } from "@/app/actions/publishForm";
-import { SAMPLE_GRANT_FORM_URL } from "@/app/contact/community-showcase";
+import { updateFormName } from "@/app/actions/updateFormName";
 import { Publish, RemoveRedEye } from "@mui/icons-material";
 import { Button, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,6 @@ import EditPropertiesComponent from "./subcomponents/EditPropertiesComponent";
 import FormPreview from "./subcomponents/FormPreview";
 import { TemplateType } from "./types/FormTemplateTypes";
 import { FormItemTypes } from "./utils/formBuilderUtils";
-import { updateFormName } from "@/app/actions/updateFormName";
 
 interface FormBuilderProps {
   template: TemplateType;
@@ -209,10 +208,20 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                             <Button
                               className="mx-2"
                               variant="outlined"
-                              // onClick={() => openPreviewDrawer()}
                               endIcon={<RemoveRedEye />}
+                              disabled={!selectedTemplate?.id}
                             >
-                              <a href={SAMPLE_GRANT_FORM_URL}>Preview</a>
+                              <a
+                                href={`/forms/ric_form/${selectedTemplate?.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  textDecoration: "none",
+                                  color: "inherit",
+                                }}
+                              >
+                                Preview
+                              </a>
                             </Button>
                             <Button
                               onClick={handlePublishForm}
