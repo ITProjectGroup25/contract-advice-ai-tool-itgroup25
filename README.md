@@ -1,18 +1,48 @@
 # Contract Advice AI Assistant & Referral Tool
 
-This is a server-based online software.
-Its purpose is to answer user questions more efficiently.
-When running, the program opens a local webpage and allows the user to select the type of request and the required files. Depending on the complexity, an answer is provided or the question is sent to an administrator's email.
-All user requests are stored in an online database and categorized by type, time, and response satisfaction, allowing for future updates and research.
-The software also allows administrators to modify each question simultaneously, ensuring long-term use with minimal maintenance and the addition of new features.
+This is a server-based online software — the RIC form builder application — built using Next.js, Next-auth, Shadcn UI, Gemini AI API, Drizzle, PostgreSQL, and TypeScript. 
+
+Its purpose is to answer user questions more efficiently. When running, the program operates a webpage and allows the user to select the type of request and the required files, or to easily create customized forms by providing prompts, and the forms can be published for others to fill out. Depending on the complexity, an answer is provided or the question is sent to an administrator's email. 
+
+All user requests and form responses are stored in an online database and categorized by type, time, and response satisfaction, allowing for future updates and research. The admin of the form can access and view all responses submitted, and the software also allows administrators to modify each question simultaneously, ensuring long-term use with minimal maintenance and the addition of new features.
+
+# Features
+
+(undone)
+- **AI-Powered Form Creation**: Users can create forms by simply providing prompts, and the AI generates the necessary form fields based on the prompts. **(The necessity of this function needs to be verified later)**
+- **Authentication**: Next-auth is integrated for secure authentication, allowing users to sign up, sign in, and manage their accounts. **(To be clarified)**
+- **Responsive Design**: Shadcn UI ensures that the application is responsive and looks great across various devices and screen sizes.
+- **Admin Dashboard**: Admin users have access to a dashboard where they can view all responses submitted to their forms.
+- **Persistent Data Storage**: PostgreSQL is used as the database to store form configurations, user information, and form responses securely.
+- **Theme Customization**: The app offers six different themes for users to choose from, allowing them to customize the appearance of their app interface.
+- **Type Safety**: TypeScript is employed throughout the project to provide type safety and enhance code maintainability.
+
+# System Architecture Overview
+
+```bash
+┌─────────────────┐     ┌──────────────────┐   ┌─────────────────┐
+│     Vercel      │     │  GitHub Actions  │   │     Supabase    │
+│  (Frontend)     │◄────┤      (CI/CD)     ├──►│    (Database)   │
+│   Next.js App   │     │                  │   │    PostgreSQL   │
+└─────────────────┘     └──────────────────┘   └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     Production Environment                      │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 # Tools and technologies used
 
-Both frontend and backend of this software is written in __JavaScript__ and __TypeScript__.
-__EmailJS__ is used to implement email notification.
-__Supabase__ is used for the online database.
-__Vercel__ is used to deploy the web app.
+## Tech Stack
 
+- **Frontend**: Next.js 14 + TypeScript + Tailwind CSS + Shadcn UI
+- **Backend**: Next.js API Routes + Drizzle ORM (co-located with frontend)
+- **Database**: PostgreSQL (local via Docker / hosted on Supabase)
+- **Authentication**: NextAuth.js (Google OAuth)
+- **AI Service**: Google Gemini API (optional)
+- **Deployment**: Vercel (app) + Supabase (database)
+- **CI/CD**: GitHub Actions (frontend build & DB migration)
 
 ## Repository layout
 
@@ -348,28 +378,20 @@ git push origin main
 
 # Helpful links
 Private [Development workflow](https://itgroup25.atlassian.net/wiki/spaces/ITgroup25/folder/25919489)
+
 Private [Design Artefacts](https://itgroup25.atlassian.net/wiki/spaces/ITgroup25/folder/11862053)
 
-## Additional tooling
-
-- Backend database tooling lives under `backend/` – use `npm run db:generate`, `npm run db:migrate`, or `npm run db:push` from the repository root.
-- Shared types exposed via `@shared` can be authored in `shared/src/` and consumed from both the Next.js app (`@shared/...`) and backend (`@shared/...`).
-
-With this layout the frontend and backend teams can iterate without stepping on each other, while shared contracts stay in one place.
-
-
 # release note
-### 0.1.1 Alpha release
-release date:2025.10.2
-ChatBot logic included (not implemented)
-CICD pipelind basic
-Further Database development
-Online preview page inside the github "About" section
-
-Edit:settup guide is changed due to bringing the site online, check above __Deployment Guide__ section
+### 0.1.1 Edit
+- release date:2025.10.2
+- ChatBot logic included (not implemented)
+- CICD pipelind basic
+- Further Database development
+- Online preview page inside the github "About" section
+- Edit:settup guide is changed due to bringing the site online, check above __Deployment Guide__ section
 
 ### 0.1.0 Alpha release
-release date:2025.9.28
-A basic website framework and most of the features described
-Include most importantly the form and question editing feature
+- release date:2025.9.28
+- A basic website framework and most of the features described
+- Include most importantly the form and question editing feature
 
