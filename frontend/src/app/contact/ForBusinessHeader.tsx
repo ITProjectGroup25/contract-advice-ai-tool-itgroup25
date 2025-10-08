@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import Logo from "./Logo.jpg";
@@ -14,33 +13,6 @@ const ForBusinessHeader = () => {
           <Image src={Logo} alt="logo" className="w-24" />
         </Link>
         <div className="flex items-center gap-2">
-          <Button
-            className="rounded-full bg-emerald-500 text-sm font-bold hover:bg-emerald-600"
-            asChild
-          >
-            <Link className="text-white" href="/grant-support">
-              Referral Assistant
-            </Link>
-          </Button>
-
-          <Button
-            className="rounded-full bg-purple-500 text-sm font-bold"
-            asChild
-          >
-            <Link className="text-white" href={"#questionnaire"}>
-              Search for a grant case
-            </Link>
-          </Button>
-
-          <Button
-            className="rounded-full bg-blue-800 text-sm font-bold"
-            asChild
-          >
-            <Link className="text-white" href={"view-forms"}>
-              Dashboard
-            </Link>
-          </Button>
-
           <button
             data-collapse-toggle="navbar-default"
             type="button"
