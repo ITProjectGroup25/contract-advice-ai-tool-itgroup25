@@ -14,7 +14,10 @@ const ForBusinessHeader = () => {
           <Image src={Logo} alt="logo" className="w-24" />
         </Link>
         <div className="flex items-center gap-2">
-          <Button
+
+          {/* the button under are currently ignored for web page clarity*/}
+          
+          {/*<Button
             className="rounded-full bg-emerald-500 text-sm font-bold hover:bg-emerald-600"
             asChild
           >
@@ -39,7 +42,7 @@ const ForBusinessHeader = () => {
             <Link className="text-white" href={"view-forms"}>
               Dashboard
             </Link>
-          </Button>
+          </Button>*/}
 
           <button
             data-collapse-toggle="navbar-default"

@@ -1,36 +1,38 @@
 "use client";
 
-import ErrorText from "@/components/error-text";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+{/*import ErrorText from "@/components/error-text";*/}
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
+{/*import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/components/ui/form";*/}
+{/*import { Input } from "@/components/ui/input";*/}
 import { LoadingSpinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
+{/*import { Textarea } from "@/components/ui/textarea";*/}
 import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+{/*import { useForm } from "react-hook-form";*/}
 import { toast } from "sonner";
 
-type FormValues = {
+{/*type FormValues = {
   email: string;
   enquiry: string;
-};
+};*/}
 
 const ForBusinessSignUpForm = () => {
-  const form = useForm<FormValues>();
+  {/*const form = useForm<FormValues>();*/}
 
-  const { errors } = form.formState;
+  {/*const { errors } = form.formState;*/}
 
   const [isPending, startTransition] = useTransition();
   const [signupSuccess, setSignupSuccess] = useState(false);
   const [authError, setAuthError] = useState<string>("");
 
-  const onSubmit = async (values: FormValues) => {
+  {/*const onSubmit = async (values: FormValues) => {
     console.log({ values });
     toast.success("We have received your message :)");
 
@@ -45,18 +47,26 @@ const ForBusinessSignUpForm = () => {
     //     }
     //   }
     // });
-  };
+  };*/}
 
   return (
-    <Card className="w-full rounded-2xl bg-white border-none pb-8 shadow-2xl lg:flex-[2_2_0%] lg:px-8">
+    <Card className="w-full rounded-2xl bg-white border-none pb-8 shadow-2xl lg:flex-[2_2_0%] lg:px-8 py-4">
       <CardHeader>
-        <CardTitle className="text-xl text-black font-bold text-center">
-          Have a quick enquiry?
+        <CardTitle className="text-4xl text-black font-bold text-center">
+          Have a enquiry?
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <Form {...form}>
+        <div className="space-y-4 flex justify-center">
+          <Button
+            className="rounded-2xl bg-gray-900 text-4xl font-bold hover:bg-blue-900 px-12 py-8"
+            asChild
+          >
+            <Link className="text-white" href="/grant-support">
+              Send us a form!
+            </Link>
+          </Button>
+          {/*<Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
@@ -121,7 +131,7 @@ const ForBusinessSignUpForm = () => {
                 Our team will get back to you in under 2 business days
               </div>
             </form>
-          </Form>
+          </Form>*/}
         </div>
       </CardContent>
     </Card>
