@@ -218,9 +218,6 @@ export function DatabaseManagement() {
       <Card>
         <CardHeader>
           <CardTitle>Form Submissions</CardTitle>
-          <CardDescription>
-            All form submissions stored in the local database
-          </CardDescription>
         </CardHeader>
         <CardContent>
           {submissions.length === 0 ? (
