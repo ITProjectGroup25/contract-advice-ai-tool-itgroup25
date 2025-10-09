@@ -28,6 +28,31 @@ interface FormData {
   [key: string]: any;
 }
 
+interface UploadedFile {
+  name: string;
+  size: number;
+  type: string;
+  data: string;
+}
+
+const generateSubmissionId = () =>
+  `submission_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+
+const isUploadedFileArray = (value: unknown): value is UploadedFile[] => {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        item &&
+        typeof item === "object" &&
+        "name" in item &&
+        "size" in item &&
+        "type" in item &&
+        "data" in item
+    )
+  );
+};
+
 export function DynamicFormRenderer({ 
   questions, 
   sections, 
@@ -136,81 +161,170 @@ export function DynamicFormRenderer({
 
   const onSubmit = async (data: FormData) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       console.log("Form submitted:", data);
-      
-      // Export form submission as SQL and save to database
-      const queryType = getQueryType() as 'simple' | 'complex';
-      const submissionId = await exportFormSubmissionAsSQL(data, questions, queryType);
-      
-      // Send confirmation email to user
+
+      const rawQueryType = getQueryType();
+      const extractedQueryType = Array.isArray(rawQueryType)
+        ? rawQueryType[0]
+        : rawQueryType;
+      const queryType: "simple" | "complex" =
+        extractedQueryType === "complex" ? "complex" : "simple";
+
+      const submissionId = generateSubmissionId();
+
+      const attachmentsPayload: {
+        questionId: string;
+        files: UploadedFile[];
+      }[] = [];
+      const sanitizedFormData: Record<string, unknown> = {};
+
+      for (const [key, value] of Object.entries(data)) {
+        if (isUploadedFileArray(value)) {
+          attachmentsPayload.push({ questionId: key, files: value });
+          sanitizedFormData[key] = value.map(({ name, size, type }) => ({
+            name,
+            size,
+            type,
+          }));
+        } else {
+          sanitizedFormData[key] = value;
+        }
+      }
+
+      const questionSnapshot = questions.map((question) => ({
+        id: question.id,
+        title: question.title,
+        type: question.type,
+        section: question.section,
+        required: question.required,
+      }));
+
+      const sectionSnapshot = sections.map((section) => ({
+        id: section.id,
+        title: section.title,
+        order: section.order,
+        queryType: section.queryType ?? "both",
+      }));
+
+      const response = await fetch("/api/referral-submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          submissionId,
+          queryType,
+          status: "submitted",
+          formData: sanitizedFormData,
+          attachments: attachmentsPayload,
+          userEmail: data.email,
+          userName: data.name,
+          metadata: {
+            questionSnapshot,
+            sectionSnapshot,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        const message =
+          body?.error ?? `Failed to save submission (status ${response.status})`;
+        throw new Error(message);
+      }
+
+      await exportFormSubmissionAsSQL(data, questions, queryType, {
+        submissionId,
+      });
+
       const userEmail = data.email as string;
       const userName = data.name as string;
-      
+
       if (userEmail && userName) {
         const emailData: EmailData = {
           userEmail,
           userName,
           submissionId,
           queryType,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
-        
+
         try {
-          console.log('📧 FORM: Sending USER CONFIRMATION email to:', userEmail);
+          console.log("📧 FORM: Sending USER CONFIRMATION email to:", userEmail);
           const emailSent = await emailService.sendConfirmationEmail(emailData);
           if (emailSent) {
-            console.log('✅ FORM: User confirmation email sent successfully to:', userEmail);
+            console.log(
+              "✅ FORM: User confirmation email sent successfully to:",
+              userEmail
+            );
           } else {
-            console.warn('⚠️ FORM: Failed to send user confirmation email');
+            console.warn("⚠️ FORM: Failed to send user confirmation email");
           }
         } catch (emailError) {
-          console.error('❌ FORM: User confirmation email service error:', emailError);
-          // Don't fail the form submission if email fails
+          console.error(
+            "❌ FORM: User confirmation email service error:",
+            emailError
+          );
         }
       }
-      
+
       if (queryType === "simple") {
-        toast.success("Simple query submitted successfully! Check your email for confirmation.");
+        toast.success(
+          "Simple query submitted successfully! Check your email for confirmation."
+        );
         setTimeout(() => {
           onSimpleQuerySuccess?.(submissionId);
         }, 1000);
-      } else if (queryType === "complex") {
-        // Send notification email to grant team for complex queries
+      } else {
         if (userEmail && userName) {
           const grantTeamEmailData: GrantTeamEmailData = {
             submissionId,
-            queryType: 'complex',
+            queryType: "complex",
             userEmail,
             userName,
             timestamp: new Date().toISOString(),
-            formData: data
+            formData: data,
           };
-          
+
           try {
-            console.log('📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:', submissionId);
-            const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
+            console.log(
+              "📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:",
+              submissionId
+            );
+            const grantEmailSent =
+              await emailService.sendGrantTeamNotification(
+                grantTeamEmailData
+              );
             if (grantEmailSent) {
-              console.log('✅ FORM: Grant team notification sent successfully for complex query:', submissionId);
+              console.log(
+                "✅ FORM: Grant team notification sent successfully for complex query:",
+                submissionId
+              );
             } else {
-              console.warn('⚠️ FORM: Failed to send grant team notification');
+              console.warn("⚠️ FORM: Failed to send grant team notification");
             }
           } catch (grantEmailError) {
-            console.error('❌ FORM: Grant team notification error:', grantEmailError);
-            // Don't fail the form submission if grant team email fails
+            console.error(
+              "❌ FORM: Grant team notification error:",
+              grantEmailError
+            );
           }
         }
-        
-        toast.success("Complex referral submitted successfully! Check your email for confirmation.");
+
+        toast.success(
+          "Complex referral submitted successfully! Check your email for confirmation."
+        );
         setTimeout(() => {
           onComplexQuerySuccess?.();
         }, 1000);
-      } else {
-        toast.success("Form submitted successfully! Check your email for confirmation.");
       }
     } catch (error) {
-      toast.error("Failed to submit referral request. Please try again.");
+      console.error("Form submission error:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to submit referral request. Please try again."
+      );
     }
   };
 

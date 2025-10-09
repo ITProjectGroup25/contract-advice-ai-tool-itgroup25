@@ -150,34 +150,30 @@ export function downloadSQLFile(sqlContent: string, filename: string = `form_sub
 }
 
 export async function exportFormSubmissionAsSQL(
-  formData: FormData, 
+  formData: FormData,
   questions: Question[],
-  queryType: 'simple' | 'complex',
-  filename?: string
+  queryType: "simple" | "complex",
+  options?: { filename?: string; submissionId?: string }
 ): Promise<string> {
-  const submissionId = `submission_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const submissionId =
+    options?.submissionId ??
+    `submission_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
   const sqlContent = generateSQLFromFormData(formData, questions, submissionId);
-  
-  // Save to local database
   const submission: FormSubmission = {
     id: submissionId,
     timestamp: new Date().toISOString(),
     queryType,
     formData,
     sqlStatement: sqlContent,
-    status: 'submitted'
+    status: "submitted",
   };
-  
+
   try {
     await localDB.saveSubmission(submission);
-    console.log('Form submission saved to local database:', submissionId);
+    console.log("Form submission saved to local database:", submissionId);
   } catch (error) {
-    console.error('Error saving to local database:', error);
+    console.error("Error saving to local database:", error);
   }
-  
-  // Note: Automatic SQL file download has been removed
-  // SQL content is still generated and saved to the database
-  // Manual export is available through the Admin Panel
-  
+
   return submissionId;
 }
