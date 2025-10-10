@@ -1,21 +1,54 @@
-// app/api/v1/submissions/export/google-sheets/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { listSubmissions } from "@/lib/db/submissions";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
-function getAuth() {
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!;
-  const key = (process.env.GOOGLE_SERVICE_ACCOUNT_KEY ?? "").replace(/\\n/g, "\n");
-  return new google.auth.JWT({
-    email,
-    key,
-    scopes: [
-      "https://www.googleapis.com/auth/drive",
-      "https://www.googleapis.com/auth/spreadsheets",
-    ],
+async function getUserOAuthClient(userId: string) {
+  // 1) Fetch this user's Google tokens from Supabase
+  const { data, error } = await supabaseAdmin
+    .from("user_google_tokens")
+    .select("*")
+    .eq("user_id", userId)
+    .single();
+
+  if (error || !data) {
+    throw new Error("Google is not connected for this user.");
+  }
+
+  const oauth2 = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID!,
+    process.env.GOOGLE_CLIENT_SECRET!,
+    process.env.GOOGLE_REDIRECT_URI!
+  );
+
+  oauth2.setCredentials({
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+    expiry_date: new Date(data.expiry_date).getTime(),
+    token_type: data.token_type,
+    scope: data.scope,
   });
+
+  // 2) If expired, refresh and write back to Supabase
+  const needRefresh = !data.access_token || Date.now() > new Date(data.expiry_date).getTime() - 60_000;
+  if (needRefresh) {
+    const { credentials } = await oauth2.refreshAccessToken();
+
+    await supabaseAdmin
+      .from("user_google_tokens")
+      .update({
+        access_token: credentials.access_token ?? data.access_token,
+        expiry_date: new Date(credentials.expiry_date ?? Date.now() + 3600_000).toISOString(),
+        scope: credentials.scope ?? data.scope,
+        token_type: credentials.token_type ?? data.token_type,
+      })
+      .eq("user_id", userId);
+    oauth2.setCredentials(credentials);
+  }
+
+  return oauth2;
 }
 
 async function ensureSheets(
@@ -25,7 +58,6 @@ async function ensureSheets(
 ) {
   const meta = await sheets.spreadsheets.get({ spreadsheetId });
   const titles = new Set((meta.data.sheets ?? []).map(s => s.properties?.title));
-
   const wanted = ["Submissions", ...(expand ? ["Answers", "Attachments"] : [])];
 
   const requests: any[] = [];
@@ -88,6 +120,12 @@ export async function GET(req: NextRequest) {
   try {
     const sp = new URL(req.url).searchParams;
 
+    // userId is required; you can also default to a test user via env
+    const userId = sp.get("userId") || process.env.GOOGLE_TEST_UID;
+    if (!userId) {
+      return NextResponse.json({ ok: false, error: "Missing userId" }, { status: 400 });
+    }
+
     const expand   = sp.get("expand") === "1";
     const page     = Number(sp.get("page") ?? "1");
     const pageSize = Number(sp.get("pageSize") ?? "1000");
@@ -98,52 +136,35 @@ export async function GET(req: NextRequest) {
     const dateFrom = sp.get("dateFrom") ?? undefined;
     const dateTo   = sp.get("dateTo") ?? undefined;
 
-    const spreadsheetIdParam = sp.get("spreadsheetId") ?? undefined;
-    const titlePrefix = sp.get("name") ?? "Submissions";
-    const shareTo = sp.get("shareTo") ?? process.env.GDRIVE_SHARE_TO_EMAIL ?? "";
-
     const { data } = await listSubmissions({
       page, pageSize, orderBy, asc, status, formId, dateFrom, dateTo, expand,
     });
     const rows = (data as any[]) ?? [];
 
-    const auth = getAuth();
+    // Use this admin's OAuth client
+    const auth = await getUserOAuthClient(userId);
     const drive = google.drive({ version: "v3", auth });
     const sheets = google.sheets({ version: "v4", auth });
 
-    let spreadsheetId = spreadsheetIdParam;
-    let createdNew = false;
+    // If a spreadsheetId is provided (pre-selected sheet), reuse it; otherwise create a new one
+    const spreadsheetIdParam = sp.get("spreadsheetId") ?? undefined;
+    const titlePrefix = sp.get("name") ?? "Submissions";
 
+    let spreadsheetId = spreadsheetIdParam;
     if (!spreadsheetId) {
-      // No spreadsheetId provided: try creating a new file (may hit storage quota)
-      try {
-        const created = await drive.files.create({
-          requestBody: {
-            name: `${titlePrefix} ${new Date().toISOString().slice(0, 10)}`,
-            mimeType: "application/vnd.google-apps.spreadsheet",
-          },
-          fields: "id, webViewLink",
-        });
-        spreadsheetId = created.data.id!;
-        createdNew = true;
-      } catch (e: any) {
-        const msg = e?.response?.data?.error?.message || e?.message || "";
-        if (msg.includes("storage quota") || msg.includes("storageQuotaExceeded")) {
-          return NextResponse.json({
-            ok: false,
-            error: "Drive storage quota exceeded for the service account.",
-            hint: "Create a blank Sheet in YOUR Drive, share it with the service account as Editor, then call this API with ?spreadsheetId=<that id>.",
-            needSpreadsheetId: true,
-          }, { status: 403 });
-        }
-        throw e;
-      }
+      const created = await drive.files.create({
+        requestBody: {
+          name: `${titlePrefix} ${new Date().toISOString().slice(0, 10)}`,
+          mimeType: "application/vnd.google-apps.spreadsheet",
+        },
+        fields: "id, webViewLink",
+      });
+      spreadsheetId = created.data.id!;
     }
 
-    // Prepare sheets (ensure Submissions/Answers/Attachments exist, then clear data)
     await ensureSheets(sheets, spreadsheetId!, expand);
 
-    // Main sheet
+    // Submissions
     const subHeader = [
       "Submission ID","Form ID","Form Title",
       "User ID","User Email","Status","Created At","Updated At"
@@ -194,23 +215,12 @@ export async function GET(req: NextRequest) {
       await writeSheet(sheets, spreadsheetId!, "Attachments", attHeader, attValues);
     }
 
-    if (createdNew && shareTo) {
-      try {
-        await drive.permissions.create({
-          fileId: spreadsheetId!,
-          requestBody: { type: "user", role: "writer", emailAddress: shareTo },
-          fields: "id",
-        });
-      } catch {}
-    }
-
     return NextResponse.json({
       ok: true,
       spreadsheetId,
       url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}`,
       sheetNames: expand ? ["Submissions", "Answers", "Attachments"] : ["Submissions"],
       count: rows.length,
-      createdNew,
     });
   } catch (err: any) {
     const gErr = err?.response?.data?.error;
