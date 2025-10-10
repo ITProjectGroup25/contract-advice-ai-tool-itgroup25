@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+
 
 export const runtime = "nodejs";
 
@@ -50,6 +51,8 @@ export async function GET(req: NextRequest) {
       : new Date(Date.now() + 3600_000).toISOString();
 
     // Persist with supabaseAdmin
+    const supabaseAdmin = getSupabaseAdmin();
+    
     const { error } = await supabaseAdmin
       .from("user_google_tokens")
       .upsert(

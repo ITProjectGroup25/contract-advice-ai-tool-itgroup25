@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { listSubmissions } from "@/lib/db/submissions";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+
 
 export const runtime = "nodejs";
 
 async function getUserOAuthClient(userId: string) {
   // 1) Fetch this user's Google tokens from Supabase
+  const supabaseAdmin = getSupabaseAdmin();
   const { data, error } = await supabaseAdmin
     .from("user_google_tokens")
     .select("*")

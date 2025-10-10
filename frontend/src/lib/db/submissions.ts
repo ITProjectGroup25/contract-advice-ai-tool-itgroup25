@@ -1,4 +1,5 @@
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+const supabaseAdmin = getSupabaseAdmin();
 
 export type ListParams = {
   page?: number;          // 1-based
