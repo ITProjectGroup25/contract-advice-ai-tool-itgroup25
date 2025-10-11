@@ -1,9 +1,11 @@
+import 'server-only';
+
 import { NextRequest, NextResponse } from "next/server";
-import { google } from "googleapis";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 
 export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';
 
 /**
  * Environment variables:
@@ -16,6 +18,9 @@ export const runtime = "nodejs";
  */
 export async function GET(req: NextRequest) {
   try {
+
+    const { google } = await import('googleapis');
+
     const { searchParams } = new URL(req.url);
     const code = searchParams.get("code");
     const userId = searchParams.get("state");
@@ -52,7 +57,7 @@ export async function GET(req: NextRequest) {
 
     // Persist with supabaseAdmin
     const supabaseAdmin = getSupabaseAdmin();
-    
+
     const { error } = await supabaseAdmin
       .from("user_google_tokens")
       .upsert(

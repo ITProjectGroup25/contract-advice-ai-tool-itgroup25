@@ -1,12 +1,16 @@
+import 'server-only';
+
 import { NextRequest, NextResponse } from "next/server";
-import { google } from "googleapis";
 import { listSubmissions } from "@/lib/db/submissions";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import type { sheets_v4 } from 'googleapis';
 
 
 export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';
 
 async function getUserOAuthClient(userId: string) {
+  const { google } = await import('googleapis');
   // 1) Fetch this user's Google tokens from Supabase
   const supabaseAdmin = getSupabaseAdmin();
   const { data, error } = await supabaseAdmin
@@ -54,7 +58,7 @@ async function getUserOAuthClient(userId: string) {
 }
 
 async function ensureSheets(
-  sheets: ReturnType<typeof google.sheets>,
+  sheets: sheets_v4.Sheets,
   spreadsheetId: string,
   expand: boolean
 ) {
@@ -89,7 +93,7 @@ async function ensureSheets(
 }
 
 async function writeSheet(
-  sheets: ReturnType<typeof google.sheets>,
+  sheets: sheets_v4.Sheets,
   spreadsheetId: string,
   sheetName: string,
   header: any[],
@@ -120,6 +124,9 @@ async function writeSheet(
 
 export async function GET(req: NextRequest) {
   try {
+
+    const { google } = await import('googleapis');
+
     const sp = new URL(req.url).searchParams;
 
     // userId is required; you can also default to a test user via env

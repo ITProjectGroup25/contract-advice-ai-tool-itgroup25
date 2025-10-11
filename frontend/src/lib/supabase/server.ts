@@ -1,4 +1,6 @@
 // lib/supabase/server.ts
+import 'server-only';
+
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 let _admin: SupabaseClient | null = null;

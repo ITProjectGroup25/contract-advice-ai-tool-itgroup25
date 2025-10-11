@@ -1,12 +1,16 @@
+import 'server-only';
+
 import { NextRequest, NextResponse } from "next/server";
-import { google } from "googleapis";
 
 export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   const sp = new URL(req.url).searchParams;
   const userId = sp.get("userId")!;
   if (!userId) return NextResponse.json({ error: "missing userId" }, { status: 400 });
+
+  const { google } = await import("googleapis");
 
   const oauth2 = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID!,
