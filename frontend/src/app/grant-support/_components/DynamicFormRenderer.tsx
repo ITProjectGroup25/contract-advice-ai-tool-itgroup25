@@ -16,6 +16,7 @@ import { Question, FormSection } from "./AdminInterface";
 import { exportFormSubmissionAsSQL } from "../_utils/sqlExport";
 import { emailService, EmailData, GrantTeamEmailData } from "../_utils/emailService";
 import { FileUpload } from "./FileUpload";
+import FixedLogo from "./FixedLogo";
 
 interface DynamicFormRendererProps {
   questions: Question[];
@@ -85,7 +86,7 @@ export function DynamicFormRenderer({
 
     return conditional.showWhen.includes(dependentValue);
   }, [formValues, questions, getQueryType]);
-
+  
   // Clear values for invisible questions
   useEffect(() => {
     const invisibleQuestions = visibleQuestions.filter(q => !isQuestionVisible(q));
@@ -553,56 +554,64 @@ export function DynamicFormRenderer({
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl">Referral Request Form</h1>
-        <p className="text-muted-foreground">
-          Please complete this form to submit your referral request
-        </p>
-      </div>
+    <>
+      <FixedLogo />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-        {sortedSections.map((section) => {
-          if (!isSectionVisible(section)) return null;
-
-          const sectionQuestions = visibleQuestions
-            .filter(q => q.section === section.id)
-            .filter(q => isQuestionVisible(q))
-            .sort((a, b) => a.order - b.order);
-
-          if (sectionQuestions.length === 0) return null;
-
-          const IconComponent = getIconForSection(section.id);
-
-          return (
-            <Card key={section.id}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <IconComponent className="h-5 w-5" />
-                  {section.title}
-                </CardTitle>
-                {section.description && (
-                  <CardDescription>
-                    {section.description}
-                  </CardDescription>
-                )}
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {sectionQuestions.map(renderQuestion)}
-              </CardContent>
-            </Card>
-          );
-        })}
-
-        <Separator />
-
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit Referral Request"}
-          </Button>
+      <div className="max-w-4xl mx-auto p-6 space-y-8">
+        <div className="text-center space-y-2">
+          <h1 className="text-5xl text-white font-bold">Referral Request Form</h1>
+          <p className="text-l text-white">
+            Please complete this form to submit your referral request
+          </p>
         </div>
-      </form>
-    </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          {sortedSections.map((section) => {
+            if (!isSectionVisible(section)) return null;
+
+            const sectionQuestions = visibleQuestions
+              .filter(q => q.section === section.id)
+              .filter(q => isQuestionVisible(q))
+              .sort((a, b) => a.order - b.order);
+
+            if (sectionQuestions.length === 0) return null;
+
+            const IconComponent = getIconForSection(section.id);
+
+            return (
+              <Card key={section.id}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <IconComponent className="h-5 w-5" />
+                    {section.title}
+                  </CardTitle>
+                  {section.description && (
+                    <CardDescription>
+                      {section.description}
+                    </CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {sectionQuestions.map(renderQuestion)}
+                </CardContent>
+              </Card>
+            );
+          })}
+
+          <Separator />
+
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-gray-900 border border-white text-white hover:bg-gray-800 px-4 py-2"
+            >
+              {isSubmitting ? "Submitting..." : "Submit Referral Request"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </>
   );
 }
 
