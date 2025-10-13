@@ -710,11 +710,6 @@ export const defaultQuestions: Question[] = [
       dependsOn: "query-type",
       showWhen: ["complex"]
     },
-    fileUploadConfig: {
-      accept: ".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.zip",
-      maxSize: 25,
-      maxFiles: 10
-    }
   },
   {
     id: "complex-documents-list",
