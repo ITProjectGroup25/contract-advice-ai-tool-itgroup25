@@ -54,7 +54,7 @@ export default function DynamicFormPage() {
                 )}
                 <button
                   onClick={handleBackToForm}
-                  className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-md"
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md"
                 >
                   Submit Another Request
                 </button>
@@ -84,7 +84,7 @@ export default function DynamicFormPage() {
                 </p>
                 <button
                   onClick={handleBackToForm}
-                  className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-md"
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md"
                 >
                   Submit Another Request
                 </button>

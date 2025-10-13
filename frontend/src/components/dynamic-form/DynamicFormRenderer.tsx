@@ -484,7 +484,7 @@ export function DynamicFormRenderer({
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-black hover:bg-gray-800 text-white px-8 py-2"
+              className="bg-green-700 hover:bg-green-600 text-white px-8 py-2"
             >
               {isSubmitting ? "Submitting..." : "Submit Request"}
             </Button>

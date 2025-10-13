@@ -15,13 +15,13 @@ export function SuccessPage({ onBack, type = "complex" }: SuccessPageProps) {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" onClick={onBack} className="flex items-center gap-2 bg-gray-900 border border-white text-white hover:bg-gray-800 px-4 py-2">
+        <Button variant="outline" size="sm" onClick={onBack} className="flex items-center gap-2 bg-green-700 border border-white text-white hover:bg-green-600 px-4 py-2">
           <ArrowLeft className="h-4 w-4" />
           Back to Form
         </Button>
         <div className="space-y-1">
-          <h1 className="text-2xl text-white">Referral Request</h1>
-          <p className="text-muted-foreground text-white">
+          <h1 className="text-2xl">Referral Request</h1>
+          <p className="text-muted-foreground">
             {isSimpleEscalated
               ? "Your query has been escalated for human review"
               : "Your complex referral has been submitted successfully"}

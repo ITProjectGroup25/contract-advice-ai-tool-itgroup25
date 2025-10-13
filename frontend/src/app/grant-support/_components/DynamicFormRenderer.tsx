@@ -559,8 +559,8 @@ export function DynamicFormRenderer({
 
       <div className="max-w-4xl mx-auto p-6 space-y-8">
         <div className="text-center space-y-2">
-          <h1 className="text-5xl text-white font-bold">Referral Request Form</h1>
-          <p className="text-l text-white">
+          <h1 className="text-5xl font-bold">Referral Request Form</h1>
+          <p className="text-l">
             Please complete this form to submit your referral request
           </p>
         </div>
@@ -604,7 +604,7 @@ export function DynamicFormRenderer({
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-gray-900 border border-white text-white hover:bg-gray-800 px-4 py-2"
+              className="bg-green-700 border border-white text-white hover:bg-green-600 px-4 py-2"
             >
               {isSubmitting ? "Submitting..." : "Submit Referral Request"}
             </Button>

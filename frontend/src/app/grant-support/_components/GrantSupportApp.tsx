@@ -136,7 +136,7 @@ export default function App() {
   return (
     <div
       className={`min-h-screen ${
-        currentState === "admin" ? "bg-white" : "bg-gray-900"
+        currentState === "admin" ? "bg-white" : "bg-green-100"
       }`}
     >
       {/* Admin Panel Access - Only show on form page */}
@@ -146,7 +146,7 @@ export default function App() {
             variant="outline"
             size="sm"
             onClick={handleGoToAdmin}
-            className="flex items-center gap-2 bg-gray-900 border border-white text-white hover:bg-gray-800"
+            className="flex items-center gap-2 bg-green-700 border border-white text-white hover:bg-green-600"
           >
             <Settings className="h-4 w-4" />
             Admin Panel
