@@ -700,8 +700,8 @@ export const defaultQuestions: Question[] = [
   {
     id: "complex-documents-attached",
     title: "Attach all relevant documents",
-    description: "Please attach agreement for review, funding agreement, relevant correspondence, related agreements",
-    type: "file-upload",
+    description: "Please attach the online drive link of agreement (such as Google Drive or OneDrive) for review, funding agreement, relevant correspondence, related agreements",
+    type: "textarea",
     required: true,
     section: "complex-support",
     order: 32,

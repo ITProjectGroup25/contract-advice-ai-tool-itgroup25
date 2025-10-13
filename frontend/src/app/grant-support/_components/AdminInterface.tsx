@@ -38,7 +38,7 @@ export interface Question {
   id: string;
   title: string;
   description?: string;
-  type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox-group' | 'radio-group' | 'date' | 'file-upload';
+  type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox-group' | 'radio-group' | 'date';
   required: boolean;
   options?: QuestionOption[];
   placeholder?: string;
@@ -46,11 +46,6 @@ export interface Question {
     minLength?: number;
     maxLength?: number;
     pattern?: string;
-  };
-  fileUploadConfig?: {
-    accept?: string;
-    maxSize?: number; // in MB
-    maxFiles?: number;
   };
   conditional?: {
     dependsOn: string;
@@ -338,7 +333,6 @@ export function AdminInterface({
                         <SelectItem value="checkbox-group">Checkbox Group</SelectItem>
                         <SelectItem value="radio-group">Radio Group</SelectItem>
                         <SelectItem value="date">Date Input</SelectItem>
-                        <SelectItem value="file-upload">File Upload</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
