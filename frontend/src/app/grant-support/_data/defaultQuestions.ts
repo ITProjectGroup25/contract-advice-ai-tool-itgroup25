@@ -700,8 +700,8 @@ export const defaultQuestions: Question[] = [
   {
     id: "complex-documents-attached",
     title: "Attach all relevant documents",
-    description: "Please attach agreement for review, funding agreement, relevant correspondence, related agreements",
-    type: "file-upload",
+    description: "Please attach the online drive link of agreement (such as Google Drive or OneDrive) for review, funding agreement, relevant correspondence, related agreements",
+    type: "textarea",
     required: true,
     section: "complex-support",
     order: 32,
@@ -710,11 +710,6 @@ export const defaultQuestions: Question[] = [
       dependsOn: "query-type",
       showWhen: ["complex"]
     },
-    fileUploadConfig: {
-      accept: ".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.zip",
-      maxSize: 25,
-      maxFiles: 10
-    }
   },
   {
     id: "complex-documents-list",
