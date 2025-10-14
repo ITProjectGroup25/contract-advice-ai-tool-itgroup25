@@ -17,6 +17,10 @@ All user requests and form responses are stored in an online database and catego
 - **Theme Customization**: The app offers six different themes for users to choose from, allowing them to customize the appearance of their app interface.
 - **Type Safety**: TypeScript is employed throughout the project to provide type safety and enhance code maintainability.
 
+# Tutorial
+
+**WARNING**
+
 # System Architecture Overview
 
 ```bash
