@@ -250,23 +250,33 @@ Push to main branch →
 
 ## After deployment setup
 
+
 #### 1. Website End Email Config
+
 
 Open website, click Access **Referral Assistant** button
 
+
 **WARNING:tutorial PNG yet to be placed here**
+
 
 Go into form page, on the upper right, there is the admin Panal, enter password.
 
+
 The default password is **WARNING:unclear if we place default password in readMe file**
 
+
 **WARNING:tutorial PNG yet to be placed here**
+
 
 Click **Email Configuration**
 
+
 **WARNING:tutorial PNG yet to be placed here**
 
+
 Under **Email Configuration**, there are 5 areas need to be filled.
+
 
 |Name|Use|
 |-----|-----|
@@ -276,13 +286,18 @@ Under **Email Configuration**, there are 5 areas need to be filled.
 |Grant Team Email|**WARNING** |
 |Grant Team Template ID|**WARNING** |
 
+
 #### 2. Email JS
 
+
 **WARNING:tutorial to be written**
+
 
 #### 3. Filling the Information
 
+
 **WARNING:tutorial to be written**
+
 
 ## Service Configurations
 
