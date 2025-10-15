@@ -19,6 +19,7 @@ import {
 } from "../_utils/api";
 import { emailService, EmailData, GrantTeamEmailData } from "../_utils/emailService";
 import { FileUpload } from "./FileUpload";
+import FixedLogo from "./FixedLogo";
 
 interface DynamicFormRendererProps {
   questions: Question[];
@@ -164,101 +165,23 @@ export function DynamicFormRenderer({
 
   const onSubmit = async (data: FormData) => {
     try {
-<<<<<<< Updated upstream
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const queryType = (getQueryType() as "simple" | "complex") || "simple";
 
-      console.log("Form submitted:", data);
-
-      const rawQueryType = getQueryType();
-      const extractedQueryType = Array.isArray(rawQueryType)
-        ? rawQueryType[0]
-        : rawQueryType;
-      const queryType: "simple" | "complex" =
-        extractedQueryType === "complex" ? "complex" : "simple";
-
-      const submissionId = generateSubmissionId();
-
-      const attachmentsPayload: {
-        questionId: string;
-        files: UploadedFile[];
-      }[] = [];
-      const sanitizedFormData: Record<string, unknown> = {};
-
-      for (const [key, value] of Object.entries(data)) {
-        if (isUploadedFileArray(value)) {
-          attachmentsPayload.push({ questionId: key, files: value });
-          sanitizedFormData[key] = value.map(({ name, size, type }) => ({
-            name,
-            size,
-            type,
-          }));
-        } else {
-          sanitizedFormData[key] = value;
-        }
-      }
-
-      const questionSnapshot = questions.map((question) => ({
-        id: question.id,
-        title: question.title,
-        type: question.type,
-        section: question.section,
-        required: question.required,
-      }));
-
-      const sectionSnapshot = sections.map((section) => ({
-        id: section.id,
-        title: section.title,
-        order: section.order,
-        queryType: section.queryType ?? "both",
-      }));
-
-      const response = await fetch("/api/referral-submissions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          submissionId,
+      const submissionResponse: GrantSupportSubmissionResponse =
+        await createGrantSupportSubmission({
+          formData: data,
           queryType,
+          userEmail: (data.email as string) || undefined,
+          userName: (data.name as string) || undefined,
           status: "submitted",
-          formData: sanitizedFormData,
-          attachments: attachmentsPayload,
-          userEmail: data.email,
-          userName: data.name,
-          metadata: {
-            questionSnapshot,
-            sectionSnapshot,
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        const body = await response.json().catch(() => null);
-        const message =
-          body?.error ?? `Failed to save submission (status ${response.status})`;
-        throw new Error(message);
-      }
-
-      await exportFormSubmissionAsSQL(data, questions, queryType, {
-        submissionId,
-      });
-
-=======
-      const queryType = (getQueryType() as 'simple' | 'complex') || 'simple';
-
-      const submissionResponse: GrantSupportSubmissionResponse = await createGrantSupportSubmission({
-        formData: data,
-        queryType,
-        userEmail: (data.email as string) || undefined,
-        userName: (data.name as string) || undefined,
-        status: 'submitted',
-      });
+        });
 
       const submissionId = submissionResponse.submissionUid;
-      
+
       // Send confirmation email to user
->>>>>>> Stashed changes
       const userEmail = data.email as string;
       const userName = data.name as string;
-
+      
       if (userEmail && userName) {
         const emailData: EmailData = {
           userEmail,
@@ -686,15 +609,18 @@ export function DynamicFormRenderer({
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl">Referral Request Form</h1>
-        <p className="text-muted-foreground">
-          Please complete this form to submit your referral request
-        </p>
-      </div>
+    <>
+      <FixedLogo />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <div className="max-w-4xl mx-auto p-6 space-y-8">
+        <div className="text-center space-y-2">
+          <h1 className="text-5xl font-bold">Referral Request Form</h1>
+          <p className="text-l">
+            Please complete this form to submit your referral request
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {sortedSections.map((section) => {
           if (!isSectionVisible(section)) return null;
 
@@ -730,12 +656,17 @@ export function DynamicFormRenderer({
         <Separator />
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-green-700 border border-white text-white hover:bg-green-600 px-4 py-2"
+          >
             {isSubmitting ? "Submitting..." : "Submit Referral Request"}
           </Button>
         </div>
-      </form>
-    </div>
+        </form>
+      </div>
+    </>
   );
 }
 

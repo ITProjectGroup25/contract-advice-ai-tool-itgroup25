@@ -34,6 +34,61 @@ export function DatabaseManagement() {
   const [checkingGoogle, setCheckingGoogle] = useState(false);
   const [exportingGoogle, setExportingGoogle] = useState(false);
 
+  const checkGoogleStatus = useCallback(
+    async (userId: string) => {
+      const trimmed = userId.trim();
+      if (!trimmed) {
+        setGoogleConnected(false);
+        return false;
+      }
+      setCheckingGoogle(true);
+      try {
+        const response = await fetch(`/api/google/oauth/status?userId=${encodeURIComponent(trimmed)}`);
+        if (!response.ok) {
+          const body = await response.json().catch(() => null);
+          if (response.status >= 500) {
+            toast.error(body?.error ?? "Unable to verify Google connection.");
+          }
+          setGoogleConnected(false);
+          return false;
+        }
+        const data = await response.json();
+        const connected = Boolean(data?.connected);
+        setGoogleConnected(connected);
+        return connected;
+      } catch (error) {
+        console.error('Failed to check Google OAuth status:', error);
+        toast.error('Unable to verify Google connection.');
+        setGoogleConnected(false);
+        return false;
+      } finally {
+        setCheckingGoogle(false);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const storedId = window.localStorage.getItem(GOOGLE_USER_STORAGE_KEY);
+    if (storedId) {
+      setGoogleUserId(storedId);
+      void checkGoogleStatus(storedId);
+    } else {
+      setGoogleConnected(false);
+    }
+  }, [checkGoogleStatus]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const trimmed = googleUserId.trim();
+    if (trimmed) {
+      window.localStorage.setItem(GOOGLE_USER_STORAGE_KEY, trimmed);
+    } else {
+      window.localStorage.removeItem(GOOGLE_USER_STORAGE_KEY);
+    }
+  }, [googleUserId]);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -53,6 +108,75 @@ export function DatabaseManagement() {
       toast.error('Failed to load database data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleUserIdChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setGoogleUserId(event.target.value);
+    setGoogleConnected(null);
+  };
+
+  const handleCheckGoogle = async () => {
+    const trimmed = googleUserId.trim();
+    if (!trimmed) {
+      toast.error('Please enter your Google user ID first.');
+      return;
+    }
+    const connected = await checkGoogleStatus(trimmed);
+    if (connected) {
+      toast.success('Google Sheets account is connected.');
+    } else {
+      toast.info('Google Sheets account is not connected yet.');
+    }
+  };
+
+  const handleConnectGoogle = () => {
+    const trimmed = googleUserId.trim();
+    if (!trimmed) {
+      toast.error('Please enter your Google user ID first.');
+      return;
+    }
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(GOOGLE_USER_STORAGE_KEY, trimmed);
+      toast.info('Redirecting to Google for authorization...');
+      window.location.href = `/api/google/oauth/start?userId=${encodeURIComponent(trimmed)}`;
+    }
+  };
+
+  const handleExportGoogleSheets = async () => {
+    const trimmed = googleUserId.trim();
+    if (!trimmed) {
+      toast.error('Please enter your Google user ID first.');
+      return;
+    }
+    setExportingGoogle(true);
+    try {
+      const connected = googleConnected ?? (await checkGoogleStatus(trimmed));
+      if (!connected) {
+        toast.error('Please connect Google Sheets before exporting.');
+        return;
+      }
+
+      const params = new URLSearchParams({
+        userId: trimmed,
+        expand: '1',
+      });
+
+      const response = await fetch(`/api/v1/submissions/export/google-sheets?${params.toString()}`);
+      const data = await response.json();
+      if (!response.ok || !data?.ok) {
+        throw new Error(data?.error || 'Failed to export to Google Sheets');
+      }
+
+      toast.success('Exported to Google Sheets successfully.');
+      if (data.url) {
+        window.open(data.url as string, '_blank', 'noopener,noreferrer');
+      }
+    } catch (error: any) {
+      console.error('Google Sheets export failed:', error);
+      toast.error(error?.message ?? 'Failed to export to Google Sheets');
+    } finally {
+      setExportingGoogle(false);
     }
   };
 
@@ -123,6 +247,23 @@ export function DatabaseManagement() {
     }
   };
 
+  const trimmedGoogleUserId = googleUserId.trim();
+  const googleStatusLabel = checkingGoogle
+    ? 'Checking...'
+    : googleConnected
+    ? 'Google Connected'
+    : trimmedGoogleUserId
+    ? 'Not Connected'
+    : 'Not Configured';
+  const googleStatusClass =
+    checkingGoogle
+      ? 'bg-blue-100 text-blue-800'
+      : googleConnected
+      ? 'bg-green-100 text-green-800'
+      : trimmedGoogleUserId
+      ? 'bg-red-100 text-red-800'
+      : 'bg-gray-100 text-gray-800';
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -137,7 +278,7 @@ export function DatabaseManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="flex items-center gap-2">
             <Database className="h-5 w-5" />
@@ -147,15 +288,62 @@ export function DatabaseManagement() {
             Manage and export form submission data
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={loadData} variant="outline" size="sm">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-          <Button onClick={handleExportAll} size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export All
-          </Button>
+        <div className="flex flex-col gap-2 items-end">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Input
+              className="w-56"
+              placeholder="Google user ID"
+              value={googleUserId}
+              onChange={handleGoogleUserIdChange}
+            />
+            <Badge className={`font-medium ${googleStatusClass}`}>
+              {googleStatusLabel}
+            </Badge>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCheckGoogle}
+              disabled={checkingGoogle}
+            >
+              {checkingGoogle ? (
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4 mr-2" />
+              )}
+              Check Status
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleConnectGoogle}
+              disabled={checkingGoogle || !googleUserId.trim()}
+            >
+              <LogIn className="h-4 w-4 mr-2" />
+              Connect Google
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleExportGoogleSheets}
+              disabled={exportingGoogle}
+            >
+              {exportingGoogle ? (
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+              )}
+              Export Google Sheets
+            </Button>
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button onClick={loadData} variant="outline" size="sm">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+            <Button onClick={handleExportAll} size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Export All (SQL)
+            </Button>
+          </div>
         </div>
       </div>
 
