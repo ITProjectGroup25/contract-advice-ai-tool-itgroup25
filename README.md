@@ -67,7 +67,7 @@ The root `package.json` wires the three workspaces together and exposes convenie
 
 ## Prerequisite
 
-#### ⚠️ Requirements
+#### Requirements
 
 Local setup
 - Node.js >= 18.17.0
@@ -81,7 +81,7 @@ Service Accounts
 - Google Cloud Console (for Gemini API)
 - GitHub
 
-#### ⚠️  Environment Variables
+####  Environment Variables
 
 |Variable|Scope|Description|Example|
 |-----|-----|-----|-----|
@@ -264,30 +264,29 @@ Push to main branch →
 
 #### 1. Website End Email Config
 
-Open website, click Access **Referral Assistant** button
+1. Open website, click Access **Referral Assistant** button
 
 <div align="center">
          <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder.png" width="600">
 </div>
 
-Go into form page, on the upper right, there is the admin Panal, enter password.
+2. Go into form page, on the upper right, there is the admin Panal, enter password.
 
-
-The default password is **WARNING:unclear if we place default password in readMe file**
+   - The default password is `**WARNING:unclear if we place default password in readMe file**`
 
 <div align="center">
          <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder2.png" width="600"><br>
          <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder3.png" width="600">
 </div>
 
-Click **Email Configuration**
+3. Click **Email Configuration**
 
 <div align="center">
          <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder4.png" width="600">
 </div>
 
 
-Under **Email Configuration**, there are 5 areas need to be filled.
+4. Under **Email Configuration**, there are 5 areas need to be filled.
 
 
 |Name|Use|
@@ -302,13 +301,55 @@ Under **Email Configuration**, there are 5 areas need to be filled.
 #### 2. Email JS
 
 
-**WARNING:tutorial to be written**
+1. Signup an [EmailJS account](https://www.emailjs.com/)
+2. Go to [Account→General→API Key→Public Key](https://dashboard.emailjs.com/admin/account), get **Public Key**
+3. Go to [Email Service, add a New Service](https://dashboard.emailjs.com/admin)
+4. Choose which Email service account you want to sent the email with and finish authorising, get **Service ID**
+5. Go to Email Templates, you will need **2** template, one for **you, the grant team** and one for **users of the website**
+6. Go to the Setting of template, copy the **Template ID**, the one for User as **User Confirmation Template ID** and one for Grant Team as **Grant Team Template ID**
+8. Edit the template, you can adjust as you need and include further information, here is the two standard template to start with
 
+To User
 
-#### 3. Filling the Information
+```bash
+Dear {{to_name}},
+Thank you for submitting your {{query_type}} query to our referral system.  
+Below are the details of your submission:
+--------------------------------------------------
+Submission ID : {{submission_id}}
+Query Type    : {{query_type}}
+Date Submitted: {{submission_date}} at {{submission_time}}
+--------------------------------------------------
+Your request is now being processed.  
+We will contact you if we need any additional information.
+For future reference, please keep your Submission ID: {{submission_id}}.
+Best regards,  
+Referral Team
+ 
+---This is an automated message. Please do not reply to this email.
 
+```
 
-**WARNING:tutorial to be written**
+To Grant team
+
+```bash
+Dear {{to_name}},
+A new query submission requires your attention:
+📋 **Submission Details**
+• Submission ID: {{submission_id}}
+• Submission Time: {{submission_date}} {{submission_time}}
+• Query Type: {{query_type}}
+👤 **User Information**
+• User Name: {{user_name}}
+• User Email: {{user_email}}
+📝 **Form Data**
+{{form_data}}
+Please process this inquiry as soon as possible. If you have any questions, please contact the system administrator.
+---
+This email was automatically sent by the form submission system
+Submission ID: {{submission_id}}
+
+```
 
 
 ## Service Configurations
