@@ -7,7 +7,7 @@ const ForBusinessHeader = () => {
     <nav className="border-bottom-px sticky top-0 z-50 border-gray-200 bg-gray-900 lg:py-4">
       <div className="mx-auto flex flex-wrap items-center justify-between px-4 py-4 lg:px-16">
         <Link
-          href="/"
+          href="https://www.unimelb.edu.au/"
           className="flex items-center space-x-3 rtl:space-x-reverse"
         >
           <Image src={Logo} alt="logo" className="w-24" />
