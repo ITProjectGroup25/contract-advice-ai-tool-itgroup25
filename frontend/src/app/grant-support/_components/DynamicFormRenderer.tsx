@@ -13,7 +13,10 @@ import { toast } from "sonner";
 import { FileText, Users, Clock, HelpCircle, Search, Settings } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { Question, FormSection } from "./AdminInterface";
-import { exportFormSubmissionAsSQL } from "../_utils/sqlExport";
+import {
+  createGrantSupportSubmission,
+  GrantSupportSubmissionResponse,
+} from "../_utils/api";
 import { emailService, EmailData, GrantTeamEmailData } from "../_utils/emailService";
 import { FileUpload } from "./FileUpload";
 
@@ -161,6 +164,7 @@ export function DynamicFormRenderer({
 
   const onSubmit = async (data: FormData) => {
     try {
+<<<<<<< Updated upstream
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       console.log("Form submitted:", data);
@@ -237,6 +241,21 @@ export function DynamicFormRenderer({
         submissionId,
       });
 
+=======
+      const queryType = (getQueryType() as 'simple' | 'complex') || 'simple';
+
+      const submissionResponse: GrantSupportSubmissionResponse = await createGrantSupportSubmission({
+        formData: data,
+        queryType,
+        userEmail: (data.email as string) || undefined,
+        userName: (data.name as string) || undefined,
+        status: 'submitted',
+      });
+
+      const submissionId = submissionResponse.submissionUid;
+      
+      // Send confirmation email to user
+>>>>>>> Stashed changes
       const userEmail = data.email as string;
       const userName = data.name as string;
 

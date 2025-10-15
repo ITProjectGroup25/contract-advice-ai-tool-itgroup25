@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import type { ChangeEvent } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -9,9 +10,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { ScrollArea } from './ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { Input } from './ui/input';
 import { localDB, FormSubmission } from '../_utils/localDatabase';
-import { Database, Download, Trash2, Eye, RefreshCw, BarChart3, Users, FileText, Clock } from 'lucide-react';
+import { Database, Download, Trash2, Eye, RefreshCw, BarChart3, Users, FileText, Clock, LogIn, FileSpreadsheet } from 'lucide-react';
 import { toast } from 'sonner';
+
+const GOOGLE_USER_STORAGE_KEY = 'grant-support-google-user-id';
 
 export function DatabaseManagement() {
   const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
@@ -25,6 +29,10 @@ export function DatabaseManagement() {
   });
   const [selectedSubmission, setSelectedSubmission] = useState<FormSubmission | null>(null);
   const [loading, setLoading] = useState(true);
+  const [googleUserId, setGoogleUserId] = useState('');
+  const [googleConnected, setGoogleConnected] = useState<boolean | null>(null);
+  const [checkingGoogle, setCheckingGoogle] = useState(false);
+  const [exportingGoogle, setExportingGoogle] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -260,8 +268,8 @@ export function DatabaseManagement() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {submission.userSatisfied === true ? '✅' : 
-                           submission.userSatisfied === false ? '❌' : '-'}
+                          {submission.userSatisfied === true ? 'Yes' :
+                           submission.userSatisfied === false ? 'No' : '-'}
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
@@ -410,8 +418,8 @@ export function DatabaseManagement() {
                     <div>
                       <p className="text-sm font-medium">User Satisfied</p>
                       <p className="text-sm text-muted-foreground">
-                        {selectedSubmission.userSatisfied === true ? 'Yes ✅' : 
-                         selectedSubmission.userSatisfied === false ? 'No ❌' : 'Not specified'}
+                        {selectedSubmission.userSatisfied === true ? 'Yes' :
+                         selectedSubmission.userSatisfied === false ? 'No' : 'Not specified'}
                       </p>
                     </div>
                     <div>
