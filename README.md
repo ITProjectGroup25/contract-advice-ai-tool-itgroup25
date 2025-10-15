@@ -1,3 +1,6 @@
+## 📑 Catalog
+- [Contract Advice AI Assistant & Referral Tool](#Contract-Advice-AI-Assistant--Referral-Tool)
+
 # Contract Advice AI Assistant & Referral Tool
 
 This is a server-based online software — the RIC form builder application — built using Next.js, Next-auth, Shadcn UI, Gemini AI API, Drizzle, PostgreSQL, and TypeScript. 
@@ -6,7 +9,7 @@ Its purpose is to answer user questions more efficiently. When running, the prog
 
 All user requests and form responses are stored in an online database and categorized by type, time, and response satisfaction, allowing for future updates and research. The admin of the form can access and view all responses submitted, and the software also allows administrators to modify each question simultaneously, ensuring long-term use with minimal maintenance and the addition of new features.
 
-# Features
+## Features
 
 (undone)
 - **AI-Powered Form Creation**: Users can create forms by simply providing prompts, and the AI generates the necessary form fields based on the prompts. **(The necessity of this function needs to be verified later)**
@@ -17,7 +20,7 @@ All user requests and form responses are stored in an online database and catego
 - **Theme Customization**: The app offers six different themes for users to choose from, allowing them to customize the appearance of their app interface.
 - **Type Safety**: TypeScript is employed throughout the project to provide type safety and enhance code maintainability.
 
-# Tutorial
+## Tutorial
 
 **WARNING**
 
