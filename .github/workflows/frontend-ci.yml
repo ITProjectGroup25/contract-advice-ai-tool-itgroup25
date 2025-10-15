@@ -29,9 +29,6 @@ jobs:
       - name: Typecheck frontend workspace
         run: npm run typecheck --workspace frontend
 
-      - name: Build frontend workspace
-        run: npm run build --workspace frontend
-
   deploy-vercel:
     needs: lint-test-build
     if: (
@@ -45,34 +42,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install workspaces
-        run: npm install
-
-      - name: Build frontend for production
-        run: npm run build --workspace frontend
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-      - name: Vercel pull (project & env)
-        run: |
-          # Plan A: explicit link by slug to avoid wrong IDs / auto-created projects
-          npx vercel link \
-            --yes \
-            --token ${{ secrets.VERCEL_TOKEN }} \
-            --scope ${{ secrets.VERCEL_TEAM_SLUG }} \
-            --project ${{ secrets.VERCEL_PROJECT_NAME }}
-          npx vercel pull --yes --environment=production --token ${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy to Vercel
+      - name: Deploy to Vercel (cloud build)
         run: |
           npx vercel deploy \
             --prod \
@@ -80,7 +50,5 @@ jobs:
             --token ${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
   # Preview deployment job removed to make IPGCRT-79/ci-cd identical to main (production deploy)
