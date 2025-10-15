@@ -260,22 +260,29 @@ Push to main branch →
 
 Open website, click Access **Referral Assistant** button
 
-<img src="readMePictures/afterDeploymentSetupPicture/Form-Builder.png" width="600">
+<div align="center">
+         <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder.png" width="600">
+         <em>Form-BuilderImg1</em>
+</div>
 
 Go into form page, on the upper right, there is the admin Panal, enter password.
 
 
 The default password is **WARNING:unclear if we place default password in readMe file**
 
-
-<img src="readMePictures/afterDeploymentSetupPicture/Form-Builder2.png" width="600">
-<img src="readMePictures/afterDeploymentSetupPicture/Form-Builder3.png" width="600">
-
+<div align="center">
+         <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder2.png" width="600">
+         <em>Form-BuilderImg2</em>
+         <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder3.png" width="600">
+         <em>Form-BuilderImg3</em>
+</div>
 
 Click **Email Configuration**
 
-
-<img src="readMePictures/afterDeploymentSetupPicture/Form-Builder4.png" width="600">
+<div align="center">
+         <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder4.png" width="600">
+         <em>Form-BuilderImg4</em>
+</div>
 
 
 Under **Email Configuration**, there are 5 areas need to be filled.
