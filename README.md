@@ -326,7 +326,7 @@ Push to main branch →
 <div align="center">
          <img src="readMePictures/afterDeploymentSetupPicture/EmailJS9.png" width="600">
 </div>
-8. Edit the template, you can adjust as you need and include further information, here is the two standard template to start with
+8. Edit the template, you can adjust as you need and include further information, here are the two standard template to start with
 <div align="center">
          <img src="readMePictures/afterDeploymentSetupPicture/EmailJS8.png" width="600">
 </div>
