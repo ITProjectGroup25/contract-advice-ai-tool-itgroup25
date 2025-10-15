@@ -275,7 +275,6 @@ Push to main branch →
    - The default password is `**WARNING:unclear if we place default password in readMe file**`
 
 <div align="center">
-         <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder2.png" width="600"><br>
          <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder3.png" width="600">
 </div>
 
@@ -288,6 +287,7 @@ Push to main branch →
 
 4. Under **Email Configuration**, there are 5 areas need to be filled.
 
+<div align="center">
 
 |Name|Use|
 |-----|-----|
@@ -297,17 +297,39 @@ Push to main branch →
 |Grant Team Email|This is the email address that will receive the query notification |
 |Grant Team Template ID|This decide what the email to Grant Team will look like  |
 
+</div>
 
 #### 2. Email JS
 
 
 1. Signup an [EmailJS account](https://www.emailjs.com/)
-2. Go to [Account→General→API Key→Public Key](https://dashboard.emailjs.com/admin/account), get **Public Key**
-3. Go to [Email Service, add a New Service](https://dashboard.emailjs.com/admin)
-4. Choose which Email service account you want to sent the email with and finish authorising, get **Service ID**
-5. Go to Email Templates, you will need **2** template, one for **you, the grant team** and one for **users of the website**
-6. Go to the Setting of template, copy the **Template ID**, the one for User as **User Confirmation Template ID** and one for Grant Team as **Grant Team Template ID**
+<div align="center">
+         <img src="readMePictures/afterDeploymentSetupPicture/EmailJS.png" width="600">
+</div>
+3. Go to [Account→General→API Key→Public Key](https://dashboard.emailjs.com/admin/account), get **Public Key**
+<div align="center">
+         <img src="readMePictures/afterDeploymentSetupPicture/EmailJS1.png" width="600">
+</div>
+4. Go to [Email Service, add a New Service](https://dashboard.emailjs.com/admin)
+<div align="center">
+         <img src="readMePictures/afterDeploymentSetupPicture/EmailJS2.png" width="600">
+</div>
+5. Choose which Email service account you want to sent the email with and finish authorising, get **Service ID**
+<div align="center">
+         <img src="readMePictures/afterDeploymentSetupPicture/EmailJS5.png" width="600">
+</div>
+6. Go to Email Templates, you will need **2** template, one for **you, the grant team** and one for **users of the website**
+<div align="center">
+         <img src="readMePictures/afterDeploymentSetupPicture/EmailJS10.png" width="600">
+</div>
+7. Go to the Setting of template, copy the **Template ID**, the one for User as **User Confirmation Template ID** and one for Grant Team as **Grant Team Template ID**
+<div align="center">
+         <img src="readMePictures/afterDeploymentSetupPicture/EmailJS9.png" width="600">
+</div>
 8. Edit the template, you can adjust as you need and include further information, here is the two standard template to start with
+<div align="center">
+         <img src="readMePictures/afterDeploymentSetupPicture/EmailJS8.png" width="600">
+</div>
 
 To User
 
