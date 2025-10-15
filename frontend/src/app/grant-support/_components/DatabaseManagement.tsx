@@ -277,8 +277,83 @@ export function DatabaseManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      {/* Google Sheets Export Card */}
+      <Card className="border-2 border-green-100 bg-gradient-to-r from-green-50 to-white">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-green-700">
+            <FileSpreadsheet className="h-5 w-5" />
+            Google Sheets Export
+          </CardTitle>
+          <CardDescription>
+            Connect your Google account to export submissions directly to Google Sheets
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Left: User ID Input and Status */}
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Google User ID
+                </label>
+                <Input
+                  placeholder="Enter your Google user ID"
+                  value={googleUserId}
+                  onChange={handleGoogleUserIdChange}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600">Connection Status:</span>
+                <Badge className={`font-medium ${googleStatusClass}`}>
+                  {googleStatusLabel}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Right: Action Buttons */}
+            <div className="flex flex-col gap-3 justify-center">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={handleCheckGoogle}
+                disabled={checkingGoogle}
+              >
+                {checkingGoogle ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                )}
+                Check Connection Status
+              </Button>
+              <Button
+                variant={googleConnected ? "outline" : "default"}
+                className={`w-full justify-start ${!googleConnected ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
+                onClick={handleConnectGoogle}
+                disabled={checkingGoogle || !googleUserId.trim()}
+              >
+                <LogIn className="h-4 w-4 mr-2" />
+                {googleConnected ? 'Reconnect Google Account' : 'Connect Google Account'}
+              </Button>
+              <Button
+                className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={handleExportGoogleSheets}
+                disabled={exportingGoogle || !googleConnected}
+              >
+                {exportingGoogle ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                )}
+                Export to Google Sheets
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Database Management Header */}
+      <div className="flex items-center justify-between">
         <div>
           <h2 className="flex items-center gap-2">
             <Database className="h-5 w-5" />
@@ -288,62 +363,15 @@ export function DatabaseManagement() {
             Manage and export form submission data
           </p>
         </div>
-        <div className="flex flex-col gap-2 items-end">
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <Input
-              className="w-56"
-              placeholder="Google user ID"
-              value={googleUserId}
-              onChange={handleGoogleUserIdChange}
-            />
-            <Badge className={`font-medium ${googleStatusClass}`}>
-              {googleStatusLabel}
-            </Badge>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCheckGoogle}
-              disabled={checkingGoogle}
-            >
-              {checkingGoogle ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4 mr-2" />
-              )}
-              Check Status
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleConnectGoogle}
-              disabled={checkingGoogle || !googleUserId.trim()}
-            >
-              <LogIn className="h-4 w-4 mr-2" />
-              Connect Google
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleExportGoogleSheets}
-              disabled={exportingGoogle}
-            >
-              {exportingGoogle ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <FileSpreadsheet className="h-4 w-4 mr-2" />
-              )}
-              Export Google Sheets
-            </Button>
-          </div>
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <Button onClick={loadData} variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
-            <Button onClick={handleExportAll} size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export All (SQL)
-            </Button>
-          </div>
+        <div className="flex gap-2">
+          <Button onClick={loadData} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Button onClick={handleExportAll} size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Download to Local 
+          </Button>
         </div>
       </div>
 
