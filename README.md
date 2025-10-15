@@ -223,7 +223,7 @@ vercel --prod
 #### 3. GitHub Actions – CI/CD
 
 Required GitHub Secrets
-Add the following to [**GitHub** → **Repo** → **Settings** → **Secrets and variables** → **Actions**](https://github.com/ITProjectGroup25/contract-advice-ai-tool-itgroup25/settings/secrets/actions)
+Add the following to [GitHub → Repo → Settings → Secrets and variables → Actions or **click this for link**](https://github.com/ITProjectGroup25/contract-advice-ai-tool-itgroup25/settings/secrets/actions)
 
 ```bash
 # Vercel
@@ -252,17 +252,15 @@ Push to main branch →
 
 ```
 
-## After deployment setup
+## After deployment setup and future updates
 
 
 #### 1. Website End Email Config
-
 
 Open website, click Access **Referral Assistant** button
 
 <div align="center">
          <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder.png" width="600">
-         <em>Form-BuilderImg1</em>
 </div>
 
 Go into form page, on the upper right, there is the admin Panal, enter password.
@@ -271,17 +269,14 @@ Go into form page, on the upper right, there is the admin Panal, enter password.
 The default password is **WARNING:unclear if we place default password in readMe file**
 
 <div align="center">
-         <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder2.png" width="600">
-         <em>Form-BuilderImg2</em>
+         <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder2.png" width="600"><br>
          <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder3.png" width="600">
-         <em>Form-BuilderImg3</em>
 </div>
 
 Click **Email Configuration**
 
 <div align="center">
          <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder4.png" width="600">
-         <em>Form-BuilderImg4</em>
 </div>
 
 
@@ -290,11 +285,11 @@ Under **Email Configuration**, there are 5 areas need to be filled.
 
 |Name|Use|
 |-----|-----|
-|Service ID|**WARNING** |
-|Public Key|**WARNING** |
-|User Confirmation Template ID|**WARNING** |
-|Grant Team Email|**WARNING** |
-|Grant Team Template ID|**WARNING** |
+|Service ID|This decide which Email address the notifications will be sent from |
+|Public Key|This links you between this website and EmailJS account |
+|User Confirmation Template ID|This decide what the email to User will look like |
+|Grant Team Email|This is the email address that will receive the query notification |
+|Grant Team Template ID|This decide what the email to Grant Team will look like  |
 
 
 #### 2. Email JS
