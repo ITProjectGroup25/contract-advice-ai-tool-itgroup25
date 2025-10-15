@@ -1,5 +1,9 @@
 ## 📑 Catalog
 - [Contract Advice AI Assistant & Referral Tool](#Contract-Advice-AI-Assistant--Referral-Tool)
+- [System Architecture Overview](#System-Architecture-Overview)
+- [Tools and technologies used](#Tools-and-technologies-used)
+- [Deployment Guide](#Deployment-Guide)
+- [Release Note](#Release-Note)
 
 # Contract Advice AI Assistant & Referral Tool
 
@@ -435,12 +439,12 @@ git push origin main
 
 ```
 
-# Helpful links
+## Helpful links
 Private [Development workflow](https://itgroup25.atlassian.net/wiki/spaces/ITgroup25/folder/25919489)
 
 Private [Design Artefacts](https://itgroup25.atlassian.net/wiki/spaces/ITgroup25/folder/11862053)
 
-# release note
+# Release Note
 ### 0.1.1 Edit
 - release date:2025.10.2
 - ChatBot logic included (not implemented)
