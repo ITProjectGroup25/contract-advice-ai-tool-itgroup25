@@ -1,4 +1,5 @@
-import { Delete, Edit } from "@mui/icons-material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   IconButton,
   List,
@@ -105,13 +106,13 @@ const ManageItemsListComponent: FC<ManageItemsListComponentProps> = (props) => {
                 <ListItemText primary={item.label} />
                 <ListItemSecondaryAction>
                   <IconButton edge="end" onClick={() => changeToEditMode(item)}>
-                    <Edit />
+                    <EditIcon />
                   </IconButton>
                   <IconButton
                     onClick={() => deleteItemFromList(item)}
                     edge="end"
                   >
-                    <Delete />
+                    <DeleteIcon />
                   </IconButton>
                 </ListItemSecondaryAction>
               </ListItem>
