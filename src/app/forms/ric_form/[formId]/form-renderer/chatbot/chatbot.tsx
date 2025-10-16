@@ -1,7 +1,7 @@
 "use client";
 
-import ChatBot from "react-chatbotify";
 import { useEffect, useState } from "react";
+import ChatBot from "react-chatbotify";
 
 interface FAQ {
   id: number;
