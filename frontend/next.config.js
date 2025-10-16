@@ -24,6 +24,7 @@ const nextConfig = {
     // Add webpack alias for workspace packages  
     config.resolve.alias = {
       ...config.resolve.alias,
+      '@': require('path').resolve(__dirname, 'src'),
       '@backend': require('path').resolve(__dirname, '../backend/src'),
       '@shared': require('path').resolve(__dirname, '../shared/src'),
     };

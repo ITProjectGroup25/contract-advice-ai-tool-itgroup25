@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import type { ChangeEvent } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -9,9 +10,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { ScrollArea } from './ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { Input } from './ui/input';
 import { localDB, FormSubmission } from '../_utils/localDatabase';
-import { Database, Download, Trash2, Eye, RefreshCw, BarChart3, Users, FileText, Clock } from 'lucide-react';
+import { Database, Download, Trash2, Eye, RefreshCw, BarChart3, Users, FileText, Clock, LogIn, FileSpreadsheet } from 'lucide-react';
 import { toast } from 'sonner';
+
+const GOOGLE_USER_STORAGE_KEY = 'grant-support-google-user-id';
 
 export function DatabaseManagement() {
   const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
@@ -25,6 +29,65 @@ export function DatabaseManagement() {
   });
   const [selectedSubmission, setSelectedSubmission] = useState<FormSubmission | null>(null);
   const [loading, setLoading] = useState(true);
+  const [googleUserId, setGoogleUserId] = useState('');
+  const [googleConnected, setGoogleConnected] = useState<boolean | null>(null);
+  const [checkingGoogle, setCheckingGoogle] = useState(false);
+  const [exportingGoogle, setExportingGoogle] = useState(false);
+
+  const checkGoogleStatus = useCallback(
+    async (userId: string) => {
+      const trimmed = userId.trim();
+      if (!trimmed) {
+        setGoogleConnected(false);
+        return false;
+      }
+      setCheckingGoogle(true);
+      try {
+        const response = await fetch(`/api/google/oauth/status?userId=${encodeURIComponent(trimmed)}`);
+        if (!response.ok) {
+          const body = await response.json().catch(() => null);
+          if (response.status >= 500) {
+            toast.error(body?.error ?? "Unable to verify Google connection.");
+          }
+          setGoogleConnected(false);
+          return false;
+        }
+        const data = await response.json();
+        const connected = Boolean(data?.connected);
+        setGoogleConnected(connected);
+        return connected;
+      } catch (error) {
+        console.error('Failed to check Google OAuth status:', error);
+        toast.error('Unable to verify Google connection.');
+        setGoogleConnected(false);
+        return false;
+      } finally {
+        setCheckingGoogle(false);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const storedId = window.localStorage.getItem(GOOGLE_USER_STORAGE_KEY);
+    if (storedId) {
+      setGoogleUserId(storedId);
+      void checkGoogleStatus(storedId);
+    } else {
+      setGoogleConnected(false);
+    }
+  }, [checkGoogleStatus]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const trimmed = googleUserId.trim();
+    if (trimmed) {
+      window.localStorage.setItem(GOOGLE_USER_STORAGE_KEY, trimmed);
+    } else {
+      window.localStorage.removeItem(GOOGLE_USER_STORAGE_KEY);
+    }
+  }, [googleUserId]);
 
   useEffect(() => {
     loadData();
@@ -45,6 +108,75 @@ export function DatabaseManagement() {
       toast.error('Failed to load database data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleUserIdChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setGoogleUserId(event.target.value);
+    setGoogleConnected(null);
+  };
+
+  const handleCheckGoogle = async () => {
+    const trimmed = googleUserId.trim();
+    if (!trimmed) {
+      toast.error('Please enter your Google user ID first.');
+      return;
+    }
+    const connected = await checkGoogleStatus(trimmed);
+    if (connected) {
+      toast.success('Google Sheets account is connected.');
+    } else {
+      toast.info('Google Sheets account is not connected yet.');
+    }
+  };
+
+  const handleConnectGoogle = () => {
+    const trimmed = googleUserId.trim();
+    if (!trimmed) {
+      toast.error('Please enter your Google user ID first.');
+      return;
+    }
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(GOOGLE_USER_STORAGE_KEY, trimmed);
+      toast.info('Redirecting to Google for authorization...');
+      window.location.href = `/api/google/oauth/start?userId=${encodeURIComponent(trimmed)}`;
+    }
+  };
+
+  const handleExportGoogleSheets = async () => {
+    const trimmed = googleUserId.trim();
+    if (!trimmed) {
+      toast.error('Please enter your Google user ID first.');
+      return;
+    }
+    setExportingGoogle(true);
+    try {
+      const connected = googleConnected ?? (await checkGoogleStatus(trimmed));
+      if (!connected) {
+        toast.error('Please connect Google Sheets before exporting.');
+        return;
+      }
+
+      const params = new URLSearchParams({
+        userId: trimmed,
+        expand: '1',
+      });
+
+      const response = await fetch(`/api/v1/submissions/export/google-sheets?${params.toString()}`);
+      const data = await response.json();
+      if (!response.ok || !data?.ok) {
+        throw new Error(data?.error || 'Failed to export to Google Sheets');
+      }
+
+      toast.success('Exported to Google Sheets successfully.');
+      if (data.url) {
+        window.open(data.url as string, '_blank', 'noopener,noreferrer');
+      }
+    } catch (error: any) {
+      console.error('Google Sheets export failed:', error);
+      toast.error(error?.message ?? 'Failed to export to Google Sheets');
+    } finally {
+      setExportingGoogle(false);
     }
   };
 
@@ -115,6 +247,23 @@ export function DatabaseManagement() {
     }
   };
 
+  const trimmedGoogleUserId = googleUserId.trim();
+  const googleStatusLabel = checkingGoogle
+    ? 'Checking...'
+    : googleConnected
+    ? 'Google Connected'
+    : trimmedGoogleUserId
+    ? 'Not Connected'
+    : 'Not Configured';
+  const googleStatusClass =
+    checkingGoogle
+      ? 'bg-blue-100 text-blue-800'
+      : googleConnected
+      ? 'bg-green-100 text-green-800'
+      : trimmedGoogleUserId
+      ? 'bg-red-100 text-red-800'
+      : 'bg-gray-100 text-gray-800';
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -128,7 +277,82 @@ export function DatabaseManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Google Sheets Export Card */}
+      <Card className="border-2 border-green-100 bg-gradient-to-r from-green-50 to-white">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-green-700">
+            <FileSpreadsheet className="h-5 w-5" />
+            Google Sheets Export
+          </CardTitle>
+          <CardDescription>
+            Connect your Google account to export submissions directly to Google Sheets
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Left: User ID Input and Status */}
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Google User ID
+                </label>
+                <Input
+                  placeholder="Enter your Google user ID"
+                  value={googleUserId}
+                  onChange={handleGoogleUserIdChange}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600">Connection Status:</span>
+                <Badge className={`font-medium ${googleStatusClass}`}>
+                  {googleStatusLabel}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Right: Action Buttons */}
+            <div className="flex flex-col gap-3 justify-center">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={handleCheckGoogle}
+                disabled={checkingGoogle}
+              >
+                {checkingGoogle ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                )}
+                Check Connection Status
+              </Button>
+              <Button
+                variant={googleConnected ? "outline" : "default"}
+                className={`w-full justify-start ${!googleConnected ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
+                onClick={handleConnectGoogle}
+                disabled={checkingGoogle || !googleUserId.trim()}
+              >
+                <LogIn className="h-4 w-4 mr-2" />
+                {googleConnected ? 'Reconnect Google Account' : 'Connect Google Account'}
+              </Button>
+              <Button
+                className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={handleExportGoogleSheets}
+                disabled={exportingGoogle || !googleConnected}
+              >
+                {exportingGoogle ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                )}
+                Export to Google Sheets
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Database Management Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="flex items-center gap-2">
@@ -146,7 +370,7 @@ export function DatabaseManagement() {
           </Button>
           <Button onClick={handleExportAll} size="sm">
             <Download className="h-4 w-4 mr-2" />
-            Export All
+            Download to Local 
           </Button>
         </div>
       </div>
@@ -260,8 +484,8 @@ export function DatabaseManagement() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {submission.userSatisfied === true ? '✅' : 
-                           submission.userSatisfied === false ? '❌' : '-'}
+                          {submission.userSatisfied === true ? 'Yes' :
+                           submission.userSatisfied === false ? 'No' : '-'}
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
@@ -410,8 +634,8 @@ export function DatabaseManagement() {
                     <div>
                       <p className="text-sm font-medium">User Satisfied</p>
                       <p className="text-sm text-muted-foreground">
-                        {selectedSubmission.userSatisfied === true ? 'Yes ✅' : 
-                         selectedSubmission.userSatisfied === false ? 'No ❌' : 'Not specified'}
+                        {selectedSubmission.userSatisfied === true ? 'Yes' :
+                         selectedSubmission.userSatisfied === false ? 'No' : 'Not specified'}
                       </p>
                     </div>
                     <div>

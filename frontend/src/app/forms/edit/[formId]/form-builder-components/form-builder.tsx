@@ -1,7 +1,8 @@
 import { deleteForm } from "@/app/actions/deleteForm";
 import { publishForm } from "@/app/actions/publishForm";
 import { SAMPLE_GRANT_FORM_URL } from "@/app/contact/community-showcase";
-import { Publish, RemoveRedEye } from "@mui/icons-material";
+import PublishIcon from "@mui/icons-material/Publish";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import { Button } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { FunctionComponent, useState, useTransition } from "react";
@@ -150,7 +151,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                             className="mx-2"
                             variant="outlined"
                             // onClick={() => openPreviewDrawer()}
-                            endIcon={<RemoveRedEye />}
+                            endIcon={<RemoveRedEyeIcon />}
                           >
                             <a href={SAMPLE_GRANT_FORM_URL}>Preview</a>
                           </Button>
@@ -158,7 +159,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                             onClick={handlePublishForm}
                             className="mx-2"
                             color="primary"
-                            endIcon={<Publish />}
+                            endIcon={<PublishIcon />}
                             disableElevation
                             variant="contained"
                             disabled={isPublishing}

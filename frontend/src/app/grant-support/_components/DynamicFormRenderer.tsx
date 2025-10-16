@@ -13,7 +13,10 @@ import { toast } from "sonner";
 import { FileText, Users, Clock, HelpCircle, Search, Settings } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { Question, FormSection } from "./AdminInterface";
-import { exportFormSubmissionAsSQL } from "../_utils/sqlExport";
+import {
+  createGrantSupportSubmission,
+  GrantSupportSubmissionResponse,
+} from "../_utils/api";
 import { emailService, EmailData, GrantTeamEmailData } from "../_utils/emailService";
 import { FileUpload } from "./FileUpload";
 import FixedLogo from "./FixedLogo";
@@ -28,6 +31,31 @@ interface DynamicFormRendererProps {
 interface FormData {
   [key: string]: any;
 }
+
+interface UploadedFile {
+  name: string;
+  size: number;
+  type: string;
+  data: string;
+}
+
+const generateSubmissionId = () =>
+  `submission_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+
+const isUploadedFileArray = (value: unknown): value is UploadedFile[] => {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        item &&
+        typeof item === "object" &&
+        "name" in item &&
+        "size" in item &&
+        "type" in item &&
+        "data" in item
+    )
+  );
+};
 
 export function DynamicFormRenderer({ 
   questions, 
@@ -137,14 +165,19 @@ export function DynamicFormRenderer({
 
   const onSubmit = async (data: FormData) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      console.log("Form submitted:", data);
-      
-      // Export form submission as SQL and save to database
-      const queryType = getQueryType() as 'simple' | 'complex';
-      const submissionId = await exportFormSubmissionAsSQL(data, questions, queryType);
-      
+      const queryType = (getQueryType() as "simple" | "complex") || "simple";
+
+      const submissionResponse: GrantSupportSubmissionResponse =
+        await createGrantSupportSubmission({
+          formData: data,
+          queryType,
+          userEmail: (data.email as string) || undefined,
+          userName: (data.name as string) || undefined,
+          status: "submitted",
+        });
+
+      const submissionId = submissionResponse.submissionUid;
+
       // Send confirmation email to user
       const userEmail = data.email as string;
       const userName = data.name as string;
@@ -155,63 +188,85 @@ export function DynamicFormRenderer({
           userName,
           submissionId,
           queryType,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
-        
+
         try {
-          console.log('📧 FORM: Sending USER CONFIRMATION email to:', userEmail);
+          console.log("📧 FORM: Sending USER CONFIRMATION email to:", userEmail);
           const emailSent = await emailService.sendConfirmationEmail(emailData);
           if (emailSent) {
-            console.log('✅ FORM: User confirmation email sent successfully to:', userEmail);
+            console.log(
+              "✅ FORM: User confirmation email sent successfully to:",
+              userEmail
+            );
           } else {
-            console.warn('⚠️ FORM: Failed to send user confirmation email');
+            console.warn("⚠️ FORM: Failed to send user confirmation email");
           }
         } catch (emailError) {
-          console.error('❌ FORM: User confirmation email service error:', emailError);
-          // Don't fail the form submission if email fails
+          console.error(
+            "❌ FORM: User confirmation email service error:",
+            emailError
+          );
         }
       }
-      
+
       if (queryType === "simple") {
-        toast.success("Simple query submitted successfully! Check your email for confirmation.");
+        toast.success(
+          "Simple query submitted successfully! Check your email for confirmation."
+        );
         setTimeout(() => {
           onSimpleQuerySuccess?.(submissionId);
         }, 1000);
-      } else if (queryType === "complex") {
-        // Send notification email to grant team for complex queries
+      } else {
         if (userEmail && userName) {
           const grantTeamEmailData: GrantTeamEmailData = {
             submissionId,
-            queryType: 'complex',
+            queryType: "complex",
             userEmail,
             userName,
             timestamp: new Date().toISOString(),
-            formData: data
+            formData: data,
           };
-          
+
           try {
-            console.log('📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:', submissionId);
-            const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
+            console.log(
+              "📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:",
+              submissionId
+            );
+            const grantEmailSent =
+              await emailService.sendGrantTeamNotification(
+                grantTeamEmailData
+              );
             if (grantEmailSent) {
-              console.log('✅ FORM: Grant team notification sent successfully for complex query:', submissionId);
+              console.log(
+                "✅ FORM: Grant team notification sent successfully for complex query:",
+                submissionId
+              );
             } else {
-              console.warn('⚠️ FORM: Failed to send grant team notification');
+              console.warn("⚠️ FORM: Failed to send grant team notification");
             }
           } catch (grantEmailError) {
-            console.error('❌ FORM: Grant team notification error:', grantEmailError);
-            // Don't fail the form submission if grant team email fails
+            console.error(
+              "❌ FORM: Grant team notification error:",
+              grantEmailError
+            );
           }
         }
-        
-        toast.success("Complex referral submitted successfully! Check your email for confirmation.");
+
+        toast.success(
+          "Complex referral submitted successfully! Check your email for confirmation."
+        );
         setTimeout(() => {
           onComplexQuerySuccess?.();
         }, 1000);
-      } else {
-        toast.success("Form submitted successfully! Check your email for confirmation.");
       }
     } catch (error) {
-      toast.error("Failed to submit referral request. Please try again.");
+      console.error("Form submission error:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to submit referral request. Please try again."
+      );
     }
   };
 
@@ -535,49 +590,49 @@ export function DynamicFormRenderer({
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          {sortedSections.map((section) => {
-            if (!isSectionVisible(section)) return null;
+        {sortedSections.map((section) => {
+          if (!isSectionVisible(section)) return null;
 
-            const sectionQuestions = visibleQuestions
-              .filter(q => q.section === section.id)
-              .filter(q => isQuestionVisible(q))
-              .sort((a, b) => a.order - b.order);
+          const sectionQuestions = visibleQuestions
+            .filter(q => q.section === section.id)
+            .filter(q => isQuestionVisible(q))
+            .sort((a, b) => a.order - b.order);
 
-            if (sectionQuestions.length === 0) return null;
+          if (sectionQuestions.length === 0) return null;
 
-            const IconComponent = getIconForSection(section.id);
+          const IconComponent = getIconForSection(section.id);
 
-            return (
-              <Card key={section.id}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <IconComponent className="h-5 w-5" />
-                    {section.title}
-                  </CardTitle>
-                  {section.description && (
-                    <CardDescription>
-                      {section.description}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {sectionQuestions.map(renderQuestion)}
-                </CardContent>
-              </Card>
-            );
-          })}
+          return (
+            <Card key={section.id}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <IconComponent className="h-5 w-5" />
+                  {section.title}
+                </CardTitle>
+                {section.description && (
+                  <CardDescription>
+                    {section.description}
+                  </CardDescription>
+                )}
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {sectionQuestions.map(renderQuestion)}
+              </CardContent>
+            </Card>
+          );
+        })}
 
-          <Separator />
+        <Separator />
 
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-green-700 border border-white text-white hover:bg-green-600 px-4 py-2"
-            >
-              {isSubmitting ? "Submitting..." : "Submit Referral Request"}
-            </Button>
-          </div>
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-green-700 border border-white text-white hover:bg-green-600 px-4 py-2"
+          >
+            {isSubmitting ? "Submitting..." : "Submit Referral Request"}
+          </Button>
+        </div>
         </form>
       </div>
     </>

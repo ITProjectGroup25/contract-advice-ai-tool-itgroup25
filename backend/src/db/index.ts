@@ -22,4 +22,5 @@ const client = postgres(connectionString, {
 
 export const db = drizzle(client, { schema });
 export { schema };
+export const sqlClient = client;
 
