@@ -28,7 +28,12 @@ export interface SubmissionRecord {
 }
 
 export interface ListSubmissionsResult {
+  /**
+   * The canonical submissions collection. Some callers from the real backend expect a `data`
+   * property, so we expose both to keep stubbed return values compatible.
+   */
   submissions: SubmissionRecord[];
+  data: SubmissionRecord[];
   pagination: {
     page: number;
     pageSize: number;
@@ -44,6 +49,7 @@ export async function listSubmissions(
   // TODO: Implement proper database query when @backend is accessible
   return {
     submissions: [],
+    data: [],
     pagination: {
       page: params.page ?? 1,
       pageSize: params.pageSize ?? 20,
