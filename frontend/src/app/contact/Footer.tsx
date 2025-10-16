@@ -19,7 +19,7 @@ const MainSiteFooter = (props: Props) => {
       <div className="mx-auto max-w-screen-xl">
         <div className="lg:flex lg:justify-between">
           <div className="mb-6 md:mb-0">
-            <a href="https://flowbite.com" className="flex items-center">
+            <a href="https://www.unimelb.edu.au/" className="flex items-center">
               <Image src={Logo} alt="Taper Logo" className="w-16 lg:w-32" />
             </a>
           </div>
@@ -72,7 +72,7 @@ const MainSiteFooter = (props: Props) => {
         <div className="sm:flex sm:items-center sm:justify-between">
           <span className="text-sm text-gray-500 dark:text-gray-400 sm:text-center">
             © 2025{" "}
-            <a href="https://flowbite.com" className="hover:underline"></a>. All
+            . All
             Rights Reserved.
           </span>
           <div className="mt-4 flex space-x-6 sm:mt-0 sm:justify-center">

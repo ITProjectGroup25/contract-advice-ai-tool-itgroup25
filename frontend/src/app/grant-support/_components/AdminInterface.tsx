@@ -38,7 +38,7 @@ export interface Question {
   id: string;
   title: string;
   description?: string;
-  type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox-group' | 'radio-group' | 'date' | 'file-upload';
+  type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox-group' | 'radio-group' | 'date';
   required: boolean;
   options?: QuestionOption[];
   placeholder?: string;
@@ -46,11 +46,6 @@ export interface Question {
     minLength?: number;
     maxLength?: number;
     pattern?: string;
-  };
-  fileUploadConfig?: {
-    accept?: string;
-    maxSize?: number; // in MB
-    maxFiles?: number;
   };
   conditional?: {
     dependsOn: string;
@@ -338,7 +333,6 @@ export function AdminInterface({
                         <SelectItem value="checkbox-group">Checkbox Group</SelectItem>
                         <SelectItem value="radio-group">Radio Group</SelectItem>
                         <SelectItem value="date">Date Input</SelectItem>
-                        <SelectItem value="file-upload">File Upload</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -439,64 +433,7 @@ export function AdminInterface({
                   </div>
                 )}
 
-                {/* File Upload Configuration */}
-                {newQuestion.type === 'file-upload' && (
-                  <div className="space-y-3">
-                    <Label>File Upload Configuration</Label>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="file-accept">Accepted File Types</Label>
-                        <Input
-                          id="file-accept"
-                          value={newQuestion.fileUploadConfig?.accept || "*/*"}
-                          onChange={(e) => setNewQuestion({
-                            ...newQuestion,
-                            fileUploadConfig: {
-                              ...newQuestion.fileUploadConfig,
-                              accept: e.target.value
-                            }
-                          })}
-                          placeholder="e.g., .pdf,.doc,.docx"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="file-max-size">Max Size (MB)</Label>
-                        <Input
-                          id="file-max-size"
-                          type="number"
-                          min="1"
-                          max="100"
-                          value={newQuestion.fileUploadConfig?.maxSize || 10}
-                          onChange={(e) => setNewQuestion({
-                            ...newQuestion,
-                            fileUploadConfig: {
-                              ...newQuestion.fileUploadConfig,
-                              maxSize: parseInt(e.target.value) || 10
-                            }
-                          })}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="file-max-files">Max Files</Label>
-                        <Input
-                          id="file-max-files"
-                          type="number"
-                          min="1"
-                          max="20"
-                          value={newQuestion.fileUploadConfig?.maxFiles || 5}
-                          onChange={(e) => setNewQuestion({
-                            ...newQuestion,
-                            fileUploadConfig: {
-                              ...newQuestion.fileUploadConfig,
-                              maxFiles: parseInt(e.target.value) || 5
-                            }
-                          })}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
+              
                 <Separator />
 
                 <div className="flex justify-end gap-2">

@@ -114,7 +114,7 @@ export function DynamicFormRenderer({
 
     return conditional.showWhen.includes(dependentValue);
   }, [formValues, questions, getQueryType]);
-
+  
   // Clear values for invisible questions
   useEffect(() => {
     const invisibleQuestions = visibleQuestions.filter(q => !isQuestionVisible(q));
@@ -282,10 +282,8 @@ export function DynamicFormRenderer({
         if (question.type === 'checkbox-group') {
           rules.validate = (value: any) => 
             value && value.length > 0 ? true : `${question.title} is required`;
-        } else if (question.type === 'file-upload') {
-          rules.validate = (value: any) => 
-            value && value.length > 0 ? true : `${question.title} is required`;
-        } else {
+        }
+         else {
           rules.required = `${question.title} is required`;
         }
       }
@@ -544,35 +542,6 @@ export function DynamicFormRenderer({
                     </div>
                   ))}
                 </div>
-              )}
-            />
-            {errors[fieldName] && (
-              <p className="text-sm text-destructive">
-                {errors[fieldName]?.message as string}
-              </p>
-            )}
-          </div>
-        );
-
-      case 'file-upload':
-        return (
-          <div key={question.id} className="space-y-2">
-            <Controller
-              name={fieldName}
-              control={control}
-              rules={getValidationRules()}
-              render={({ field: { value = [], onChange } }) => (
-                <FileUpload
-                  id={fieldName}
-                  title={question.title}
-                  description={question.description}
-                  required={question.required}
-                  value={value}
-                  onChange={onChange}
-                  accept={question.fileUploadConfig?.accept || "*/*"}
-                  maxSize={question.fileUploadConfig?.maxSize || 10}
-                  maxFiles={question.fileUploadConfig?.maxFiles || 5}
-                />
               )}
             />
             {errors[fieldName] && (
