@@ -197,11 +197,11 @@ export const renderField = ({
                   <div key={item.id} className="flex items-center space-x-2">
                     <Checkbox
                       id={`${fieldName}-${item.id}`}
-                      checked={value.includes(item.value)}
+                      checked={value.includes(item.label)} // store label instead of value
                       onCheckedChange={(checked) => {
                         const updatedValues = checked
-                          ? [...value, item.value]
-                          : value.filter((v: string) => v !== item.value);
+                          ? [...value, item.label] // push label
+                          : value.filter((v: string) => v !== item.label); // remove label
                         handleFieldChange(fieldName, updatedValues, child);
                       }}
                     />
@@ -286,10 +286,10 @@ export const renderField = ({
                   <div key={item.id} className="flex items-center space-x-2">
                     <Checkbox
                       id={`${fieldName}-${item.id}`}
-                      checked={value === item.value}
+                      checked={value === item.label} // store label
                       onCheckedChange={(checked) => {
                         if (checked) {
-                          handleFieldChange(fieldName, item.value, child);
+                          handleFieldChange(fieldName, item.label, child); // send label
                         }
                       }}
                     />
@@ -308,7 +308,6 @@ export const renderField = ({
           )}
         </div>
       );
-
     default:
       return null;
   }

@@ -79,10 +79,6 @@ export function DynamicFormRenderer({
     formState: { errors, isSubmitting },
   } = useForm<FormData>();
 
-  const [otherFields, setOtherFields] = useState<{ [key: string]: boolean }>(
-    {}
-  );
-
   const [uploadedFiles, setUploadedFiles] = useState<{
     [key: string]: File[];
   }>({});
@@ -239,6 +235,8 @@ export function DynamicFormRenderer({
       console.log("Hi");
       console.log({ data });
       console.log({ queryType });
+
+      return
 
       // Process files first - upload to Supabase
       const processedData: Record<string, any> = {};
