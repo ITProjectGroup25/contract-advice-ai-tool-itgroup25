@@ -38,7 +38,6 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "^20.0.5",
-    "bun-types": "^1.3.0"
+    "@happy-dom/global-registrator": "^20.0.5"
   }
 }

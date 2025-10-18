@@ -2,7 +2,7 @@
 
 import { uploadFile } from "@/app/actions/uploadFile/uploadFile";
 import { Clock, FileText, HelpCircle, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
@@ -93,39 +93,43 @@ export function DynamicFormRenderer({
   const formValues = watch();
 
   // Helper function to check if a section should be visible based on form values
-  const shouldSectionBeVisible = (section: (typeof sections)[0]): boolean => {
-    // Always visible sections
-    if (section.container.alwaysVisible) return true;
 
-    // Check visibility condition
-    const condition = section.container.visibilityCondition;
-    if (!condition) return false;
+  const shouldSectionBeVisible = useCallback(
+    (section: (typeof sections)[0]): boolean => {
+      // Always visible sections
+      if (section.container.alwaysVisible) return true;
 
-    // Find the field that controls this section's visibility
-    const controllingField = sections
-      .flatMap((s) => s.children)
-      .find((child) => child.id.toString() === condition.fieldId);
+      // Check visibility condition
+      const condition = section.container.visibilityCondition;
+      if (!condition) return false;
 
-    if (!controllingField) return false;
+      // Find the field that controls this section's visibility
+      const controllingField = sections
+        .flatMap((s) => s.children)
+        .find((child) => child.id.toString() === condition.fieldId);
 
-    // Get the current value of the controlling field
-    const currentFieldValue = formValues[controllingField.labelName];
+      if (!controllingField) return false;
 
-    // Find the option that should trigger visibility
-    const triggerOption = controllingField.items?.find(
-      (item) => item.id === condition.optionId
-    );
+      // Get the current value of the controlling field
+      const currentFieldValue = formValues[controllingField.labelName];
 
-    if (!triggerOption) return false;
+      // Find the option that should trigger visibility
+      const triggerOption = controllingField.items?.find(
+        (item) => item.id === condition.optionId
+      );
 
-    // Check if current value matches the trigger
-    // Handle both single values (radio) and arrays (checkbox)
-    if (Array.isArray(currentFieldValue)) {
-      return currentFieldValue.includes(triggerOption.label);
-    }
+      if (!triggerOption) return false;
 
-    return currentFieldValue === triggerOption.label;
-  };
+      // Check if current value matches the trigger
+      // Handle both single values (radio) and arrays (checkbox)
+      if (Array.isArray(currentFieldValue)) {
+        return currentFieldValue.includes(triggerOption.label);
+      }
+
+      return currentFieldValue === triggerOption.label;
+    },
+    [sections, formValues]
+  );
 
   // Update visible sections whenever form values change
   useEffect(() => {
@@ -133,7 +137,7 @@ export function DynamicFormRenderer({
       shouldSectionBeVisible(section)
     );
     setVisibleSections(newVisibleSections);
-  }, [formValues, sections]);
+  }, [formValues, sections, shouldSectionBeVisible]);
 
   const handleFieldChange = (
     fieldId: string,
