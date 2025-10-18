@@ -13,6 +13,7 @@ import {
   GrantTeamEmailData,
   emailService,
 } from "../_utils/emailService";
+import FixedLogo from "./FixedLogo";
 import { FormSectionsType } from "./types";
 import { Button } from "./ui/button";
 import {
@@ -27,7 +28,6 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
-import FixedLogo from "./FixedLogo";
 
 interface DynamicFormRendererProps {
   sections: FormSectionsType;
@@ -253,6 +253,46 @@ export function DynamicFormRenderer({
     };
 
     switch (child.controlName) {
+      case "checklist":
+        return (
+          <div key={child.id} className="space-y-3">
+            <Label>
+              {child.labelName} {child.required && "*"}
+            </Label>
+            {renderDescription(child.description)}
+            <Controller
+              name={fieldName}
+              control={control}
+              rules={getValidationRules()}
+              render={({ field: { value = [] } }) => (
+                <div className="space-y-3">
+                  {child.items?.map((item: any) => (
+                    <div key={item.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`${fieldName}-${item.id}`}
+                        checked={value.includes(item.value)}
+                        onCheckedChange={(checked) => {
+                          const updatedValues = checked
+                            ? [...value, item.value]
+                            : value.filter((v: string) => v !== item.value);
+                          setValue(fieldName, updatedValues);
+                        }}
+                      />
+                      <Label htmlFor={`${fieldName}-${item.id}`}>
+                        {item.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            />
+            {errors[fieldName] && (
+              <p className="text-sm text-destructive">
+                {errors[fieldName]?.message as string}
+              </p>
+            )}
+          </div>
+        );
       case "text-field":
         return (
           <div key={child.id} className="space-y-2">
