@@ -73,8 +73,8 @@ export function DatabaseManagement() {
 
   const {
     data: submissionsData,
-    isLoading,
-    refetch,
+    isFetching: isFetchingSubmissions,
+    refetch: refetchSubmissions,
   } = useQuery({
     queryKey: ["submissions"],
     queryFn: async () => {
@@ -85,7 +85,7 @@ export function DatabaseManagement() {
 
   const {
     data: statsData,
-    isLoading: statsLoading,
+    isFetching: isFetchingStats,
     refetch: refetchStats,
   } = useQuery({
     queryKey: ["submissionStats"],
@@ -113,12 +113,15 @@ export function DatabaseManagement() {
     satisfied: 0,
   };
 
-  const handleRefresh = () => refetch();
+  const handleRefresh = async () => {
+    refetchSubmissions();
+    refetchStats();
+  };
 
   const handleDeleteSubmission = async (id: string) => {
     try {
       await localDB.deleteSubmission(id);
-      await loadData();
+      await handleRefresh();
       toast.success("Submission deleted successfully");
     } catch (error) {
       console.error("Error deleting submission:", error);
@@ -129,7 +132,7 @@ export function DatabaseManagement() {
   const handleClearAll = async () => {
     try {
       await localDB.clearAllSubmissions();
-      await loadData();
+      await handleRefresh();
       toast.success("All submissions cleared successfully");
     } catch (error) {
       console.error("Error clearing submissions:", error);
@@ -143,7 +146,7 @@ export function DatabaseManagement() {
   ) => {
     try {
       await localDB.updateSubmission(id, { status });
-      await loadData();
+      await handleRefresh();
       toast.success("Status updated successfully");
     } catch (error) {
       console.error("Error updating status:", error);
@@ -316,6 +319,8 @@ export function DatabaseManagement() {
     }
   };
 
+  const isLoading = isFetchingSubmissions || isFetchingStats;
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -425,7 +430,7 @@ export function DatabaseManagement() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={loadData} variant="outline" size="sm">
+          <Button onClick={handleRefresh} variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
