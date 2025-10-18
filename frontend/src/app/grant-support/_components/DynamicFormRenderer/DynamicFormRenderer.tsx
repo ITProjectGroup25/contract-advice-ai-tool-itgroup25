@@ -236,8 +236,6 @@ export function DynamicFormRenderer({
       console.log({ data });
       console.log({ queryType });
 
-      return
-
       // Process files first - upload to Supabase
       const processedData: Record<string, any> = {};
 
