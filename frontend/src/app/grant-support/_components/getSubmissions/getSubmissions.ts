@@ -6,6 +6,7 @@ import {
   GrantSupportSubmission,
   GrantSupportSubmissionSchema,
 } from "./grantSupportSubmissionSchema";
+import convertKeysToCamel, { Camelize } from "./snakeToCamel";
 
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -35,7 +36,7 @@ export async function getSubmissions({
   userEmail,
   status,
   submissionUid,
-}: Args = {}): Promise<GrantSupportSubmission[]> {
+}: Args = {}): Promise<Camelize<GrantSupportSubmission>[]> {
   let query = supabaseAdmin.from("grant_support_submissions").select("*");
 
   if (userEmail) query = query.eq("user_email", userEmail);
@@ -62,5 +63,7 @@ export async function getSubmissions({
     throw new Error("Invalid data format returned from Supabase");
   }
 
-  return parsed.data;
+  const parsedDataAsCamelCase = convertKeysToCamel(parsed.data);
+
+  return parsedDataAsCamelCase;
 }
