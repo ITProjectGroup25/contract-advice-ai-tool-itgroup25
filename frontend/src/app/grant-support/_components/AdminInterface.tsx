@@ -648,6 +648,7 @@ export function AdminInterface({
                   <SelectItem value="checklist">Checkbox Group</SelectItem>
                   <SelectItem value="radio-group">Radio Group</SelectItem>
                   <SelectItem value="file-upload">File Upload</SelectItem>
+                  <SelectItem value="date-field">Date Field</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -310,6 +310,31 @@ export const renderField = ({
           )}
         </div>
       );
+
+    case "date-field":
+      return (
+        <div key={child.id} className="space-y-2">
+          <Label htmlFor={fieldName}>
+            {child.labelName} {child.required && "*"}
+          </Label>
+          {renderDescription(child.description)}
+          <Input
+            id={fieldName}
+            type="date"
+            {...register(fieldName, validationRules)}
+            placeholder={child.placeholder}
+            onChange={(e) =>
+              handleFieldChange(fieldName, e.target.value, child)
+            }
+            className="block w-full"
+          />
+          {errors[fieldName] && (
+            <p className="text-sm text-destructive">
+              {errors[fieldName]?.message as string}
+            </p>
+          )}
+        </div>
+      );
     default:
       return null;
   }

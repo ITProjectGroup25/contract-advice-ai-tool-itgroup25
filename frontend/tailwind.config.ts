@@ -40,7 +40,7 @@ const config = {
           foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
+          DEFAULT: "hsl(0 84.2% 60.2%)",
           foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
