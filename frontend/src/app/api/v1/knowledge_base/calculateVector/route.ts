@@ -43,6 +43,48 @@ async function embedWithBGE_M3(query: string): Promise<number[]> {
 }
 
 
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const q = (searchParams.get('q') ?? searchParams.get('str') ?? '').trim();
+    const topK = Number(searchParams.get('topK') ?? searchParams.get('k') ?? 10);
+    const minScore = Number(searchParams.get('minScore') ?? 0);
+    const probes = Number(searchParams.get('probes') ?? 20);
+
+    if (!q) {
+      return NextResponse.json({ error: 'Missing query: use ?q=... or ?str=...' }, { status: 400 });
+    }
+    if (!process.env.HF_TOKEN) {
+      return NextResponse.json({ error: 'HF_TOKEN not set on server' }, { status: 400 });
+    }
+
+    const embedding = await embedWithBGE_M3(q);
+    if (embedding.length !== 1024) {
+      return NextResponse.json({ error: `Embedding dim must be 1024, got ${embedding.length}` }, { status: 400 });
+    }
+
+    const supabase = getSupabaseAdmin();
+    const safeTopK = Math.min(Math.max(topK || 10, 1), 100);
+    const safeMin = Math.max(Math.min(minScore || 0, 1), 0);
+    const safeProbes = Math.min(Math.max(probes || 20, 1), 500);
+
+    const { data, error } = await supabase.rpc('match_knowledge_base', {
+      query_embedding: embedding,
+      match_count: safeTopK,
+      min_score: safeMin,
+      probes: safeProbes,
+    });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    return new NextResponse(
+      JSON.stringify({ query: q, topK: safeTopK, results: data }),
+      { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }
+    );
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message ?? 'Unknown server error' }, { status: 500 });
+  }
+}
+
 
 
 function assertVector(v: unknown): asserts v is number[] {
