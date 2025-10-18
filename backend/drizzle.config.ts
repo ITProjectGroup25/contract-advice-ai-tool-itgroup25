@@ -8,9 +8,10 @@ loadEnv({ path: resolve(__dirname, ".env"), override: true });
 export default {
   schema: "./src/db/schema.ts",
   out: "./drizzle",
-  driver: "pg",
+  dialect: "postgresql", // Add this line
   dbCredentials: {
-    connectionString:
+    // Change connectionString to url
+    url:
       process.env.DATABASE_URL ||
       "postgres://postgres:postgres@localhost:5432/postgres",
   },
