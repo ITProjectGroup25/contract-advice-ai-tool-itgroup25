@@ -83,16 +83,126 @@ export function DynamicFormRenderer({
   const [otherFields, setOtherFields] = useState<{ [key: string]: boolean }>(
     {}
   );
+
+  // Initialize visible sections with only alwaysVisible sections
+  const [visibleSections, setVisibleSections] = useState<typeof sections>(
+    () => {
+      return sections.filter((section) => section.container.alwaysVisible);
+    }
+  );
+
   const formValues = watch();
+
+  const handleFieldChange = (
+    fieldId: string,
+    selectedValue: any,
+    field: any
+  ) => {
+    setValue(fieldId, selectedValue);
+
+    // Check if this field has conditional visibility logic
+    if (
+      field.containersToMakeVisible &&
+      field.containersToMakeVisible.length > 0
+    ) {
+      // Process all visibility mappings for this field
+      field.containersToMakeVisible.forEach(
+        (mapping: {
+          containerToMakeVisible: string;
+          optionThatMakesVisible: string;
+        }) => {
+          // Find the option value that corresponds to this mapping's ID
+          const optionThatMakesVisible = field.items?.find(
+            (item: { id: string }) => item.id === mapping.optionThatMakesVisible
+          );
+
+          if (!optionThatMakesVisible) {
+            console.warn(
+              `Option with ID ${mapping.optionThatMakesVisible} not found in field items`
+            );
+            return;
+          }
+
+          const optionValueThatMakesVisible = optionThatMakesVisible.value;
+          const containerIdToMakeVisible = mapping.containerToMakeVisible;
+
+          // Find the container that should be shown/hidden
+          const containerToMakeVisible = sections.find(
+            (comp) => comp.container.id === containerIdToMakeVisible
+          );
+
+          if (!containerToMakeVisible) {
+            console.warn(
+              `Container with ID ${containerIdToMakeVisible} not found`
+            );
+            return;
+          }
+
+          // Find the index to insert the container at the correct position
+          const containerToMakeVisibleIdx = sections.findIndex(
+            (comp) => comp.container.id === containerIdToMakeVisible
+          );
+
+          console.log({
+            selectedValue,
+            optionValueThatMakesVisible,
+            containerIdToMakeVisible,
+            containerToMakeVisibleIdx,
+          });
+
+          // If the selected value matches the visibility trigger for this mapping
+          if (selectedValue === optionValueThatMakesVisible) {
+            setVisibleSections((prevSections) => {
+              // Check if already visible
+              const alreadyVisible = prevSections.some(
+                (section) => section.container.id === containerIdToMakeVisible
+              );
+
+              if (alreadyVisible) {
+                return prevSections;
+              }
+
+              // Insert the container at the correct position
+              const newSections = [...prevSections];
+              newSections.splice(
+                containerToMakeVisibleIdx,
+                0,
+                containerToMakeVisible
+              );
+
+              return newSections;
+            });
+          } else {
+            // Different option selected - hide this specific container if it's not always visible
+            if (!containerToMakeVisible.container.alwaysVisible) {
+              setVisibleSections((prevSections) =>
+                prevSections.filter(
+                  (section) => section.container.id !== containerIdToMakeVisible
+                )
+              );
+            }
+          }
+        }
+      );
+    }
+  };
 
   const onSubmit = async (data: FormData) => {
     try {
       console.log("Testing");
 
-      const queryType = "simple" as "simple" | "complex"; // You'll need to determine this from your form data
+      // Determine queryType from the form data
+      const queryTypeField = sections
+        .flatMap((s) => s.children)
+        .find((c) => c.labelName === "Query Type");
+
+      const queryType = queryTypeField
+        ? (data[queryTypeField.id]?.toLowerCase() as "simple" | "complex")
+        : "simple";
 
       console.log("Hi");
       console.log({ data });
+      console.log({ queryType });
 
       const submissionResponse: GrantSupportSubmissionResponse =
         await createGrantSupportSubmission({
@@ -206,7 +316,7 @@ export function DynamicFormRenderer({
     const getValidationRules = () => {
       const rules: any = {};
       if (child.required) {
-        if (child.controlName === "checkbox-group") {
+        if (child.controlName === "checklist") {
           rules.validate = (value: any) =>
             value && value.length > 0 ? true : `${child.labelName} is required`;
         } else {
@@ -275,7 +385,7 @@ export function DynamicFormRenderer({
                           const updatedValues = checked
                             ? [...value, item.value]
                             : value.filter((v: string) => v !== item.value);
-                          setValue(fieldName, updatedValues);
+                          handleFieldChange(fieldName, updatedValues, child);
                         }}
                       />
                       <Label htmlFor={`${fieldName}-${item.id}`}>
@@ -305,6 +415,9 @@ export function DynamicFormRenderer({
               type={child.dataType || "text"}
               {...register(fieldName, getValidationRules())}
               placeholder={child.placeholder}
+              onChange={(e) =>
+                handleFieldChange(fieldName, e.target.value, child)
+              }
             />
             {errors[fieldName] && (
               <p className="text-sm text-destructive">
@@ -326,6 +439,9 @@ export function DynamicFormRenderer({
               {...register(fieldName, getValidationRules())}
               placeholder={child.placeholder}
               rows={child.rows || 4}
+              onChange={(e) =>
+                handleFieldChange(fieldName, e.target.value, child)
+              }
             />
             {errors[fieldName] && (
               <p className="text-sm text-destructive">
@@ -355,7 +471,7 @@ export function DynamicFormRenderer({
                         checked={value === item.value}
                         onCheckedChange={(checked) => {
                           if (checked) {
-                            onChange(item.value);
+                            handleFieldChange(fieldName, item.value, child);
                           }
                         }}
                       />
@@ -385,6 +501,7 @@ export function DynamicFormRenderer({
       [key: string]: React.ComponentType<{ className?: string }>;
     } = {
       "fa fa-user": Users,
+      "fa fa-building": FileText,
       "fa fa-question-circle": HelpCircle,
       "fas fa-file-alt": FileText,
       "fas fa-clock": Clock,
@@ -405,7 +522,7 @@ export function DynamicFormRenderer({
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          {sections.map((section) => {
+          {visibleSections.map((section) => {
             const IconComponent = getIconForSection(section.container.icon);
 
             return (
