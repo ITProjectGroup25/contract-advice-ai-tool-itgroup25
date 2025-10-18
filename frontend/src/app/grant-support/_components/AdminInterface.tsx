@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Copy,
   Edit,
+  Loader2,
   Plus,
   Save,
   Settings,
@@ -21,6 +22,16 @@ import {
   FormSectionType,
   FormSectionsType,
 } from "./types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -45,6 +56,14 @@ interface AdminInterfaceProps {
   onSectionsUpdate: (sections: FormSectionsType) => void;
 }
 
+type ConfirmationAction =
+  | { type: "save-field"; fieldId?: string | number }
+  | { type: "save-section"; sectionId?: string }
+  | { type: "delete-field"; fieldId: string | number; containerId: string }
+  | { type: "delete-section"; sectionId: string }
+  | { type: "duplicate-field"; field: FormSectionChildrenType }
+  | null;
+
 export function AdminInterface({
   onBack,
   sections,
@@ -59,6 +78,8 @@ export function AdminInterface({
   const [isCreatingSection, setIsCreatingSection] = useState(false);
   const [activeTab, setActiveTab] = useState("fields");
   const [isPending, startTransition] = useTransition();
+  const [confirmationAction, setConfirmationAction] =
+    useState<ConfirmationAction>(null);
 
   const [newField, setNewField] = useState<Partial<FormSectionChildrenType>>({
     controlName: "text-field",
@@ -88,7 +109,77 @@ export function AdminInterface({
     children: [],
   });
 
-  const handleSaveField = async (fieldId?: string | number) => {
+  const getConfirmationMessage = () => {
+    if (!confirmationAction) return { title: "", description: "" };
+
+    switch (confirmationAction.type) {
+      case "save-field":
+        return {
+          title: confirmationAction.fieldId ? "Update Field?" : "Create Field?",
+          description: confirmationAction.fieldId
+            ? "Are you sure you want to update this field? This will save changes to the database."
+            : "Are you sure you want to create this field? This will save changes to the database.",
+        };
+      case "save-section":
+        return {
+          title: confirmationAction.sectionId
+            ? "Update Section?"
+            : "Create Section?",
+          description: confirmationAction.sectionId
+            ? "Are you sure you want to update this section? This will save changes to the database."
+            : "Are you sure you want to create this section? This will save changes to the database.",
+        };
+      case "delete-field":
+        return {
+          title: "Delete Field?",
+          description:
+            "Are you sure you want to delete this field? This action cannot be undone.",
+        };
+      case "delete-section":
+        return {
+          title: "Delete Section?",
+          description:
+            "Are you sure you want to delete this section and all its fields? This action cannot be undone.",
+        };
+      case "duplicate-field":
+        return {
+          title: "Duplicate Field?",
+          description:
+            "Are you sure you want to duplicate this field? This will save changes to the database.",
+        };
+      default:
+        return { title: "", description: "" };
+    }
+  };
+
+  const executeAction = async () => {
+    if (!confirmationAction) return;
+
+    switch (confirmationAction.type) {
+      case "save-field":
+        await performSaveField(confirmationAction.fieldId);
+        break;
+      case "save-section":
+        await performSaveSection(confirmationAction.sectionId);
+        break;
+      case "delete-field":
+        await performDeleteField(
+          confirmationAction.fieldId,
+          confirmationAction.containerId
+        );
+        break;
+      case "delete-section":
+        await performDeleteSection(confirmationAction.sectionId);
+        break;
+      case "duplicate-field":
+        await performDuplicateField(confirmationAction.field);
+        break;
+    }
+
+    setConfirmationAction(null);
+  };
+
+  const performSaveField = async (fieldId?: string | number) => {
     if (!newField.labelName || !newField.containerId) {
       toast.error("Please fill in all required fields");
       return;
@@ -115,7 +206,6 @@ export function AdminInterface({
     const updatedSections = sections.map((section) => {
       if (section.container.id === field.containerId) {
         if (fieldId) {
-          // Update existing field
           return {
             ...section,
             children: section.children.map((child) =>
@@ -123,7 +213,6 @@ export function AdminInterface({
             ),
           };
         } else {
-          // Add new field
           return {
             ...section,
             children: [...section.children, field],
@@ -133,7 +222,6 @@ export function AdminInterface({
       return section;
     });
 
-    // Save to database
     startTransition(async () => {
       const result = await updateFormFields({
         formId,
@@ -146,13 +234,15 @@ export function AdminInterface({
         );
         onSectionsUpdate(updatedSections);
         resetFieldForm();
+        // Refresh the page
+        window.location.reload();
       } else {
         toast.error(result.error || "Failed to save field");
       }
     });
   };
 
-  const handleSaveSection = async (sectionId?: string) => {
+  const performSaveSection = async (sectionId?: string) => {
     if (!newSection.container?.heading) {
       toast.error("Please enter a section heading");
       return;
@@ -176,7 +266,6 @@ export function AdminInterface({
       updatedSections = [...sections, section];
     }
 
-    // Save to database
     startTransition(async () => {
       const result = await updateFormFields({
         formId,
@@ -191,10 +280,127 @@ export function AdminInterface({
         );
         onSectionsUpdate(updatedSections);
         resetSectionForm();
+        // Refresh the page
+        window.location.reload();
       } else {
         toast.error(result.error || "Failed to save section");
       }
     });
+  };
+
+  const performDeleteField = async (
+    fieldId: string | number,
+    containerId: string
+  ) => {
+    const updatedSections = sections.map((section) => {
+      if (section.container.id === containerId) {
+        return {
+          ...section,
+          children: section.children.filter((child) => child.id !== fieldId),
+        };
+      }
+      return section;
+    });
+
+    startTransition(async () => {
+      const result = await updateFormFields({
+        formId,
+        formSections: updatedSections,
+      });
+
+      if (result.message === "success") {
+        toast.success("Field deleted successfully");
+        onSectionsUpdate(updatedSections);
+        // Refresh the page
+        window.location.reload();
+      } else {
+        toast.error(result.error || "Failed to delete field");
+      }
+    });
+  };
+
+  const performDeleteSection = async (sectionId: string) => {
+    const updatedSections = sections.filter(
+      (s) => s.container.id !== sectionId
+    );
+
+    startTransition(async () => {
+      const result = await updateFormFields({
+        formId,
+        formSections: updatedSections,
+      });
+
+      if (result.message === "success") {
+        toast.success("Section deleted successfully");
+        onSectionsUpdate(updatedSections);
+        // Refresh the page
+        window.location.reload();
+      } else {
+        toast.error(result.error || "Failed to delete section");
+      }
+    });
+  };
+
+  const performDuplicateField = async (field: FormSectionChildrenType) => {
+    const newField: FormSectionChildrenType = {
+      ...field,
+      id: `field_${Date.now()}`,
+      labelName: `${field.labelName} (Copy)`,
+    };
+
+    const updatedSections = sections.map((section) => {
+      if (section.container.id === field.containerId) {
+        return {
+          ...section,
+          children: [...section.children, newField],
+        };
+      }
+      return section;
+    });
+
+    startTransition(async () => {
+      const result = await updateFormFields({
+        formId,
+        formSections: updatedSections,
+      });
+
+      if (result.message === "success") {
+        toast.success("Field duplicated successfully");
+        onSectionsUpdate(updatedSections);
+        // Refresh the page
+        window.location.reload();
+      } else {
+        toast.error(result.error || "Failed to duplicate field");
+      }
+    });
+  };
+
+  const handleSaveField = (fieldId?: string | number) => {
+    if (!newField.labelName || !newField.containerId) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    setConfirmationAction({ type: "save-field", fieldId });
+  };
+
+  const handleSaveSection = (sectionId?: string) => {
+    if (!newSection.container?.heading) {
+      toast.error("Please enter a section heading");
+      return;
+    }
+    setConfirmationAction({ type: "save-section", sectionId });
+  };
+
+  const handleDeleteField = (fieldId: string | number, containerId: string) => {
+    setConfirmationAction({ type: "delete-field", fieldId, containerId });
+  };
+
+  const handleDeleteSection = (sectionId: string) => {
+    setConfirmationAction({ type: "delete-section", sectionId });
+  };
+
+  const duplicateField = (field: FormSectionChildrenType) => {
+    setConfirmationAction({ type: "duplicate-field", field });
   };
 
   const resetFieldForm = () => {
@@ -243,57 +449,6 @@ export function AdminInterface({
     setEditingSectionId(section.container.id);
   };
 
-  const handleDeleteField = async (
-    fieldId: string | number,
-    containerId: string
-  ) => {
-    const updatedSections = sections.map((section) => {
-      if (section.container.id === containerId) {
-        return {
-          ...section,
-          children: section.children.filter((child) => child.id !== fieldId),
-        };
-      }
-      return section;
-    });
-
-    // Save to database
-    startTransition(async () => {
-      const result = await updateFormFields({
-        formId,
-        formSections: updatedSections,
-      });
-
-      if (result.message === "success") {
-        toast.success("Field deleted successfully");
-        onSectionsUpdate(updatedSections);
-      } else {
-        toast.error(result.error || "Failed to delete field");
-      }
-    });
-  };
-
-  const handleDeleteSection = async (sectionId: string) => {
-    const updatedSections = sections.filter(
-      (s) => s.container.id !== sectionId
-    );
-
-    // Save to database
-    startTransition(async () => {
-      const result = await updateFormFields({
-        formId,
-        formSections: updatedSections,
-      });
-
-      if (result.message === "success") {
-        toast.success("Section deleted successfully");
-        onSectionsUpdate(updatedSections);
-      } else {
-        toast.error(result.error || "Failed to delete section");
-      }
-    });
-  };
-
   const addOption = () => {
     const currentItems = newField.items || [];
     setNewField({
@@ -324,45 +479,15 @@ export function AdminInterface({
     });
   };
 
-  const duplicateField = async (field: FormSectionChildrenType) => {
-    const newField: FormSectionChildrenType = {
-      ...field,
-      id: `field_${Date.now()}`,
-      labelName: `${field.labelName} (Copy)`,
-    };
-
-    const updatedSections = sections.map((section) => {
-      if (section.container.id === field.containerId) {
-        return {
-          ...section,
-          children: [...section.children, newField],
-        };
-      }
-      return section;
-    });
-
-    // Save to database
-    startTransition(async () => {
-      const result = await updateFormFields({
-        formId,
-        formSections: updatedSections,
-      });
-
-      if (result.message === "success") {
-        toast.success("Field duplicated successfully");
-        onSectionsUpdate(updatedSections);
-      } else {
-        toast.error(result.error || "Failed to duplicate field");
-      }
-    });
-  };
-
   const allFields = sections.flatMap((section) =>
     section.children.map((child) => ({
       ...child,
       sectionTitle: section.container.heading,
     }))
   );
+
+  const { title: confirmTitle, description: confirmDescription } =
+    getConfirmationMessage();
 
   const renderFieldEditor = (field?: FormSectionChildrenType) => {
     const isEditing = field && editingFieldId === field.id;
@@ -389,6 +514,7 @@ export function AdminInterface({
                   })
                 }
                 placeholder="Enter field label"
+                disabled={isPending}
               />
             </div>
 
@@ -402,6 +528,7 @@ export function AdminInterface({
                     controlName: value,
                   })
                 }
+                disabled={isPending}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -432,6 +559,7 @@ export function AdminInterface({
               }
               placeholder="Optional description or helper text"
               rows={2}
+              disabled={isPending}
             />
           </div>
 
@@ -443,6 +571,7 @@ export function AdminInterface({
                 onValueChange={(value) =>
                   setNewField({ ...newField, containerId: value })
                 }
+                disabled={isPending}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select section" />
@@ -472,6 +601,7 @@ export function AdminInterface({
                   })
                 }
                 placeholder="Input placeholder text"
+                disabled={isPending}
               />
             </div>
           </div>
@@ -483,6 +613,7 @@ export function AdminInterface({
               onCheckedChange={(checked) =>
                 setNewField({ ...newField, required: !!checked })
               }
+              disabled={isPending}
             />
             <Label htmlFor="field-required">Required field</Label>
           </div>
@@ -497,6 +628,7 @@ export function AdminInterface({
                   variant="outline"
                   size="sm"
                   onClick={addOption}
+                  disabled={isPending}
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Option
@@ -512,6 +644,7 @@ export function AdminInterface({
                       }
                       placeholder="Option label"
                       className="flex-1"
+                      disabled={isPending}
                     />
                     <Input
                       value={item.value}
@@ -520,12 +653,14 @@ export function AdminInterface({
                       }
                       placeholder="Option value"
                       className="flex-1"
+                      disabled={isPending}
                     />
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => removeOption(index)}
+                      disabled={isPending}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -550,12 +685,17 @@ export function AdminInterface({
               onClick={() => handleSaveField(field?.id)}
               disabled={isPending}
             >
-              <Save className="h-4 w-4 mr-1" />
-              {isPending
-                ? "Saving..."
-                : isEditing
-                ? "Update Field"
-                : "Create Field"}
+              {isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-1" />
+                  {isEditing ? "Update Field" : "Create Field"}
+                </>
+              )}
             </Button>
           </div>
         </CardContent>
@@ -590,6 +730,7 @@ export function AdminInterface({
                 })
               }
               placeholder="Enter section heading"
+              disabled={isPending}
             />
           </div>
 
@@ -609,6 +750,7 @@ export function AdminInterface({
               }
               placeholder="Optional section sub-heading"
               rows={2}
+              disabled={isPending}
             />
           </div>
 
@@ -625,6 +767,7 @@ export function AdminInterface({
                   },
                 })
               }
+              disabled={isPending}
             />
             <Label htmlFor="section-always-visible">Always Visible</Label>
           </div>
@@ -644,12 +787,17 @@ export function AdminInterface({
               onClick={() => handleSaveSection(section?.container.id)}
               disabled={isPending}
             >
-              <Save className="h-4 w-4 mr-1" />
-              {isPending
-                ? "Saving..."
-                : isEditing
-                ? "Update Section"
-                : "Create Section"}
+              {isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-1" />
+                  {isEditing ? "Update Section" : "Create Section"}
+                </>
+              )}
             </Button>
           </div>
         </CardContent>
@@ -658,202 +806,133 @@ export function AdminInterface({
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onBack}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Form
-          </Button>
-          <div className="space-y-1">
-            <h1 className="text-3xl">Form Administration</h1>
-            <p className="text-muted-foreground">
-              Manage fields, sections, and form configuration
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <Badge
-            variant="secondary"
-            className="flex items-center gap-1 text-xs"
-          >
-            <Settings className="h-3 w-3" />
-            Admin Mode
-          </Badge>
-        </div>
-      </div>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="fields">Fields Management</TabsTrigger>
-          <TabsTrigger value="sections">Sections Management</TabsTrigger>
-          <TabsTrigger value="email">Email Configuration</TabsTrigger>
-          <TabsTrigger value="database">Database Management</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="fields" className="space-y-6">
-          {/* Fields Header */}
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-xl">Fields ({allFields.length})</h2>
-              <p className="text-muted-foreground">
-                Add, edit, and manage form fields
-              </p>
-            </div>
+    <>
+      <div className="max-w-6xl mx-auto p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <Button
-              onClick={() => setIsCreatingField(true)}
+              variant="outline"
+              size="sm"
+              onClick={onBack}
               className="flex items-center gap-2"
               disabled={isPending}
             >
-              <Plus className="h-4 w-4" />
-              Add Field
+              <ArrowLeft className="h-4 w-4" />
+              Back to Form
             </Button>
+            <div className="space-y-1">
+              <h1 className="text-3xl">Form Administration</h1>
+              <p className="text-muted-foreground">
+                Manage fields, sections, and form configuration
+              </p>
+            </div>
           </div>
+          <div className="flex items-center gap-3">
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 text-xs"
+            >
+              <Settings className="h-3 w-3" />
+              Admin Mode
+            </Badge>
+          </div>
+        </div>
 
-          {/* Create Field Form (at top) */}
-          {isCreatingField && !editingFieldId && renderFieldEditor()}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="fields" disabled={isPending}>
+              Fields Management
+            </TabsTrigger>
+            <TabsTrigger value="sections" disabled={isPending}>
+              Sections Management
+            </TabsTrigger>
+            <TabsTrigger value="email" disabled={isPending}>
+              Email Configuration
+            </TabsTrigger>
+            <TabsTrigger value="database" disabled={isPending}>
+              Database Management
+            </TabsTrigger>
+          </TabsList>
 
-          {/* Fields List */}
-          <div className="space-y-3">
-            {allFields.map((field) => (
-              <div key={field.id}>
-                {editingFieldId === field.id ? (
-                  renderFieldEditor(field)
-                ) : (
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium">{field.labelName}</h3>
-                            {field.required && (
-                              <Badge variant="destructive" className="text-xs">
-                                Required
-                              </Badge>
-                            )}
-                            <Badge variant="outline" className="text-xs">
-                              {field.controlName}
-                            </Badge>
-                            <Badge variant="secondary" className="text-xs">
-                              {field.sectionTitle}
-                            </Badge>
-                          </div>
-                          {field.description && (
-                            <p className="text-sm text-muted-foreground">
-                              {field.description}
-                            </p>
-                          )}
-                          {field.items && field.items.length > 0 && (
-                            <div className="mt-2 text-xs text-muted-foreground">
-                              Options:{" "}
-                              {field.items.map((item) => item.label).join(", ")}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => duplicateField(field)}
-                            title="Duplicate field"
-                            disabled={isPending}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditField(field)}
-                            disabled={isPending}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              handleDeleteField(field.id, field.containerId)
-                            }
-                            className="text-destructive hover:text-destructive"
-                            disabled={isPending}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+          <TabsContent value="fields" className="space-y-6">
+            {/* Fields Header */}
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-xl">Fields ({allFields.length})</h2>
+                <p className="text-muted-foreground">
+                  Add, edit, and manage form fields
+                </p>
               </div>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="sections" className="space-y-6">
-          {/* Sections Header */}
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-xl">Sections ({sections.length})</h2>
-              <p className="text-muted-foreground">
-                Organize fields into logical sections
-              </p>
+              <Button
+                onClick={() => setIsCreatingField(true)}
+                className="flex items-center gap-2"
+                disabled={isPending}
+              >
+                <Plus className="h-4 w-4" />
+                Add Field
+              </Button>
             </div>
-            <Button
-              onClick={() => setIsCreatingSection(true)}
-              className="flex items-center gap-2"
-              disabled={isPending}
-            >
-              <Plus className="h-4 w-4" />
-              Add Section
-            </Button>
-          </div>
 
-          {/* Create Section Form (at top) */}
-          {isCreatingSection && !editingSectionId && renderSectionEditor()}
+            {/* Create Field Form (at top) */}
+            {isCreatingField && !editingFieldId && renderFieldEditor()}
 
-          {/* Sections List */}
-          <div className="space-y-3">
-            {sections.map((section) => {
-              const sectionFields = section.children.length;
-              return (
-                <div key={section.container.id}>
-                  {editingSectionId === section.container.id ? (
-                    renderSectionEditor(section)
+            {/* Fields List */}
+            <div className="space-y-3">
+              {allFields.map((field) => (
+                <div key={field.id}>
+                  {editingFieldId === field.id ? (
+                    renderFieldEditor(field)
                   ) : (
                     <Card>
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-medium">
-                                {section.container.heading}
-                              </h3>
-                              {section.container.alwaysVisible && (
-                                <Badge variant="outline" className="text-xs">
-                                  Always Visible
+                              <h3 className="font-medium">{field.labelName}</h3>
+                              {field.required && (
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs"
+                                >
+                                  Required
                                 </Badge>
                               )}
+                              <Badge variant="outline" className="text-xs">
+                                {field.controlName}
+                              </Badge>
                               <Badge variant="secondary" className="text-xs">
-                                {sectionFields} fields
+                                {field.sectionTitle}
                               </Badge>
                             </div>
-                            {section.container.subHeading && (
+                            {field.description && (
                               <p className="text-sm text-muted-foreground">
-                                {section.container.subHeading}
+                                {field.description}
                               </p>
+                            )}
+                            {field.items && field.items.length > 0 && (
+                              <div className="mt-2 text-xs text-muted-foreground">
+                                Options:{" "}
+                                {field.items
+                                  .map((item) => item.label)
+                                  .join(", ")}
+                              </div>
                             )}
                           </div>
                           <div className="flex items-center gap-1">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleEditSection(section)}
+                              onClick={() => duplicateField(field)}
+                              title="Duplicate field"
+                              disabled={isPending}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditField(field)}
                               disabled={isPending}
                             >
                               <Edit className="h-4 w-4" />
@@ -862,7 +941,7 @@ export function AdminInterface({
                               variant="ghost"
                               size="sm"
                               onClick={() =>
-                                handleDeleteSection(section.container.id)
+                                handleDeleteField(field.id, field.containerId)
                               }
                               className="text-destructive hover:text-destructive"
                               disabled={isPending}
@@ -875,19 +954,132 @@ export function AdminInterface({
                     </Card>
                   )}
                 </div>
-              );
-            })}
-          </div>
-        </TabsContent>
+              ))}
+            </div>
+          </TabsContent>
 
-        <TabsContent value="email" className="space-y-6">
-          <EmailConfiguration />
-        </TabsContent>
+          <TabsContent value="sections" className="space-y-6">
+            {/* Sections Header */}
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-xl">Sections ({sections.length})</h2>
+                <p className="text-muted-foreground">
+                  Organize fields into logical sections
+                </p>
+              </div>
+              <Button
+                onClick={() => setIsCreatingSection(true)}
+                className="flex items-center gap-2"
+                disabled={isPending}
+              >
+                <Plus className="h-4 w-4" />
+                Add Section
+              </Button>
+            </div>
 
-        <TabsContent value="database" className="space-y-6">
-          <DatabaseManagement />
-        </TabsContent>
-      </Tabs>
-    </div>
+            {/* Create Section Form (at top) */}
+            {isCreatingSection && !editingSectionId && renderSectionEditor()}
+
+            {/* Sections List */}
+            <div className="space-y-3">
+              {sections.map((section) => {
+                const sectionFields = section.children.length;
+                return (
+                  <div key={section.container.id}>
+                    {editingSectionId === section.container.id ? (
+                      renderSectionEditor(section)
+                    ) : (
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-medium">
+                                  {section.container.heading}
+                                </h3>
+                                {section.container.alwaysVisible && (
+                                  <Badge variant="outline" className="text-xs">
+                                    Always Visible
+                                  </Badge>
+                                )}
+                                <Badge variant="secondary" className="text-xs">
+                                  {sectionFields} fields
+                                </Badge>
+                              </div>
+                              {section.container.subHeading && (
+                                <p className="text-sm text-muted-foreground">
+                                  {section.container.subHeading}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEditSection(section)}
+                                disabled={isPending}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleDeleteSection(section.container.id)
+                                }
+                                className="text-destructive hover:text-destructive"
+                                disabled={isPending}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="email" className="space-y-6">
+            <EmailConfiguration />
+          </TabsContent>
+
+          <TabsContent value="database" className="space-y-6">
+            <DatabaseManagement />
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog
+        open={!!confirmationAction}
+        onOpenChange={(open) => !open && setConfirmationAction(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmDescription}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={executeAction} disabled={isPending}>
+              {isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Confirm"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
