@@ -1,12 +1,11 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TabsContent } from "@/components/ui/tabs";
-import z from "zod";
 import SubmissionField from "./SubmissionField/SubmissionField";
-import parseFormData from "./parseFormData/parseFormData";
+import { FormValues } from "../types";
 
 interface SubmissionDisplayProps {
   submission: {
-    formData: Record<string, unknown>;
+    formData: FormValues;
   };
   value?: string;
 }
@@ -18,13 +17,7 @@ export function SubmissionDisplay({
   const formData = submission.formData;
   console.log({ formData });
 
-  const correctlyTypedFormData = z.string().parse(formData);
-
-  const cleanedFormData = parseFormData({
-    uncleanFormData: correctlyTypedFormData,
-  });
-
-  console.log({ cleanedFormData });
+  const cleanedFormData = formData;
 
   return (
     <TabsContent value={value}>

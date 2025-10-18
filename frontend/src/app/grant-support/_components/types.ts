@@ -96,13 +96,15 @@ export const TemplateSchema = z.object({
 export type TemplateType = z.infer<typeof TemplateSchema>;
 
 // Schema for file upload data
-const FileUploadSchema = z.object({
+export const FileUploadSchema = z.object({
   fileName: z.string(),
   fileType: z.string(),
   fileSize: z.number(),
   filePath: z.string(),
   fileUrl: z.string().url(),
 });
+
+export type FileUpload = z.infer<typeof FileUploadSchema>;
 
 // Updated container response item schema to include file uploads
 const ContainerResponseItemSchema = z.record(

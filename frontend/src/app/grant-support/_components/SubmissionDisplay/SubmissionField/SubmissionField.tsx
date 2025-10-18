@@ -1,21 +1,14 @@
 import { Download } from "lucide-react";
-import { FieldValue } from "../../types";
+import z from "zod";
+import { FieldValue, FileUpload, FileUploadSchema } from "../../types";
 import { formatDashDelimitedString } from "../formatDashDelimitedString/formatDashDelimitedString";
 
-interface FileUpload {
-  fileUrl: string;
-  fileName: string;
-  fileSize: number;
-}
-
 const isFileUpload = (value: any): value is FileUpload => {
-  return (
-    value &&
-    typeof value === "object" &&
-    "fileUrl" in value &&
-    "fileName" in value &&
-    "fileSize" in value
-  );
+  return FileUploadSchema.safeParse(value).success;
+};
+
+const isListOfStrings = (value: any): value is string[] => {
+  return z.array(z.string()).safeParse(value).success;
 };
 
 const formatFileSize = (bytes: number): string => {
@@ -44,7 +37,7 @@ const renderValue = (value: FieldValue) => {
     );
   }
 
-  if (Array.isArray(value)) {
+  if (isListOfStrings(value)) {
     return value.map(formatDashDelimitedString).join(", ");
   }
 
