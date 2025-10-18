@@ -1,5 +1,6 @@
 "use client";
 
+import { uploadFile } from "@/app/actions/uploadFile";
 import { Clock, FileText, HelpCircle, Users } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -229,7 +230,6 @@ export function DynamicFormRenderer({
   const onSubmit = async (data: FormData) => {
     try {
       console.log("Testing");
-
       console.log({ sections });
 
       const queryType = z
@@ -240,38 +240,54 @@ export function DynamicFormRenderer({
       console.log({ data });
       console.log({ queryType });
 
-      // Process uploaded files - convert to base64 or handle as needed
-      const processedData = { ...data };
-      for (const [fieldId, files] of Object.entries(uploadedFiles)) {
-        if (files && files.length > 0) {
-          // Convert files to a format suitable for your backend
-          const fileData = await Promise.all(
-            files.map(async (file) => ({
-              name: file.name,
-              size: file.size,
-              type: file.type,
-              // You might want to convert to base64 or upload to storage
-              data: await fileToBase64(file),
-            }))
+      // Process files first - upload to Supabase
+      const processedData: Record<string, any> = {};
+
+      for (const [fieldName, value] of Object.entries(data)) {
+        // Check if the value is in the uploadedFiles (File objects)
+        if (uploadedFiles[fieldName] && uploadedFiles[fieldName].length > 0) {
+          // Upload each file to Supabase
+          const uploadedFileLinks = await Promise.all(
+            uploadedFiles[fieldName].map(async (file) => {
+              const formDataToUpload = new FormData();
+              formDataToUpload.append("file", file);
+
+              const uploadResult = await uploadFile({
+                formData: formDataToUpload,
+              });
+
+              if (uploadResult.message === "success") {
+                return uploadResult.data;
+              } else {
+                throw new Error(`Failed to upload file: ${uploadResult.error}`);
+              }
+            })
           );
-          processedData[fieldId] = fileData;
+
+          // Replace file objects with uploaded file data (URLs)
+          processedData[fieldName] = uploadedFileLinks;
+        } else {
+          // Not a file field, just copy the value
+          processedData[fieldName] = value;
         }
       }
+
+      console.log({ processedData });
 
       const submissionResponse: GrantSupportSubmissionResponse =
         await createGrantSupportSubmission({
           formData: processedData,
           queryType,
-          userEmail: (data.email as string) || undefined,
-          userName: (data.name as string) || undefined,
+          userEmail: (processedData["Your Email"] as string) || undefined,
+          userName: (processedData["User's Name"] as string) || undefined,
           status: "submitted",
         });
 
       const submissionId = submissionResponse.submissionUid;
 
       // Send confirmation email to user
-      const userEmail = data.email as string;
-      const userName = data.name as string;
+      const userEmail = processedData["Your Email"] as string;
+      const userName = processedData["User's Name"] as string;
 
       if (userEmail && userName) {
         const emailData: EmailData = {
@@ -362,7 +378,6 @@ export function DynamicFormRenderer({
       );
     }
   };
-
   // Helper function to convert file to base64
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {

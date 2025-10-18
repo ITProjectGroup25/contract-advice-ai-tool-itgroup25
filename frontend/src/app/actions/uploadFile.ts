@@ -1,9 +1,8 @@
-// app/actions/uploadFileToSupabase.ts
 "use server";
 
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.DATABASE_URL!;
+const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; // Use service role for server actions
 
 if (!supabaseUrl) {
@@ -18,7 +17,17 @@ const FILE_BUCKET_NAME = "grant-scheme-files" as const;
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-export async function uploadFileToSupabase(formData: FormData) {
+type Return = {
+  message: string;
+  data?: any;
+  error?: string;
+};
+
+type Args = {
+  formData: FormData;
+};
+
+export async function uploadFile({ formData }: Args): Promise<Return> {
   try {
     const file = formData.get("file") as File;
 
@@ -28,6 +37,10 @@ export async function uploadFileToSupabase(formData: FormData) {
         error: "File is required",
       };
     }
+
+    console.log({ file });
+
+    console.log({ name: file.name });
 
     // Generate unique filename
     const timestamp = Date.now();
