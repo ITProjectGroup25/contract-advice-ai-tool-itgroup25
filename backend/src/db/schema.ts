@@ -1,22 +1,5 @@
-import {
-  pgTable,
-  unique,
-  pgEnum,
-  bigint,
-  varchar,
-  boolean,
-  timestamp,
-  serial,
-  integer,
-  jsonb,
-  text,
-  index,
-  foreignKey,
-  char,
-  date,
-  primaryKey,
-} from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
+import { pgTable, index, foreignKey, unique, pgEnum, bigint, varchar, boolean, text, integer, timestamp, jsonb, date, char, bigserial, uuid, primaryKey } from "drizzle-orm/pg-core"
+  import { sql } from "drizzle-orm"
 
 export const factorType = pgEnum("factor_type", ['totp', 'webauthn', 'phone'])
 export const factorStatus = pgEnum("factor_status", ['unverified', 'verified'])
@@ -40,72 +23,87 @@ export const exportFormatEnum = pgEnum("export_format_enum", ['CSV', 'XLSX'])
 export const resourceTypeEnum = pgEnum("resource_type_enum", ['Link', 'HTML', 'File', 'Video'])
 export const audienceEnum = pgEnum("audience_enum", ['Requestor', 'Admin', 'Both'])
 export const matchTypeEnum = pgEnum("match_type_enum", ['Exact', 'Contains', 'Regex'])
+export const oauthAuthorizationStatus = pgEnum("oauth_authorization_status", ['pending', 'approved', 'denied', 'expired'])
+export const oauthResponseType = pgEnum("oauth_response_type", ['code'])
+export const oauthClientType = pgEnum("oauth_client_type", ['public', 'confidential'])
 
 
-export const adminUser = pgTable("admin_user", {
+export const orgUnit = pgTable("org_unit", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
-	name: varchar("name", { length: 100 }).notNull(),
-	email: varchar("email", { length: 320 }).notNull(),
-	isActive: boolean("is_active").default(true).notNull(),
-	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
-	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	parentId: bigint("parent_id", { mode: "number" }),
+	code: varchar("code", { length: 50 }),
+	name: varchar("name", { length: 200 }),
+	unitType: orgUnitTypeEnum("unit_type").notNull(),
+	active: boolean("active").default(true).notNull(),
 },
 (table) => {
 	return {
-		adminUserEmailKey: unique("admin_user_email_key").on(table.email),
+		idxOrgUnitTypeActive: index("idx_org_unit_type_active").on(table.active, table.unitType),
+		fkOrgParent: foreignKey({
+			columns: [table.parentId],
+			foreignColumns: [table.id],
+			name: "fk_org_parent"
+		}).onDelete("set null"),
+		orgUnitCodeKey: unique("org_unit_code_key").on(table.code),
 	}
-});
-
-export const formDetails = pgTable("form_details", {
-	id: serial("id").primaryKey().notNull(),
-	formId: integer("form_id").notNull(),
-	formFields: jsonb("form_fields").notNull(),
-},
-(table) => {
-	return {
-		formDetailsFormIdKey: unique("form_details_form_id_key").on(table.formId),
-	}
-});
-
-export const formResults = pgTable("form_results", {
-	id: serial("id").primaryKey().notNull(),
-	formId: integer("form_id").notNull(),
-	submittedAt: timestamp("submitted_at", { mode: 'string' }).defaultNow(),
-	results: jsonb("results").notNull(),
 });
 
 export const form = pgTable("form", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint("id", { mode: "number" }).notNull(),
+	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
 	formKey: varchar("form_key", { length: 64 }),
 	title: varchar("title", { length: 200 }),
 	description: text("description"),
 	status: formStatusEnum("status").notNull(),
-	versionNo: integer("version_no").notNull(),
+	versionNo: integer("version_no").default(1).notNull(),
 	emailSubjectTpl: varchar("email_subject_tpl", { length: 255 }),
 	emailBodyTpl: text("email_body_tpl"),
-	createdAt: timestamp("created_at", { mode: 'string' }).notNull(),
-	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
-});
-
-export const referralSubmissions = pgTable("referral_submissions", {
-	id: serial("id").primaryKey().notNull(),
-	submissionUid: varchar("submission_uid", { length: 64 }).notNull(),
-	formId: integer("form_id").references(() => form.id, { onDelete: "set null" } ),
-	queryType: varchar("query_type", { length: 32 }).notNull(),
-	status: varchar("status", { length: 32 }).default('submitted').notNull(),
-	userName: varchar("user_name", { length: 200 }),
-	userEmail: varchar("user_email", { length: 200 }),
-	formData: jsonb("form_data").notNull(),
-	attachments: jsonb("attachments").default(sql`'[]'::jsonb`).notNull(),
-	metadata: jsonb("metadata"),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
+	formSections: jsonb("form_sections"),
 },
 (table) => {
 	return {
-		referralSubmissionsSubmissionUidKey: unique("referral_submissions_submission_uid_key").on(table.submissionUid),
+		formFormKeyKey: unique("form_form_key_key").on(table.formKey),
+	}
+});
+
+export const grantScheme = pgTable("grant_scheme", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
+	code: varchar("code", { length: 50 }),
+	name: varchar("name", { length: 200 }),
+	active: boolean("active").default(true).notNull(),
+	orderIndex: integer("order_index").default(100).notNull(),
+},
+(table) => {
+	return {
+		grantSchemeCodeKey: unique("grant_scheme_code_key").on(table.code),
+	}
+});
+
+export const exportJob = pgTable("export_job", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
+	requestedBy: varchar("requested_by", { length: 320 }),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	formId: bigint("form_id", { mode: "number" }).references(() => form.id, { onDelete: "set null" } ),
+	dateFrom: date("date_from"),
+	dateTo: date("date_to"),
+	workflowType: workflowTypeEnum("workflow_type"),
+	status: exportStatusEnum("status").notNull(),
+	format: exportFormatEnum("format").notNull(),
+	fileUri: varchar("file_uri", { length: 500 }),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	completedAt: timestamp("completed_at", { mode: 'string' }),
+	errorMessage: text("error_message"),
+},
+(table) => {
+	return {
+		idxExportStatusTime: index("idx_export_status_time").on(table.createdAt, table.status),
+		idxExportFilter: index("idx_export_filter").on(table.dateFrom, table.dateTo, table.formId, table.workflowType),
 	}
 });
 
@@ -113,14 +111,107 @@ export const formSection = pgTable("form_section", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	formId: bigint("form_id", { mode: "number" }).notNull(),
-	title: varchar("title", { length: 200 }).notNull(),
+	formId: bigint("form_id", { mode: "number" }).notNull().references(() => form.id, { onDelete: "cascade" } ),
+	title: varchar("title", { length: 200 }),
 	description: text("description"),
 	orderIndex: integer("order_index").notNull(),
 },
 (table) => {
 	return {
 		uqFormSectionOrder: unique("uq_form_section_order").on(table.formId, table.orderIndex),
+	}
+});
+
+export const guidanceResourceTag = pgTable("guidance_resource_tag", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	resourceId: bigint("resource_id", { mode: "number" }).notNull(),
+	tag: varchar("tag", { length: 64 }),
+});
+
+export const person = pgTable("person", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
+	name: varchar("name", { length: 200 }),
+	email: varchar("email", { length: 320 }),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	orgUnitId: bigint("org_unit_id", { mode: "number" }).references(() => orgUnit.id, { onDelete: "set null" } ),
+	roleLabel: varchar("role_label", { length: 100 }),
+	active: boolean("active").default(true).notNull(),
+},
+(table) => {
+	return {
+		idxPersonName: index("idx_person_name").on(table.name),
+		personEmailKey: unique("person_email_key").on(table.email),
+	}
+});
+
+export const question = pgTable("question", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	formId: bigint("form_id", { mode: "number" }).notNull().references(() => form.id, { onDelete: "cascade" } ),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	sectionId: bigint("section_id", { mode: "number" }).references(() => formSection.id, { onDelete: "set null" } ),
+	label: varchar("label", { length: 255 }),
+	qType: qTypeEnum("q_type").notNull(),
+	isRequired: boolean("is_required").default(false).notNull(),
+	helpText: text("help_text"),
+	orderIndex: integer("order_index").notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
+},
+(table) => {
+	return {
+		idxQuestionFormOrder: index("idx_question_form_order").on(table.formId, table.orderIndex),
+	}
+});
+
+export const validationRule = pgTable("validation_rule", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	questionId: bigint("question_id", { mode: "number" }).notNull().references(() => question.id, { onDelete: "cascade" } ),
+	ruleType: ruleTypeEnum("rule_type").notNull(),
+	errorMessage: varchar("error_message", { length: 255 }),
+	orderIndex: integer("order_index").default(1).notNull(),
+},
+(table) => {
+	return {
+		idxVruleQuestion: index("idx_vrule_question").on(table.orderIndex, table.questionId),
+	}
+});
+
+export const guidanceSearchLog = pgTable("guidance_search_log", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	submissionId: bigint("submission_id", { mode: "number" }).references(() => submission.id, { onDelete: "set null" } ),
+	queryText: varchar("query_text", { length: 500 }),
+	resultsCount: integer("results_count"),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	clickedResourceId: bigint("clicked_resource_id", { mode: "number" }).references(() => guidanceResource.id, { onDelete: "set null" } ),
+	createdAt: timestamp("created_at", { mode: 'string' }).notNull(),
+},
+(table) => {
+	return {
+		idxGslogCreated: index("idx_gslog_created").on(table.createdAt),
+	}
+});
+
+export const questionOption = pgTable("question_option", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	questionId: bigint("question_id", { mode: "number" }).notNull().references(() => question.id, { onDelete: "cascade" } ),
+	valueKey: varchar("value_key", { length: 128 }),
+	displayText: varchar("display_text", { length: 255 }),
+	orderIndex: integer("order_index").notNull(),
+},
+(table) => {
+	return {
+		uqQuestionValue: unique("uq_question_value").on(table.questionId, table.valueKey),
+		questionOptionValueKeyKey: unique("question_option_value_key_key").on(table.valueKey),
+		questionOptionDisplayTextKey: unique("question_option_display_text_key").on(table.displayText),
 	}
 });
 
@@ -140,116 +231,12 @@ export const branchRule = pgTable("branch_rule", {
 	}
 });
 
-export const question = pgTable("question", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	formId: bigint("form_id", { mode: "number" }).notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	sectionId: bigint("section_id", { mode: "number" }).references(() => formSection.id, { onDelete: "set null" } ),
-	label: varchar("label", { length: 255 }).notNull(),
-	qType: qTypeEnum("q_type").notNull(),
-	isRequired: boolean("is_required").default(false).notNull(),
-	helpText: text("help_text"),
-	orderIndex: integer("order_index").notNull(),
-	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
-	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
-},
-(table) => {
-	return {
-		idxQuestionFormOrder: index("idx_question_form_order").on(table.formId, table.orderIndex),
-	}
-});
-
-export const questionOption = pgTable("question_option", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	questionId: bigint("question_id", { mode: "number" }).notNull().references(() => question.id, { onDelete: "cascade" } ),
-	valueKey: varchar("value_key", { length: 128 }).notNull(),
-	displayText: varchar("display_text", { length: 255 }).notNull(),
-	orderIndex: integer("order_index").notNull(),
-},
-(table) => {
-	return {
-		uqQuestionValue: unique("uq_question_value").on(table.questionId, table.valueKey),
-	}
-});
-
-export const validationRule = pgTable("validation_rule", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	questionId: bigint("question_id", { mode: "number" }).notNull().references(() => question.id, { onDelete: "cascade" } ),
-	ruleType: ruleTypeEnum("rule_type").notNull(),
-	errorMessage: varchar("error_message", { length: 255 }).notNull(),
-	orderIndex: integer("order_index").default(1).notNull(),
-},
-(table) => {
-	return {
-		idxVruleQuestion: index("idx_vrule_question").on(table.orderIndex, table.questionId),
-	}
-});
-
-export const grantScheme = pgTable("grant_scheme", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
-	code: varchar("code", { length: 50 }).notNull(),
-	name: varchar("name", { length: 200 }).notNull(),
-	active: boolean("active").default(true).notNull(),
-	orderIndex: integer("order_index").default(100).notNull(),
-},
-(table) => {
-	return {
-		grantSchemeCodeKey: unique("grant_scheme_code_key").on(table.code),
-	}
-});
-
-export const orgUnit = pgTable("org_unit", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	parentId: bigint("parent_id", { mode: "number" }),
-	code: varchar("code", { length: 50 }),
-	name: varchar("name", { length: 200 }).notNull(),
-	unitType: orgUnitTypeEnum("unit_type").notNull(),
-	active: boolean("active").default(true).notNull(),
-},
-(table) => {
-	return {
-		idxOrgUnitTypeActive: index("idx_org_unit_type_active").on(table.active, table.unitType),
-		fkOrgParent: foreignKey({
-			columns: [table.parentId],
-			foreignColumns: [table.id],
-			name: "fk_org_parent"
-		}).onDelete("set null"),
-		orgUnitCodeKey: unique("org_unit_code_key").on(table.code),
-	}
-});
-
-export const person = pgTable("person", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
-	name: varchar("name", { length: 200 }).notNull(),
-	email: varchar("email", { length: 320 }),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	orgUnitId: bigint("org_unit_id", { mode: "number" }).references(() => orgUnit.id, { onDelete: "set null" } ),
-	roleLabel: varchar("role_label", { length: 100 }),
-	active: boolean("active").default(true).notNull(),
-},
-(table) => {
-	return {
-		idxPersonName: index("idx_person_name").on(table.name),
-		personEmailKey: unique("person_email_key").on(table.email),
-	}
-});
-
 export const submission = pgTable("submission", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
-	submissionUid: varchar("submission_uid", { length: 40 }).notNull(),
+	submissionUid: varchar("submission_uid", { length: 40 }),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	formId: bigint("form_id", { mode: "number" }).notNull(),
+	formId: bigint("form_id", { mode: "number" }).notNull().references(() => form.id, { onDelete: "restrict" } ),
 	workflowType: workflowTypeEnum("workflow_type").notNull(),
 	status: submissionStatusEnum("status").notNull(),
 	createdBy: varchar("created_by", { length: 200 }),
@@ -285,7 +272,7 @@ export const consentLog = pgTable("consent_log", {
 	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	submissionId: bigint("submission_id", { mode: "number" }).notNull().references(() => submission.id, { onDelete: "cascade" } ),
-	policyVersion: varchar("policy_version", { length: 50 }).notNull(),
+	policyVersion: varchar("policy_version", { length: 50 }),
 	acceptedAt: timestamp("accepted_at", { mode: 'string' }).defaultNow().notNull(),
 	ipAddress: varchar("ip_address", { length: 45 }),
 	userAgent: varchar("user_agent", { length: 400 }),
@@ -320,11 +307,11 @@ export const attachment = pgTable("attachment", {
 	submissionId: bigint("submission_id", { mode: "number" }).notNull().references(() => submission.id, { onDelete: "cascade" } ),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	questionId: bigint("question_id", { mode: "number" }).references(() => question.id, { onDelete: "set null" } ),
-	originalFilename: varchar("original_filename", { length: 255 }).notNull(),
-	mimeType: varchar("mime_type", { length: 127 }).notNull(),
+	originalFilename: varchar("original_filename", { length: 255 }),
+	mimeType: varchar("mime_type", { length: 127 }),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	sizeBytes: bigint("size_bytes", { mode: "number" }).notNull(),
-	storageUri: varchar("storage_uri", { length: 500 }).notNull(),
+	storageUri: varchar("storage_uri", { length: 500 }),
 	checksumSha256: char("checksum_sha256", { length: 64 }),
 	uploadedAt: timestamp("uploaded_at", { mode: 'string' }).defaultNow().notNull(),
 },
@@ -334,27 +321,13 @@ export const attachment = pgTable("attachment", {
 	}
 });
 
-export const guidanceResource = pgTable("guidance_resource", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
-	resourceType: resourceTypeEnum("resource_type").default('Link').notNull(),
-	title: varchar("title", { length: 255 }).notNull(),
-	summary: text("summary"),
-	contentHtml: text("content_html"),
-	contentUri: varchar("content_uri", { length: 500 }),
-	icon: varchar("icon", { length: 64 }),
-	audience: audienceEnum("audience").default('Requestor').notNull(),
-	isActive: boolean("is_active").default(true).notNull(),
-	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
-});
-
 export const emailMessage = pgTable("email_message", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	submissionId: bigint("submission_id", { mode: "number" }).notNull().references(() => submission.id, { onDelete: "cascade" } ),
-	toAddress: varchar("to_address", { length: 320 }).notNull(),
-	subject: varchar("subject", { length: 255 }).notNull(),
+	toAddress: varchar("to_address", { length: 320 }),
+	subject: varchar("subject", { length: 255 }),
 	bodyText: text("body_text").notNull(),
 	status: emailStatusEnum("status").notNull(),
 	retryCount: integer("retry_count").default(0).notNull(),
@@ -370,22 +343,52 @@ export const emailMessage = pgTable("email_message", {
 	}
 });
 
-export const emailTemplate = pgTable("email_template", {
+export const adminUser = pgTable("admin_user", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	formId: bigint("form_id", { mode: "number" }),
 	name: varchar("name", { length: 100 }).notNull(),
-	subjectTpl: varchar("subject_tpl", { length: 255 }).notNull(),
-	bodyTpl: text("body_tpl").notNull(),
-	isDefault: boolean("is_default").default(false).notNull(),
+	email: varchar("email", { length: 320 }).notNull(),
+	isActive: boolean("is_active").default(true).notNull(),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
 },
 (table) => {
 	return {
-		uqTplScopeName: unique("uq_tpl_scope_name").on(table.formId, table.name),
+		adminUserEmailKey: unique("admin_user_email_key").on(table.email),
 	}
+});
+
+export const systemSetting = pgTable("system_setting", {
+	settingKey: varchar("setting_key", { length: 100 }).primaryKey().notNull(),
+	valueText: text("value_text"),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
+});
+
+export const emailTemplate = pgTable("email_template", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	formId: bigint("form_id", { mode: "number" }),
+	name: varchar("name", { length: 100 }),
+	subjectTpl: varchar("subject_tpl", { length: 255 }),
+	bodyTpl: text("body_tpl").notNull(),
+	isDefault: boolean("is_default").notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+});
+
+export const guidanceResource = pgTable("guidance_resource", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
+	resourceType: resourceTypeEnum("resource_type").notNull(),
+	title: varchar("title", { length: 255 }),
+	summary: text("summary"),
+	contentHtml: text("content_html"),
+	contentUri: varchar("content_uri", { length: 500 }),
+	icon: varchar("icon", { length: 64 }),
+	audience: audienceEnum("audience").notNull(),
+	isActive: boolean("is_active").notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
 });
 
 export const guidanceBinding = pgTable("guidance_binding", {
@@ -394,21 +397,14 @@ export const guidanceBinding = pgTable("guidance_binding", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	formId: bigint("form_id", { mode: "number" }),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	questionId: bigint("question_id", { mode: "number" }).notNull().references(() => question.id, { onDelete: "cascade" } ),
+	questionId: bigint("question_id", { mode: "number" }).notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	resourceId: bigint("resource_id", { mode: "number" }).notNull().references(() => guidanceResource.id, { onDelete: "cascade" } ),
-	displayOrder: integer("display_order").default(100).notNull(),
+	resourceId: bigint("resource_id", { mode: "number" }).notNull(),
+	displayOrder: integer("display_order").notNull(),
 	visibilityConditionExpr: text("visibility_condition_expr"),
 	note: varchar("note", { length: 255 }),
-	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
-},
-(table) => {
-	return {
-		idxBindingQOrder: index("idx_binding_q_order").on(table.displayOrder, table.questionId),
-		idxBindingFormQ: index("idx_binding_form_q").on(table.formId, table.questionId),
-		uqBinding: unique("uq_binding").on(table.questionId, table.resourceId),
-	}
 });
 
 export const guidanceTrigger = pgTable("guidance_trigger", {
@@ -417,47 +413,23 @@ export const guidanceTrigger = pgTable("guidance_trigger", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	formId: bigint("form_id", { mode: "number" }),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	questionId: bigint("question_id", { mode: "number" }).references(() => question.id, { onDelete: "set null" } ),
-	keyword: varchar("keyword", { length: 100 }).notNull(),
+	questionId: bigint("question_id", { mode: "number" }),
+	keyword: varchar("keyword", { length: 100 }),
 	matchType: matchTypeEnum("match_type").notNull(),
-	weight: integer("weight").default(100).notNull(),
+	weight: integer("weight").notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	resourceId: bigint("resource_id", { mode: "number" }).notNull().references(() => guidanceResource.id, { onDelete: "cascade" } ),
-	active: boolean("active").default(true).notNull(),
-	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	resourceId: bigint("resource_id", { mode: "number" }).notNull(),
+	active: boolean("active").notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
-},
-(table) => {
-	return {
-		idxGtrigKeyword: index("idx_gtrig_keyword").on(table.keyword),
-		idxGtrigActive: index("idx_gtrig_active").on(table.active, table.weight),
-		idxGtrigScope: index("idx_gtrig_scope").on(table.formId, table.questionId),
-	}
-});
-
-export const guidanceSearchLog = pgTable("guidance_search_log", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	submissionId: bigint("submission_id", { mode: "number" }).references(() => submission.id, { onDelete: "set null" } ),
-	queryText: varchar("query_text", { length: 500 }).notNull(),
-	resultsCount: integer("results_count"),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	clickedResourceId: bigint("clicked_resource_id", { mode: "number" }).references(() => guidanceResource.id, { onDelete: "set null" } ),
-	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
-},
-(table) => {
-	return {
-		idxGslogCreated: index("idx_gslog_created").on(table.createdAt),
-	}
 });
 
 export const submissionDraft = pgTable("submission_draft", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	formId: bigint("form_id", { mode: "number" }).notNull(),
-	draftUid: char("draft_uid", { length: 36 }).notNull(),
+	formId: bigint("form_id", { mode: "number" }).notNull().references(() => form.id, { onDelete: "cascade" } ),
+	draftUid: char("draft_uid", { length: 36 }),
 	expiresAt: timestamp("expires_at", { mode: 'string' }),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
@@ -465,7 +437,7 @@ export const submissionDraft = pgTable("submission_draft", {
 (table) => {
 	return {
 		idxDraftExpiry: index("idx_draft_expiry").on(table.expiresAt),
-		submissionDraftDraftUidKey: unique("submission_draft_draft_uid_key").on(table.draftUid),
+		submissionDraftUidKey: unique("submission_draft_uid_key").on(table.draftUid),
 	}
 });
 
@@ -485,33 +457,71 @@ export const submissionDraftAnswer = pgTable("submission_draft_answer", {
 	}
 });
 
-export const exportJob = pgTable("export_job", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint("id", { mode: "number" }).primaryKey().notNull(),
-	requestedBy: varchar("requested_by", { length: 320 }).notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	formId: bigint("form_id", { mode: "number" }),
-	dateFrom: date("date_from"),
-	dateTo: date("date_to"),
-	workflowType: workflowTypeEnum("workflow_type"),
-	status: exportStatusEnum("status").notNull(),
-	format: exportFormatEnum("format").notNull(),
-	fileUri: varchar("file_uri", { length: 500 }),
-	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
-	completedAt: timestamp("completed_at", { mode: 'string' }),
-	errorMessage: text("error_message"),
+export const grantSupportSubmissions = pgTable("grant_support_submissions", {
+	id: bigserial("id", { mode: "bigint" }).primaryKey().notNull(),
+	submissionUid: varchar("submission_uid", { length: 40 }).notNull(),
+	queryType: varchar("query_type", { length: 16 }).notNull(),
+	status: varchar("status", { length: 32 }).default('submitted'::character varying).notNull(),
+	userEmail: varchar("user_email", { length: 320 }),
+	userName: varchar("user_name", { length: 200 }),
+	formData: jsonb("form_data").notNull(),
+	userSatisfied: boolean("user_satisfied"),
+	needsHumanReview: boolean("needs_human_review"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 },
 (table) => {
 	return {
-		idxExportStatusTime: index("idx_export_status_time").on(table.createdAt, table.status),
-		idxExportFilter: index("idx_export_filter").on(table.dateFrom, table.dateTo, table.formId, table.workflowType),
+		grantSupportSubmissionsSubmissionUidKey: unique("grant_support_submissions_submission_uid_key").on(table.submissionUid),
 	}
 });
 
-export const systemSetting = pgTable("system_setting", {
-	settingKey: varchar("setting_key", { length: 100 }).primaryKey().notNull(),
-	valueText: text("value_text"),
-	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
+export const userGoogleTokens = pgTable("user_google_tokens", {
+	userId: uuid("user_id").primaryKey().notNull(),
+	accessToken: text("access_token").notNull(),
+	refreshToken: text("refresh_token").notNull(),
+	expiryDate: timestamp("expiry_date", { withTimezone: true, mode: 'string' }).notNull(),
+	scope: text("scope").notNull(),
+	tokenType: text("token_type").notNull(),
+});
+
+export const knowledgeBase = pgTable("knowledge_base", {
+	chunkId: bigserial("chunk_id", { mode: "bigint" }).primaryKey().notNull(),
+	text: text("text").notNull(),
+	// TODO: failed to parse database type 'vector(1024)'
+	embedding: unknown("embedding"),
+	metadata: jsonb("metadata"),
+	model: text("model"),
+	dim: integer("dim").default(1024),
+},
+(table) => {
+	return {
+		kbEmbeddingIvfflatCos: index("kb_embedding_ivfflat_cos").on(table.embedding),
+		embeddingIvfflatCos: index("knowledge_base_embedding_ivfflat_cos").on(table.embedding),
+		knowledgeBaseChunkIdKey: unique("knowledge_base_chunk_id_key").on(table.chunkId),
+	}
+});
+
+export const formDefaultRecipient = pgTable("form_default_recipient", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	formId: bigint("form_id", { mode: "number" }).notNull().references(() => form.id, { onDelete: "cascade" } ),
+	email: varchar("email", { length: 320 }).notNull(),
+},
+(table) => {
+	return {
+		formDefaultRecipientPkey: primaryKey({ columns: [table.formId, table.email], name: "form_default_recipient_pkey"})
+	}
+});
+
+export const submissionDraftAnswerMulti = pgTable("submission_draft_answer_multi", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	draftAnswerId: bigint("draft_answer_id", { mode: "number" }).notNull().references(() => submissionDraftAnswer.id, { onDelete: "cascade" } ),
+	itemValue: varchar("item_value", { length: 255 }).notNull(),
+},
+(table) => {
+	return {
+		submissionDraftAnswerMultiPkey: primaryKey({ columns: [table.draftAnswerId, table.itemValue], name: "submission_draft_answer_multi_pkey"})
+	}
 });
 
 export const adminUserRole = pgTable("admin_user_role", {
@@ -522,17 +532,6 @@ export const adminUserRole = pgTable("admin_user_role", {
 (table) => {
 	return {
 		adminUserRolePkey: primaryKey({ columns: [table.adminUserId, table.roleName], name: "admin_user_role_pkey"})
-	}
-});
-
-export const formDefaultRecipient = pgTable("form_default_recipient", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	formId: bigint("form_id", { mode: "number" }).notNull(),
-	email: varchar("email", { length: 320 }).notNull(),
-},
-(table) => {
-	return {
-		formDefaultRecipientPkey: primaryKey({ columns: [table.formId, table.email], name: "form_default_recipient_pkey"})
 	}
 });
 
@@ -559,33 +558,11 @@ export const emailAttachmentMap = pgTable("email_attachment_map", {
 	}
 });
 
-export const guidanceResourceTag = pgTable("guidance_resource_tag", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	resourceId: bigint("resource_id", { mode: "number" }).notNull().references(() => guidanceResource.id, { onDelete: "cascade" } ),
-	tag: varchar("tag", { length: 64 }).notNull(),
-},
-(table) => {
-	return {
-		guidanceResourceTagPkey: primaryKey({ columns: [table.resourceId, table.tag], name: "guidance_resource_tag_pkey"})
-	}
-});
-
-export const submissionDraftAnswerMulti = pgTable("submission_draft_answer_multi", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	draftAnswerId: bigint("draft_answer_id", { mode: "number" }).notNull().references(() => submissionDraftAnswer.id, { onDelete: "cascade" } ),
-	itemValue: varchar("item_value", { length: 255 }).notNull(),
-},
-(table) => {
-	return {
-		submissionDraftAnswerMultiPkey: primaryKey({ columns: [table.draftAnswerId, table.itemValue], name: "submission_draft_answer_multi_pkey"})
-	}
-});
-
 export const validationRuleParam = pgTable("validation_rule_param", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	ruleId: bigint("rule_id", { mode: "number" }).notNull().references(() => validationRule.id, { onDelete: "cascade" } ),
 	paramKey: varchar("param_key", { length: 50 }).notNull(),
-	paramValue: varchar("param_value", { length: 255 }).notNull(),
+	paramValue: varchar("param_value", { length: 255 }),
 },
 (table) => {
 	return {

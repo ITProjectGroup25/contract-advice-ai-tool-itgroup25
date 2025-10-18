@@ -7,10 +7,11 @@
     "db:generate": "dotenv -e ../.env -- drizzle-kit generate:pg",
     "db:migrate": "dotenv -e ../.env -- drizzle-kit migrate",
     "db:push": "dotenv -e ../.env -- drizzle-kit push:pg",
-    "update-types": "npx drizzle-kit introspect:pg postgresql://postgres:m6rIe9pz2fwQDVBw@db.lfedmwfgftpkknllchxr.supabase.co:5432/postgres"
+    "update-types": "npx drizzle-kit introspect:pg postgresql://postgres:m6rIe9pz2fwQDVBw@db.lfedmwfgftpkknllchxr.supabase.co:5432/postgres && npx shx mv ./drizzle/schema.ts ./src/db/schema.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "0.7.0",
+    "@tanstack/react-query": "^5.90.5",
     "dotenv": "^17.2.2",
     "drizzle-orm": "^0.29.4",
     "next-auth": "^4.24.11",
@@ -21,6 +22,7 @@
     "@types/node": "^20",
     "dotenv-cli": "^7.4.1",
     "drizzle-kit": "^0.20.14",
+    "shx": "^0.4.0",
     "supabase": "^2.39.2",
     "typescript": "^5"
   },
