@@ -38,6 +38,7 @@ export const FormSectionChildrenSchema = z.object({
   rows: z.number().optional(),
   dataType: z.string().optional(),
   position: z.number().optional(),
+  heading: z.string().optional(),
   containersToMakeVisible: z.array(ComponentToMakeVisibleSchema).optional(),
 });
 export type FormSectionChildrenType = z.infer<typeof FormSectionChildrenSchema>;

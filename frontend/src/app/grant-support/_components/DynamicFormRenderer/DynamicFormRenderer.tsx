@@ -4,6 +4,7 @@ import { Clock, FileText, HelpCircle, Users } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import z from "zod";
 import {
   GrantSupportSubmissionResponse,
   createGrantSupportSubmission,
@@ -229,14 +230,11 @@ export function DynamicFormRenderer({
     try {
       console.log("Testing");
 
-      // Determine queryType from the form data
-      const queryTypeField = sections
-        .flatMap((s) => s.children)
-        .find((c) => c.labelName === "Query Type");
+      console.log({ sections });
 
-      const queryType = queryTypeField
-        ? (data[queryTypeField.id]?.toLowerCase() as "simple" | "complex")
-        : "simple";
+      const queryType = z
+        .enum(["simple", "complex"])
+        .parse(z.string().parse(data["Query Type"]).toLowerCase());
 
       console.log("Hi");
       console.log({ data });
@@ -387,6 +385,8 @@ export function DynamicFormRenderer({
     };
     return iconMap[icon] || FileText;
   };
+
+  console.log({ visibleSections });
 
   return (
     <>

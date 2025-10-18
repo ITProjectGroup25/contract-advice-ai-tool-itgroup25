@@ -17,10 +17,10 @@ interface RenderFieldProps {
   register: UseFormRegister<any>;
   control: Control<any>;
   errors: FieldErrors<any>;
-  handleFieldChange: (fieldId: string, value: any, field: any) => void;
+  handleFieldChange: (fieldName: string, value: any, field: any) => void;
   uploadedFiles: { [key: string]: File[] };
-  handleFileChange: (fieldId: string, files: FileList | null) => void;
-  handleRemoveFile: (fieldId: string, fileIndex: number) => void;
+  handleFileChange: (fieldName: string, files: FileList | null) => void;
+  handleRemoveFile: (fieldName: string, fileIndex: number) => void;
 }
 
 const formatFileSize = (bytes: number): string => {
@@ -70,7 +70,8 @@ const getValidationRules = (
         value && value.length > 0 ? true : `${child.labelName} is required`;
     } else if (child.controlName === "file-upload") {
       rules.validate = () =>
-        uploadedFiles[child.id] && uploadedFiles[child.id].length > 0
+        uploadedFiles[child.labelName] &&
+        uploadedFiles[child.labelName].length > 0
           ? true
           : `${child.labelName} is required`;
     } else {
@@ -99,7 +100,8 @@ export const renderField = ({
   handleFileChange,
   handleRemoveFile,
 }: RenderFieldProps) => {
-  const fieldName = child.id;
+  // Use labelName as the field name instead of id
+  const fieldName = child.labelName;
   const validationRules = getValidationRules(child, uploadedFiles);
 
   switch (child.controlName) {
