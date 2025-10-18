@@ -75,23 +75,36 @@ export async function createGrantSupportSubmission(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+
+  console.log({ res });
+
   return handleJsonResponse<GrantSupportSubmissionResponse>(res);
 }
 
-export async function fetchGrantSupportSubmissions(params: {
-  status?: SubmissionStatus;
-  queryType?: QueryType;
-  limit?: number;
-} = {}): Promise<{ submissions: GrantSupportSubmission[]; stats: GrantSupportStats }> {
+export async function fetchGrantSupportSubmissions(
+  params: {
+    status?: SubmissionStatus;
+    queryType?: QueryType;
+    limit?: number;
+  } = {}
+): Promise<{
+  submissions: GrantSupportSubmission[];
+  stats: GrantSupportStats;
+}> {
   const query = new URLSearchParams();
   if (params.status) query.set("status", params.status);
   if (params.queryType) query.set("queryType", params.queryType);
   if (params.limit) query.set("limit", String(params.limit));
 
   const res = await fetch(
-    `/api/grant-support/submissions${query.toString() ? `?${query.toString()}` : ""}`
+    `/api/grant-support/submissions${
+      query.toString() ? `?${query.toString()}` : ""
+    }`
   );
-  return handleJsonResponse<{ submissions: GrantSupportSubmission[]; stats: GrantSupportStats }>(res);
+  return handleJsonResponse<{
+    submissions: GrantSupportSubmission[];
+    stats: GrantSupportStats;
+  }>(res);
 }
 
 export async function updateGrantSupportSubmission(
@@ -110,7 +123,9 @@ export async function updateGrantSupportSubmission(
   await handleJsonResponse(res);
 }
 
-export async function deleteGrantSupportSubmission(submissionId: number): Promise<void> {
+export async function deleteGrantSupportSubmission(
+  submissionId: number
+): Promise<void> {
   const res = await fetch(`/api/grant-support/submissions/${submissionId}`, {
     method: "DELETE",
   });
@@ -137,10 +152,15 @@ export async function fetchEmailConfig(): Promise<{
   config: EmailConfig | null;
 }> {
   const res = await fetch("/api/v1/email-config");
-  return handleJsonResponse<{ configured: boolean; config: EmailConfig | null }>(res);
+  return handleJsonResponse<{
+    configured: boolean;
+    config: EmailConfig | null;
+  }>(res);
 }
 
-export async function saveEmailConfig(config: EmailConfig): Promise<EmailConfig> {
+export async function saveEmailConfig(
+  config: EmailConfig
+): Promise<EmailConfig> {
   const res = await fetch("/api/v1/email-config", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
