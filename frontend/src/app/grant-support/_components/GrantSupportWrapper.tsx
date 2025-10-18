@@ -67,7 +67,7 @@ const GrantSupportWrapper = ({ formId = 2 }: Props) => {
       </div>
     );
   }
-  return <GrantSupportApp form={data!} />;
+  return <GrantSupportApp form={data!} formId={formId} />;
 };
 
 export default GrantSupportWrapper;

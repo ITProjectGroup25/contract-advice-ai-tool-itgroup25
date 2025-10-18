@@ -2,13 +2,13 @@
 
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
-import { AdminInterface, FormSection, Question } from "./AdminInterface";
+import { AdminInterface } from "./AdminInterface";
 import { ChatBot } from "./ChatBot";
 import { DynamicFormRenderer } from "./DynamicFormRenderer/DynamicFormRenderer";
 import { PasswordDialog } from "./PasswordDialog";
 import { SimpleQueryResponse } from "./SimpleQueryResponse";
 import { SuccessPage } from "./SuccessPage";
-import { Form } from "./types";
+import { Form, FormSectionsType } from "./types";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
 
@@ -16,9 +16,10 @@ type AppState = "form" | "simple-response" | "success" | "admin" | "chatbot";
 
 type Props = {
   form: Form;
+  formId: number;
 };
 
-export default function App({ form }: Props) {
+export default function App({ form, formId }: Props) {
   const { formSections: sections } = form;
   const [currentState, setCurrentState] = useState<AppState>("form");
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
@@ -95,13 +96,7 @@ export default function App({ form }: Props) {
     setCurrentState("form");
   };
 
-  const handleQuestionsUpdate = (updatedQuestions: Question[]) => {
-    // setQuestions(updatedQuestions);
-  };
-
-  const handleSectionsUpdate = (updatedSections: FormSection[]) => {
-    // setSections(updatedSections);
-  };
+  const handleSectionsUpdate = (updatedSections: FormSectionsType) => {};
 
   console.log({ sections });
 
@@ -125,7 +120,7 @@ export default function App({ form }: Props) {
           <AdminInterface
             onBack={handleBackFromAdmin}
             sections={sections!}
-            onQuestionsUpdate={handleQuestionsUpdate}
+            formId={formId!}
             onSectionsUpdate={handleSectionsUpdate}
           />
         );

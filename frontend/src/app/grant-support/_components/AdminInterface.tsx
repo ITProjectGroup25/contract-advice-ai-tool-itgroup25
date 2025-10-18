@@ -1,5 +1,6 @@
 "use client";
 
+import { updateFormFields } from "@/app/actions/updateFormFields";
 import {
   ArrowLeft,
   Copy,
@@ -10,7 +11,8 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { DatabaseManagement } from "./DatabaseManagement";
 import { EmailConfiguration } from "./EmailConfiguration";
 import {
@@ -39,12 +41,14 @@ import { Textarea } from "./ui/textarea";
 interface AdminInterfaceProps {
   onBack: () => void;
   sections: FormSectionsType;
+  formId: number;
   onSectionsUpdate: (sections: FormSectionsType) => void;
 }
 
 export function AdminInterface({
   onBack,
   sections,
+  formId,
   onSectionsUpdate,
 }: AdminInterfaceProps) {
   const [editingFieldId, setEditingFieldId] = useState<string | number | null>(
@@ -54,6 +58,7 @@ export function AdminInterface({
   const [isCreatingField, setIsCreatingField] = useState(false);
   const [isCreatingSection, setIsCreatingSection] = useState(false);
   const [activeTab, setActiveTab] = useState("fields");
+  const [isPending, startTransition] = useTransition();
 
   const [newField, setNewField] = useState<Partial<FormSectionChildrenType>>({
     controlName: "text-field",
@@ -83,8 +88,11 @@ export function AdminInterface({
     children: [],
   });
 
-  const handleSaveField = (fieldId?: string | number) => {
-    if (!newField.labelName || !newField.containerId) return;
+  const handleSaveField = async (fieldId?: string | number) => {
+    if (!newField.labelName || !newField.containerId) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
 
     const field: FormSectionChildrenType = {
       controlName: newField.controlName!,
@@ -125,12 +133,30 @@ export function AdminInterface({
       return section;
     });
 
-    onSectionsUpdate(updatedSections);
-    resetFieldForm();
+    // Save to database
+    startTransition(async () => {
+      const result = await updateFormFields({
+        formId,
+        formSections: updatedSections,
+      });
+
+      if (result.message === "success") {
+        toast.success(
+          fieldId ? "Field updated successfully" : "Field created successfully"
+        );
+        onSectionsUpdate(updatedSections);
+        resetFieldForm();
+      } else {
+        toast.error(result.error || "Failed to save field");
+      }
+    });
   };
 
-  const handleSaveSection = (sectionId?: string) => {
-    if (!newSection.container?.heading) return;
+  const handleSaveSection = async (sectionId?: string) => {
+    if (!newSection.container?.heading) {
+      toast.error("Please enter a section heading");
+      return;
+    }
 
     const section: FormSectionType = {
       container: {
@@ -140,17 +166,35 @@ export function AdminInterface({
       children: newSection.children || [],
     };
 
+    let updatedSections: FormSectionsType;
+
     if (sectionId) {
-      onSectionsUpdate(
-        sections.map((s) =>
-          s.container.id === section.container.id ? section : s
-        )
+      updatedSections = sections.map((s) =>
+        s.container.id === section.container.id ? section : s
       );
     } else {
-      onSectionsUpdate([...sections, section]);
+      updatedSections = [...sections, section];
     }
 
-    resetSectionForm();
+    // Save to database
+    startTransition(async () => {
+      const result = await updateFormFields({
+        formId,
+        formSections: updatedSections,
+      });
+
+      if (result.message === "success") {
+        toast.success(
+          sectionId
+            ? "Section updated successfully"
+            : "Section created successfully"
+        );
+        onSectionsUpdate(updatedSections);
+        resetSectionForm();
+      } else {
+        toast.error(result.error || "Failed to save section");
+      }
+    });
   };
 
   const resetFieldForm = () => {
@@ -199,7 +243,10 @@ export function AdminInterface({
     setEditingSectionId(section.container.id);
   };
 
-  const handleDeleteField = (fieldId: string | number, containerId: string) => {
+  const handleDeleteField = async (
+    fieldId: string | number,
+    containerId: string
+  ) => {
     const updatedSections = sections.map((section) => {
       if (section.container.id === containerId) {
         return {
@@ -209,11 +256,42 @@ export function AdminInterface({
       }
       return section;
     });
-    onSectionsUpdate(updatedSections);
+
+    // Save to database
+    startTransition(async () => {
+      const result = await updateFormFields({
+        formId,
+        formSections: updatedSections,
+      });
+
+      if (result.message === "success") {
+        toast.success("Field deleted successfully");
+        onSectionsUpdate(updatedSections);
+      } else {
+        toast.error(result.error || "Failed to delete field");
+      }
+    });
   };
 
-  const handleDeleteSection = (sectionId: string) => {
-    onSectionsUpdate(sections.filter((s) => s.container.id !== sectionId));
+  const handleDeleteSection = async (sectionId: string) => {
+    const updatedSections = sections.filter(
+      (s) => s.container.id !== sectionId
+    );
+
+    // Save to database
+    startTransition(async () => {
+      const result = await updateFormFields({
+        formId,
+        formSections: updatedSections,
+      });
+
+      if (result.message === "success") {
+        toast.success("Section deleted successfully");
+        onSectionsUpdate(updatedSections);
+      } else {
+        toast.error(result.error || "Failed to delete section");
+      }
+    });
   };
 
   const addOption = () => {
@@ -246,7 +324,7 @@ export function AdminInterface({
     });
   };
 
-  const duplicateField = (field: FormSectionChildrenType) => {
+  const duplicateField = async (field: FormSectionChildrenType) => {
     const newField: FormSectionChildrenType = {
       ...field,
       id: `field_${Date.now()}`,
@@ -263,7 +341,20 @@ export function AdminInterface({
       return section;
     });
 
-    onSectionsUpdate(updatedSections);
+    // Save to database
+    startTransition(async () => {
+      const result = await updateFormFields({
+        formId,
+        formSections: updatedSections,
+      });
+
+      if (result.message === "success") {
+        toast.success("Field duplicated successfully");
+        onSectionsUpdate(updatedSections);
+      } else {
+        toast.error(result.error || "Failed to duplicate field");
+      }
+    });
   };
 
   const allFields = sections.flatMap((section) =>
@@ -447,13 +538,24 @@ export function AdminInterface({
           <Separator />
 
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={resetFieldForm}>
+            <Button
+              variant="outline"
+              onClick={resetFieldForm}
+              disabled={isPending}
+            >
               <X className="h-4 w-4 mr-1" />
               Cancel
             </Button>
-            <Button onClick={() => handleSaveField(field?.id)}>
+            <Button
+              onClick={() => handleSaveField(field?.id)}
+              disabled={isPending}
+            >
               <Save className="h-4 w-4 mr-1" />
-              {isEditing ? "Update" : "Create"} Field
+              {isPending
+                ? "Saving..."
+                : isEditing
+                ? "Update Field"
+                : "Create Field"}
             </Button>
           </div>
         </CardContent>
@@ -530,13 +632,24 @@ export function AdminInterface({
           <Separator />
 
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={resetSectionForm}>
+            <Button
+              variant="outline"
+              onClick={resetSectionForm}
+              disabled={isPending}
+            >
               <X className="h-4 w-4 mr-1" />
               Cancel
             </Button>
-            <Button onClick={() => handleSaveSection(section?.container.id)}>
+            <Button
+              onClick={() => handleSaveSection(section?.container.id)}
+              disabled={isPending}
+            >
               <Save className="h-4 w-4 mr-1" />
-              {isEditing ? "Update" : "Create"} Section
+              {isPending
+                ? "Saving..."
+                : isEditing
+                ? "Update Section"
+                : "Create Section"}
             </Button>
           </div>
         </CardContent>
@@ -596,6 +709,7 @@ export function AdminInterface({
             <Button
               onClick={() => setIsCreatingField(true)}
               className="flex items-center gap-2"
+              disabled={isPending}
             >
               <Plus className="h-4 w-4" />
               Add Field
@@ -648,6 +762,7 @@ export function AdminInterface({
                             size="sm"
                             onClick={() => duplicateField(field)}
                             title="Duplicate field"
+                            disabled={isPending}
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
@@ -655,6 +770,7 @@ export function AdminInterface({
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEditField(field)}
+                            disabled={isPending}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -665,6 +781,7 @@ export function AdminInterface({
                               handleDeleteField(field.id, field.containerId)
                             }
                             className="text-destructive hover:text-destructive"
+                            disabled={isPending}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -690,6 +807,7 @@ export function AdminInterface({
             <Button
               onClick={() => setIsCreatingSection(true)}
               className="flex items-center gap-2"
+              disabled={isPending}
             >
               <Plus className="h-4 w-4" />
               Add Section
@@ -736,6 +854,7 @@ export function AdminInterface({
                               variant="ghost"
                               size="sm"
                               onClick={() => handleEditSection(section)}
+                              disabled={isPending}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -746,6 +865,7 @@ export function AdminInterface({
                                 handleDeleteSection(section.container.id)
                               }
                               className="text-destructive hover:text-destructive"
+                              disabled={isPending}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
