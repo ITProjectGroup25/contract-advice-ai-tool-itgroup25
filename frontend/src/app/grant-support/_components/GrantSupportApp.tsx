@@ -4,7 +4,7 @@ import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AdminInterface, FormSection, Question } from "./AdminInterface";
 import { ChatBot } from "./ChatBot";
-import { DynamicFormRenderer } from "./DynamicFormRenderer";
+import { DynamicFormRenderer } from "./DynamicFormRenderer/DynamicFormRenderer";
 import { PasswordDialog } from "./PasswordDialog";
 import { SimpleQueryResponse } from "./SimpleQueryResponse";
 import { SuccessPage } from "./SuccessPage";
