@@ -42,10 +42,12 @@ import {
   TableRow,
 } from "./ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { FieldValue } from "./types";
+import { GrantSupportSubmission } from "./getSubmissions/grantSupportSubmissionSchema";
 
 export function DatabaseManagement() {
   const [selectedSubmission, setSelectedSubmission] =
-    useState<Submission | null>(null);
+    useState<GrantSupportSubmission | null>(null);
 
   const {
     data: submissionsData,
@@ -55,11 +57,7 @@ export function DatabaseManagement() {
     queryKey: ["submissions"],
     queryFn: async () => {
       const result = await getSubmissions();
-      if (result.message !== "success" || !result.data) {
-        toast.error(result.error ?? "Failed to fetch submissions");
-        return [];
-      }
-      return result.data;
+      return result;
     },
   });
 

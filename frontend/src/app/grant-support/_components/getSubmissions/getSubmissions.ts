@@ -20,18 +20,6 @@ if (!supabaseServiceKey) {
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-type ReturnSuccess = {
-  message: "success";
-  data: GrantSupportSubmission[];
-};
-
-type ReturnError = {
-  message: "error";
-  error: string;
-};
-
-type Return = ReturnSuccess | ReturnError;
-
 type Args = {
   userEmail?: string;
   status?: string;
@@ -41,55 +29,38 @@ type Args = {
 /**
  * Retrieves submissions from the `grant_support_submissions` table.
  * Optionally filter by userEmail, status, or submissionUid.
+ * Throws on any error (for compatibility with React Query).
  */
 export async function getSubmissions({
   userEmail,
   status,
   submissionUid,
-}: Args = {}): Promise<Return> {
-  try {
-    let query = supabaseAdmin.from("grant_support_submissions").select("*");
+}: Args = {}): Promise<GrantSupportSubmission[]> {
+  let query = supabaseAdmin.from("grant_support_submissions").select("*");
 
-    if (userEmail) query = query.eq("user_email", userEmail);
-    if (status) query = query.eq("status", status);
-    if (submissionUid) query = query.eq("submission_uid", submissionUid);
+  if (userEmail) query = query.eq("user_email", userEmail);
+  if (status) query = query.eq("status", status);
+  if (submissionUid) query = query.eq("submission_uid", submissionUid);
 
-    query = query.order("created_at", { ascending: false });
+  query = query.order("created_at", { ascending: false });
 
-    const { data, error } = await query;
+  const { data, error } = await query;
 
-    console.log({ data });
+  console.log({ data });
 
-    if (error) {
-      console.error("Supabase fetch error:", error);
-      return {
-        message: "error",
-        error: error.message,
-      };
-    }
-
-    // Validate fetched data
-    const parsed = z.array(GrantSupportSubmissionSchema).safeParse(data);
-
-    console.log({ parsed });
-
-    if (!parsed.success) {
-      console.error("Zod validation error:", parsed.error.format());
-      return {
-        message: "error",
-        error: "Invalid data format returned from Supabase",
-      };
-    }
-
-    return {
-      message: "success",
-      data: parsed.data,
-    };
-  } catch (error) {
-    console.error("Get submissions error:", error);
-    return {
-      message: "error",
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
+  if (error) {
+    console.error("Supabase fetch error:", error);
+    throw new Error(error.message || "Failed to fetch submissions");
   }
+
+  const parsed = z.array(GrantSupportSubmissionSchema).safeParse(data);
+
+  console.log({ parsed });
+
+  if (!parsed.success) {
+    console.error("Zod validation error:", parsed.error.format());
+    throw new Error("Invalid data format returned from Supabase");
+  }
+
+  return parsed.data;
 }
