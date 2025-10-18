@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, FileText, HelpCircle, Users } from "lucide-react";
+import { Clock, FileText, HelpCircle, Upload, Users, X } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -83,6 +83,10 @@ export function DynamicFormRenderer({
   const [otherFields, setOtherFields] = useState<{ [key: string]: boolean }>(
     {}
   );
+
+  const [uploadedFiles, setUploadedFiles] = useState<{
+    [key: string]: File[];
+  }>({});
 
   // Initialize visible sections with only alwaysVisible sections
   const [visibleSections, setVisibleSections] = useState<typeof sections>(
@@ -187,6 +191,43 @@ export function DynamicFormRenderer({
     }
   };
 
+  const handleFileChange = (fieldId: string, files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const fileArray = Array.from(files);
+    setUploadedFiles((prev) => ({
+      ...prev,
+      [fieldId]: [...(prev[fieldId] || []), ...fileArray],
+    }));
+
+    // Also update form data
+    setValue(fieldId, [...(uploadedFiles[fieldId] || []), ...fileArray]);
+  };
+
+  const handleRemoveFile = (fieldId: string, fileIndex: number) => {
+    setUploadedFiles((prev) => {
+      const updatedFiles = [...(prev[fieldId] || [])];
+      updatedFiles.splice(fileIndex, 1);
+      return {
+        ...prev,
+        [fieldId]: updatedFiles,
+      };
+    });
+
+    // Also update form data
+    const updatedFiles = [...(uploadedFiles[fieldId] || [])];
+    updatedFiles.splice(fileIndex, 1);
+    setValue(fieldId, updatedFiles);
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  };
+
   const onSubmit = async (data: FormData) => {
     try {
       console.log("Testing");
@@ -204,9 +245,27 @@ export function DynamicFormRenderer({
       console.log({ data });
       console.log({ queryType });
 
+      // Process uploaded files - convert to base64 or handle as needed
+      const processedData = { ...data };
+      for (const [fieldId, files] of Object.entries(uploadedFiles)) {
+        if (files && files.length > 0) {
+          // Convert files to a format suitable for your backend
+          const fileData = await Promise.all(
+            files.map(async (file) => ({
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              // You might want to convert to base64 or upload to storage
+              data: await fileToBase64(file),
+            }))
+          );
+          processedData[fieldId] = fileData;
+        }
+      }
+
       const submissionResponse: GrantSupportSubmissionResponse =
         await createGrantSupportSubmission({
-          formData: data,
+          formData: processedData,
           queryType,
           userEmail: (data.email as string) || undefined,
           userName: (data.name as string) || undefined,
@@ -265,7 +324,7 @@ export function DynamicFormRenderer({
             userEmail,
             userName,
             timestamp: new Date().toISOString(),
-            formData: data,
+            formData: processedData,
           };
 
           try {
@@ -309,6 +368,16 @@ export function DynamicFormRenderer({
     }
   };
 
+  // Helper function to convert file to base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const renderField = (child: any) => {
     const fieldName = child.id;
     const currentValue = formValues[fieldName];
@@ -319,6 +388,11 @@ export function DynamicFormRenderer({
         if (child.controlName === "checklist") {
           rules.validate = (value: any) =>
             value && value.length > 0 ? true : `${child.labelName} is required`;
+        } else if (child.controlName === "file-upload") {
+          rules.validate = () =>
+            uploadedFiles[fieldName] && uploadedFiles[fieldName].length > 0
+              ? true
+              : `${child.labelName} is required`;
         } else {
           rules.required = `${child.labelName} is required`;
         }
@@ -363,6 +437,81 @@ export function DynamicFormRenderer({
     };
 
     switch (child.controlName) {
+      case "file-upload":
+        return (
+          <div key={child.id} className="space-y-3">
+            <Label htmlFor={fieldName}>
+              {child.labelName} {child.required && "*"}
+            </Label>
+            {renderDescription(child.description)}
+
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <Input
+                  id={fieldName}
+                  type="file"
+                  multiple
+                  onChange={(e) => handleFileChange(fieldName, e.target.files)}
+                  className="hidden"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById(fieldName)?.click()}
+                  className="flex items-center gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  Choose Files
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  {uploadedFiles[fieldName]?.length || 0} file(s) selected
+                </span>
+              </div>
+
+              {/* Display uploaded files */}
+              {uploadedFiles[fieldName] &&
+                uploadedFiles[fieldName].length > 0 && (
+                  <div className="space-y-2">
+                    {uploadedFiles[fieldName].map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-md border"
+                      >
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {file.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {formatFileSize(file.size)}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveFile(fieldName, index)}
+                          className="flex-shrink-0"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+            </div>
+
+            {errors[fieldName] && (
+              <p className="text-sm text-destructive">
+                {errors[fieldName]?.message as string}
+              </p>
+            )}
+          </div>
+        );
+
       case "checklist":
         return (
           <div key={child.id} className="space-y-3">
@@ -403,6 +552,7 @@ export function DynamicFormRenderer({
             )}
           </div>
         );
+
       case "text-field":
         return (
           <div key={child.id} className="space-y-2">
