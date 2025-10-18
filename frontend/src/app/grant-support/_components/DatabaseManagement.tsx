@@ -49,7 +49,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { ScrollArea } from "./ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -113,6 +112,17 @@ export function DatabaseManagement() {
   };
 
   const handleRefresh = () => refetch();
+
+  const handleDeleteSubmission = async (id: string) => {
+    try {
+      await localDB.deleteSubmission(id);
+      await loadData();
+      toast.success("Submission deleted successfully");
+    } catch (error) {
+      console.error("Error deleting submission:", error);
+      toast.error("Failed to delete submission");
+    }
+  };
 
   const handleClearAll = async () => {
     try {
@@ -655,11 +665,11 @@ export function DatabaseManagement() {
               />
 
               <TabsContent value="sql">
-                <ScrollArea className="h-[400px] w-full rounded-md border p-4">
-                  <pre className="text-xs whitespace-pre-wrap font-mono">
-                    {selectedSubmission.sqlStatement}
+                <div className="h-[400px] w-full overflow-auto border rounded-md p-4">
+                  <pre className="text-xs font-mono whitespace-pre-wrap break-all">
+                    {JSON.stringify(selectedSubmission, null, 2)}
                   </pre>
-                </ScrollArea>
+                </div>
               </TabsContent>
 
               <TabsContent value="metadata">
