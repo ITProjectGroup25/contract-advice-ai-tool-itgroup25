@@ -56,6 +56,12 @@ export const FormSectionContainerSchema = z.object({
   selectedControlOption: z.string().optional(),
   selectedControlHeading: z.string().optional(),
   desktopWidth: z.number().optional(),
+  visibilityCondition: z
+    .object({
+      fieldId: z.string(),
+      optionId: z.string(),
+    })
+    .optional(), // Add this line
 });
 
 export type FormSectionContainerType = z.infer<

@@ -2,7 +2,7 @@
 
 import { uploadFile } from "@/app/actions/uploadFile/uploadFile";
 import { Clock, FileText, HelpCircle, Users } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
@@ -92,6 +92,49 @@ export function DynamicFormRenderer({
 
   const formValues = watch();
 
+  // Helper function to check if a section should be visible based on form values
+  const shouldSectionBeVisible = (section: (typeof sections)[0]): boolean => {
+    // Always visible sections
+    if (section.container.alwaysVisible) return true;
+
+    // Check visibility condition
+    const condition = section.container.visibilityCondition;
+    if (!condition) return false;
+
+    // Find the field that controls this section's visibility
+    const controllingField = sections
+      .flatMap((s) => s.children)
+      .find((child) => child.id.toString() === condition.fieldId);
+
+    if (!controllingField) return false;
+
+    // Get the current value of the controlling field
+    const currentFieldValue = formValues[controllingField.labelName];
+
+    // Find the option that should trigger visibility
+    const triggerOption = controllingField.items?.find(
+      (item) => item.id === condition.optionId
+    );
+
+    if (!triggerOption) return false;
+
+    // Check if current value matches the trigger
+    // Handle both single values (radio) and arrays (checkbox)
+    if (Array.isArray(currentFieldValue)) {
+      return currentFieldValue.includes(triggerOption.label);
+    }
+
+    return currentFieldValue === triggerOption.label;
+  };
+
+  // Update visible sections whenever form values change
+  useEffect(() => {
+    const newVisibleSections = sections.filter((section) =>
+      shouldSectionBeVisible(section)
+    );
+    setVisibleSections(newVisibleSections);
+  }, [formValues, sections]);
+
   const handleFieldChange = (
     fieldId: string,
     selectedValue: any,
@@ -99,91 +142,8 @@ export function DynamicFormRenderer({
   ) => {
     setValue(fieldId, selectedValue);
 
-    // Check if this field has conditional visibility logic
-    if (
-      field.containersToMakeVisible &&
-      field.containersToMakeVisible.length > 0
-    ) {
-      // Process all visibility mappings for this field
-      field.containersToMakeVisible.forEach(
-        (mapping: {
-          containerToMakeVisible: string;
-          optionThatMakesVisible: string;
-        }) => {
-          // Find the option value that corresponds to this mapping's ID
-          const optionThatMakesVisible = field.items?.find(
-            (item: { id: string }) => item.id === mapping.optionThatMakesVisible
-          );
-
-          if (!optionThatMakesVisible) {
-            console.warn(
-              `Option with ID ${mapping.optionThatMakesVisible} not found in field items`
-            );
-            return;
-          }
-
-          const optionValueThatMakesVisible = optionThatMakesVisible.value;
-          const containerIdToMakeVisible = mapping.containerToMakeVisible;
-
-          // Find the container that should be shown/hidden
-          const containerToMakeVisible = sections.find(
-            (comp) => comp.container.id === containerIdToMakeVisible
-          );
-
-          if (!containerToMakeVisible) {
-            console.warn(
-              `Container with ID ${containerIdToMakeVisible} not found`
-            );
-            return;
-          }
-
-          // Find the index to insert the container at the correct position
-          const containerToMakeVisibleIdx = sections.findIndex(
-            (comp) => comp.container.id === containerIdToMakeVisible
-          );
-
-          console.log({
-            selectedValue,
-            optionValueThatMakesVisible,
-            containerIdToMakeVisible,
-            containerToMakeVisibleIdx,
-          });
-
-          // If the selected value matches the visibility trigger for this mapping
-          if (selectedValue === optionValueThatMakesVisible) {
-            setVisibleSections((prevSections) => {
-              // Check if already visible
-              const alreadyVisible = prevSections.some(
-                (section) => section.container.id === containerIdToMakeVisible
-              );
-
-              if (alreadyVisible) {
-                return prevSections;
-              }
-
-              // Insert the container at the correct position
-              const newSections = [...prevSections];
-              newSections.splice(
-                containerToMakeVisibleIdx,
-                0,
-                containerToMakeVisible
-              );
-
-              return newSections;
-            });
-          } else {
-            // Different option selected - hide this specific container if it's not always visible
-            if (!containerToMakeVisible.container.alwaysVisible) {
-              setVisibleSections((prevSections) =>
-                prevSections.filter(
-                  (section) => section.container.id !== containerIdToMakeVisible
-                )
-              );
-            }
-          }
-        }
-      );
-    }
+    // The useEffect above will automatically handle section visibility
+    // based on the new form values
   };
 
   const handleFileChange = (fieldId: string, files: FileList | null) => {
@@ -195,7 +155,6 @@ export function DynamicFormRenderer({
       [fieldId]: [...(prev[fieldId] || []), ...fileArray],
     }));
 
-    // Also update form data
     setValue(fieldId, [...(uploadedFiles[fieldId] || []), ...fileArray]);
   };
 
@@ -209,7 +168,6 @@ export function DynamicFormRenderer({
       };
     });
 
-    // Also update form data
     const updatedFiles = [...(uploadedFiles[fieldId] || [])];
     updatedFiles.splice(fileIndex, 1);
     setValue(fieldId, updatedFiles);
@@ -275,7 +233,7 @@ export function DynamicFormRenderer({
           formData: processedData,
           queryType,
           userEmail: (processedData["Your Email"] as string) || undefined,
-          userName: (processedData["User's Name"] as string) || undefined,
+          userName: (processedData["Your Name"] as string) || undefined,
           status: "submitted",
         });
 
@@ -283,7 +241,7 @@ export function DynamicFormRenderer({
 
       // Send confirmation email to user
       const userEmail = processedData["Your Email"] as string;
-      const userName = processedData["User's Name"] as string;
+      const userName = processedData["Your Name"] as string;
 
       if (userEmail && userName) {
         const emailData: EmailData = {
@@ -374,7 +332,7 @@ export function DynamicFormRenderer({
       );
     }
   };
-  // Helper function to convert file to base64
+
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();

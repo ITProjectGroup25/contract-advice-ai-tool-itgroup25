@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AdminInterface } from "./AdminInterface";
@@ -20,6 +21,8 @@ type Props = {
 };
 
 export default function App({ form, formId }: Props) {
+  const queryClient = useQueryClient();
+
   const { formSections: sections } = form;
   const [currentState, setCurrentState] = useState<AppState>("form");
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
@@ -96,7 +99,9 @@ export default function App({ form, formId }: Props) {
     setCurrentState("form");
   };
 
-  const handleSectionsUpdate = (updatedSections: FormSectionsType) => {};
+  const handleSectionsUpdate = (updatedSections: FormSectionsType) => {
+    queryClient.invalidateQueries({ queryKey: ["form", formId] });
+  };
 
   console.log({ sections });
 

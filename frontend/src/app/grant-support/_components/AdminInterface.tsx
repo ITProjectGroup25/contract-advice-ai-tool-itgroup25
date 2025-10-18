@@ -6,6 +6,7 @@ import {
   Copy,
   Edit,
   Loader2,
+  Lock,
   Plus,
   Save,
   Settings,
@@ -48,6 +49,12 @@ import {
 import { Separator } from "./ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Textarea } from "./ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 interface AdminInterfaceProps {
   onBack: () => void;
@@ -63,6 +70,13 @@ type ConfirmationAction =
   | { type: "delete-section"; sectionId: string }
   | { type: "duplicate-field"; field: FormSectionChildrenType }
   | null;
+
+// System fields that cannot be edited or deleted
+const SYSTEM_FIELD_LABELS = ["Your Name", "Your Email", "Query Type"];
+
+const isSystemField = (labelName: string): boolean => {
+  return SYSTEM_FIELD_LABELS.includes(labelName);
+};
 
 export function AdminInterface({
   onBack,
@@ -80,6 +94,14 @@ export function AdminInterface({
   const [isPending, startTransition] = useTransition();
   const [confirmationAction, setConfirmationAction] =
     useState<ConfirmationAction>(null);
+
+  // Section visibility configuration
+  const [sectionVisibilityField, setSectionVisibilityField] = useState<
+    string | null
+  >(null);
+  const [sectionVisibilityOption, setSectionVisibilityOption] = useState<
+    string | null
+  >(null);
 
   const [newField, setNewField] = useState<Partial<FormSectionChildrenType>>({
     controlName: "text-field",
@@ -234,8 +256,7 @@ export function AdminInterface({
         );
         onSectionsUpdate(updatedSections);
         resetFieldForm();
-        // Refresh the page
-        window.location.reload();
+        // window.location.reload();
       } else {
         toast.error(result.error || "Failed to save field");
       }
@@ -248,10 +269,29 @@ export function AdminInterface({
       return;
     }
 
+    // Validate conditional visibility if not always visible
+    if (!newSection.container?.alwaysVisible) {
+      if (!sectionVisibilityField || !sectionVisibilityOption) {
+        toast.error(
+          "Please select a field and option for conditional visibility"
+        );
+        return;
+      }
+    }
+
     const section: FormSectionType = {
       container: {
         ...newSection.container!,
         id: sectionId || `section_${Date.now()}`,
+        visibilityCondition:
+          !newSection.container?.alwaysVisible &&
+          sectionVisibilityField &&
+          sectionVisibilityOption
+            ? {
+                fieldId: sectionVisibilityField,
+                optionId: sectionVisibilityOption,
+              }
+            : undefined,
       },
       children: newSection.children || [],
     };
@@ -280,8 +320,7 @@ export function AdminInterface({
         );
         onSectionsUpdate(updatedSections);
         resetSectionForm();
-        // Refresh the page
-        window.location.reload();
+        // window.location.reload();
       } else {
         toast.error(result.error || "Failed to save section");
       }
@@ -311,8 +350,7 @@ export function AdminInterface({
       if (result.message === "success") {
         toast.success("Field deleted successfully");
         onSectionsUpdate(updatedSections);
-        // Refresh the page
-        window.location.reload();
+        // window.location.reload();
       } else {
         toast.error(result.error || "Failed to delete field");
       }
@@ -333,8 +371,7 @@ export function AdminInterface({
       if (result.message === "success") {
         toast.success("Section deleted successfully");
         onSectionsUpdate(updatedSections);
-        // Refresh the page
-        window.location.reload();
+        // window.location.reload();
       } else {
         toast.error(result.error || "Failed to delete section");
       }
@@ -367,8 +404,7 @@ export function AdminInterface({
       if (result.message === "success") {
         toast.success("Field duplicated successfully");
         onSectionsUpdate(updatedSections);
-        // Refresh the page
-        window.location.reload();
+        // window.location.reload();
       } else {
         toast.error(result.error || "Failed to duplicate field");
       }
@@ -435,11 +471,17 @@ export function AdminInterface({
       },
       children: [],
     });
+    setSectionVisibilityField(null);
+    setSectionVisibilityOption(null);
     setEditingSectionId(null);
     setIsCreatingSection(false);
   };
 
   const handleEditField = (field: FormSectionChildrenType) => {
+    if (isSystemField(field.labelName)) {
+      toast.error("System fields cannot be edited");
+      return;
+    }
     setNewField(field);
     setEditingFieldId(field.id);
   };
@@ -447,6 +489,17 @@ export function AdminInterface({
   const handleEditSection = (section: FormSectionType) => {
     setNewSection(section);
     setEditingSectionId(section.container.id);
+
+    // Load existing visibility conditions if any
+    if (section.container.visibilityCondition) {
+      setSectionVisibilityField(section.container.visibilityCondition.fieldId);
+      setSectionVisibilityOption(
+        section.container.visibilityCondition.optionId
+      );
+    } else {
+      setSectionVisibilityField(null);
+      setSectionVisibilityOption(null);
+    }
   };
 
   const addOption = () => {
@@ -478,6 +531,22 @@ export function AdminInterface({
       items: currentItems.filter((_, i) => i !== index),
     });
   };
+
+  // Get all fields that have options (for conditional visibility)
+  const fieldsWithOptions = sections.flatMap((section) =>
+    section.children.filter(
+      (child) =>
+        child.items &&
+        child.items.length > 0 &&
+        ["checklist", "radio-group"].includes(child.controlName)
+    )
+  );
+
+  // Get options for selected visibility field
+  const visibilityFieldOptions = sectionVisibilityField
+    ? fieldsWithOptions.find((f) => f.id === sectionVisibilityField)?.items ||
+      []
+    : [];
 
   const allFields = sections.flatMap((section) =>
     section.children.map((child) => ({
@@ -758,19 +827,84 @@ export function AdminInterface({
             <Checkbox
               id="section-always-visible"
               checked={newSection.container?.alwaysVisible}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked) => {
                 setNewSection({
                   ...newSection,
                   container: {
                     ...newSection.container!,
                     alwaysVisible: !!checked,
                   },
-                })
-              }
+                });
+                // Reset visibility conditions when toggling
+                if (checked) {
+                  setSectionVisibilityField(null);
+                  setSectionVisibilityOption(null);
+                }
+              }}
               disabled={isPending}
             />
             <Label htmlFor="section-always-visible">Always Visible</Label>
           </div>
+
+          {/* Conditional Visibility Configuration */}
+          {!newSection.container?.alwaysVisible && (
+            <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+              <h4 className="text-sm font-medium">Conditional Visibility</h4>
+              <p className="text-sm text-muted-foreground">
+                This section will only be visible when a specific option is
+                selected
+              </p>
+
+              <div className="space-y-2">
+                <Label htmlFor="visibility-field">
+                  Becomes visible when this question is selected *
+                </Label>
+                <Select
+                  value={sectionVisibilityField || ""}
+                  onValueChange={(value) => {
+                    setSectionVisibilityField(value);
+                    setSectionVisibilityOption(null); // Reset option when field changes
+                  }}
+                  disabled={isPending}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a question" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {fieldsWithOptions.map((field) => (
+                      <SelectItem key={field.id} value={field.id.toString()}>
+                        {field.labelName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {sectionVisibilityField && (
+                <div className="space-y-2">
+                  <Label htmlFor="visibility-option">
+                    When this option is selected *
+                  </Label>
+                  <Select
+                    value={sectionVisibilityOption || ""}
+                    onValueChange={setSectionVisibilityOption}
+                    disabled={isPending}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {visibilityFieldOptions.map((option) => (
+                        <SelectItem key={option.id} value={option.id}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
 
           <Separator />
 
@@ -806,7 +940,7 @@ export function AdminInterface({
   };
 
   return (
-    <>
+    <TooltipProvider>
       <div className="max-w-6xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -879,82 +1013,125 @@ export function AdminInterface({
 
             {/* Fields List */}
             <div className="space-y-3">
-              {allFields.map((field) => (
-                <div key={field.id}>
-                  {editingFieldId === field.id ? (
-                    renderFieldEditor(field)
-                  ) : (
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-medium">{field.labelName}</h3>
-                              {field.required && (
-                                <Badge
-                                  variant="destructive"
-                                  className="text-xs"
-                                >
-                                  Required
+              {allFields.map((field) => {
+                const isSystem = isSystemField(field.labelName);
+
+                return (
+                  <div key={field.id}>
+                    {editingFieldId === field.id ? (
+                      renderFieldEditor(field)
+                    ) : (
+                      <Card
+                        className={
+                          isSystem ? "border-blue-200 bg-blue-50/50" : ""
+                        }
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                {isSystem && (
+                                  <Lock className="h-4 w-4 text-blue-600" />
+                                )}
+                                <h3 className="font-medium">
+                                  {field.labelName}
+                                </h3>
+                                {isSystem && (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs bg-blue-100 text-blue-700 border-blue-300"
+                                  >
+                                    System Field
+                                  </Badge>
+                                )}
+                                {field.required && (
+                                  <Badge
+                                    variant="destructive"
+                                    className="text-xs"
+                                  >
+                                    Required
+                                  </Badge>
+                                )}
+                                <Badge variant="outline" className="text-xs">
+                                  {field.controlName}
                                 </Badge>
-                              )}
-                              <Badge variant="outline" className="text-xs">
-                                {field.controlName}
-                              </Badge>
-                              <Badge variant="secondary" className="text-xs">
-                                {field.sectionTitle}
-                              </Badge>
-                            </div>
-                            {field.description && (
-                              <p className="text-sm text-muted-foreground">
-                                {field.description}
-                              </p>
-                            )}
-                            {field.items && field.items.length > 0 && (
-                              <div className="mt-2 text-xs text-muted-foreground">
-                                Options:{" "}
-                                {field.items
-                                  .map((item) => item.label)
-                                  .join(", ")}
+                                <Badge variant="secondary" className="text-xs">
+                                  {field.sectionTitle}
+                                </Badge>
                               </div>
-                            )}
+                              {field.description && (
+                                <p className="text-sm text-muted-foreground">
+                                  {field.description}
+                                </p>
+                              )}
+                              {field.items && field.items.length > 0 && (
+                                <div className="mt-2 text-xs text-muted-foreground">
+                                  Options:{" "}
+                                  {field.items
+                                    .map((item) => item.label)
+                                    .join(", ")}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {!isSystem && (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => duplicateField(field)}
+                                    title="Duplicate field"
+                                    disabled={isPending}
+                                  >
+                                    <Copy className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleEditField(field)}
+                                    disabled={isPending}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleDeleteField(
+                                        field.id,
+                                        field.containerId
+                                      )
+                                    }
+                                    className="text-destructive hover:text-destructive"
+                                    disabled={isPending}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </>
+                              )}
+                              {isSystem && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600">
+                                      <Lock className="h-3 w-3" />
+                                      <span>Protected</span>
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>
+                                      System fields cannot be edited or deleted
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => duplicateField(field)}
-                              title="Duplicate field"
-                              disabled={isPending}
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEditField(field)}
-                              disabled={isPending}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                handleDeleteField(field.id, field.containerId)
-                              }
-                              className="text-destructive hover:text-destructive"
-                              disabled={isPending}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              ))}
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </TabsContent>
 
@@ -984,6 +1161,9 @@ export function AdminInterface({
             <div className="space-y-3">
               {sections.map((section) => {
                 const sectionFields = section.children.length;
+                const hasVisibilityCondition =
+                  section.container.visibilityCondition;
+
                 return (
                   <div key={section.container.id}>
                     {editingSectionId === section.container.id ? (
@@ -1002,6 +1182,14 @@ export function AdminInterface({
                                     Always Visible
                                   </Badge>
                                 )}
+                                {hasVisibilityCondition && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    Conditional
+                                  </Badge>
+                                )}
                                 <Badge variant="secondary" className="text-xs">
                                   {sectionFields} fields
                                 </Badge>
@@ -1009,6 +1197,28 @@ export function AdminInterface({
                               {section.container.subHeading && (
                                 <p className="text-sm text-muted-foreground">
                                   {section.container.subHeading}
+                                </p>
+                              )}
+                              {hasVisibilityCondition && (
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  Visible when:{" "}
+                                  {(() => {
+                                    const field = allFields.find(
+                                      (f) =>
+                                        f.id.toString() ===
+                                        section.container.visibilityCondition
+                                          ?.fieldId
+                                    );
+                                    const option = field?.items?.find(
+                                      (item) =>
+                                        item.id ===
+                                        section.container.visibilityCondition
+                                          ?.optionId
+                                    );
+                                    return field && option
+                                      ? `"${field.labelName}" = "${option.label}"`
+                                      : "Unknown condition";
+                                  })()}
                                 </p>
                               )}
                             </div>
@@ -1080,6 +1290,6 @@ export function AdminInterface({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </TooltipProvider>
   );
 }

@@ -268,7 +268,6 @@ export const renderField = ({
           )}
         </div>
       );
-
     case "radio-group":
       return (
         <div key={child.id} className="space-y-3">
@@ -280,20 +279,23 @@ export const renderField = ({
             name={fieldName}
             control={control}
             rules={validationRules}
-            render={({ field: { value, onChange } }) => (
+            render={({ field: { value } }) => (
               <div className="space-y-3">
                 {child.items?.map((item: any) => (
                   <div key={item.id} className="flex items-center space-x-2">
-                    <Checkbox
+                    <input
+                      type="radio"
                       id={`${fieldName}-${item.id}`}
-                      checked={value === item.label} // store label
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          handleFieldChange(fieldName, item.label, child); // send label
-                        }
+                      checked={value === item.label}
+                      onChange={() => {
+                        handleFieldChange(fieldName, item.label, child);
                       }}
+                      className="h-4 w-4"
                     />
-                    <Label htmlFor={`${fieldName}-${item.id}`}>
+                    <Label
+                      htmlFor={`${fieldName}-${item.id}`}
+                      className="cursor-pointer"
+                    >
                       {item.label}
                     </Label>
                   </div>
