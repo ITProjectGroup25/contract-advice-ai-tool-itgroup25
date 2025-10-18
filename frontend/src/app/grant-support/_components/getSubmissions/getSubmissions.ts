@@ -21,37 +21,21 @@ if (!supabaseServiceKey) {
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-type Args = {
-  userEmail?: string;
-  status?: string;
-  submissionUid?: string;
-};
+type Args = {};
 
 /**
  * Retrieves submissions from the `grant_support_submissions` table.
  * Optionally filter by userEmail, status, or submissionUid.
  * Throws on any error (for compatibility with React Query).
  */
-export async function getSubmissions({
-  userEmail,
-  status,
-  submissionUid,
-}: Args = {}): Promise<Camelize<GrantSupportSubmission>[]> {
-  let query = supabaseAdmin
+export async function getSubmissions({}: Args = {}): Promise<
+  Camelize<GrantSupportSubmission>[]
+> {
+  const { data, error } = await supabaseAdmin
     .from("grant_support_submissions")
     .select(
       "id,submission_uid,query_type,status,user_email,user_name,form_data,user_satisfied,needs_human_review,created_at,updated_at"
     );
-
-  console.log({ query });
-
-  if (userEmail) query = query.eq("user_email", userEmail);
-  if (status) query = query.eq("status", status);
-  if (submissionUid) query = query.eq("submission_uid", submissionUid);
-
-  query = query.order("created_at", { ascending: false });
-
-  const { data, error } = await query;
 
   console.log({ data });
 

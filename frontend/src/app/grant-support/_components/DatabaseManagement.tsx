@@ -81,6 +81,7 @@ export function DatabaseManagement() {
       const result = await getSubmissions();
       return result;
     },
+    staleTime: 0,
   });
 
   const {
@@ -98,6 +99,7 @@ export function DatabaseManagement() {
         throw error;
       }
     },
+    staleTime: 0,
   });
 
   const submissions = submissionsData ?? [];
