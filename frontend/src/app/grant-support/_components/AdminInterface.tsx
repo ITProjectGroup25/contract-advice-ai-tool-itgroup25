@@ -1125,7 +1125,7 @@ export function AdminInterface({
                                     title="Duplicate field"
                                     disabled={isPending}
                                   >
-                                    <Copy className="h-4 w-4" />
+                                    <Copy className="h-4 w-4 hover:text-orange-300" />
                                   </Button>
                                   <Button
                                     variant="ghost"
@@ -1133,7 +1133,7 @@ export function AdminInterface({
                                     onClick={() => handleEditField(field)}
                                     disabled={isPending}
                                   >
-                                    <Edit className="h-4 w-4" />
+                                    <Edit className="h-4 w-4 hover:text-blue-500 " />
                                   </Button>
                                   <Button
                                     variant="ghost"
@@ -1144,7 +1144,7 @@ export function AdminInterface({
                                         field.containerId
                                       )
                                     }
-                                    className="text-destructive hover:text-destructive"
+                                    className="hover:text-destructive"
                                     disabled={isPending}
                                   >
                                     <Trash2 className="h-4 w-4" />

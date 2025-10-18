@@ -2,6 +2,7 @@
 
 import { Input } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
+<<<<<<< Updated upstream
 import {
   BarChart3,
   Clock,
@@ -21,6 +22,13 @@ import { FormSubmission, localDB } from "../_utils/localDatabase";
 import { SubmissionDisplay } from "./SubmissionDisplay/SubmissionDisplay";
 import { GrantSupportSubmission } from "./getSubmissions/grantSupportSubmissionSchema";
 import { Camelize } from "./getSubmissions/snakeToCamel";
+=======
+import { Database, Eye, RefreshCw, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { SubmissionDisplay } from "./SubmissionDisplay/SubmissionDisplay";
+import { getSubmissions } from "./getSubmissions/getSubmissions";
+import { GrantSupportSubmission } from "./getSubmissions/grantSupportSubmissionSchema";
+>>>>>>> Stashed changes
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,8 +65,11 @@ import {
   TableRow,
 } from "./ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+<<<<<<< Updated upstream
 
 const GOOGLE_USER_STORAGE_KEY = "grant-support-google-user-id";
+=======
+>>>>>>> Stashed changes
 
 export function DatabaseManagement() {
   const [googleUserId, setGoogleUserId] = useState("");
@@ -421,7 +432,11 @@ export function DatabaseManagement() {
           </p>
         </div>
         <div className="flex gap-2">
+<<<<<<< Updated upstream
           <Button onClick={handleRefresh} variant="outline" size="sm">
+=======
+          <Button onClick={loadData} variant="outline" size="sm">
+>>>>>>> Stashed changes
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -527,7 +542,11 @@ export function DatabaseManagement() {
                     {submissions.map((submission) => (
                       <TableRow key={submission.id}>
                         <TableCell className="font-mono text-xs">
+<<<<<<< Updated upstream
                           {submission.submissionUid.substring(0, 20)}...
+=======
+                          {submission.id.substring(0, 20)}...
+>>>>>>> Stashed changes
                         </TableCell>
                         <TableCell className="text-sm">
                           {formatDate(submission.timestamp)}
@@ -656,6 +675,7 @@ export function DatabaseManagement() {
                 <TabsTrigger value="metadata">Metadata</TabsTrigger>
               </TabsList>
 
+<<<<<<< Updated upstream
               <SubmissionDisplay
                 submission={selectedSubmission!}
                 value="data"
@@ -665,6 +685,14 @@ export function DatabaseManagement() {
                 <div className="h-[400px] w-full overflow-auto border rounded-md p-4">
                   <pre className="text-xs font-mono whitespace-pre-wrap break-all">
                     {JSON.stringify(selectedSubmission, null, 2)}
+=======
+              <SubmissionDisplay submission={selectedSubmission} value="data" />
+
+              <TabsContent value="sql">
+                <ScrollArea className="h-[400px] w-full rounded-md border p-4">
+                  <pre className="text-xs whitespace-pre-wrap font-mono">
+                    {selectedSubmission.sqlStatement}
+>>>>>>> Stashed changes
                   </pre>
                 </div>
               </TabsContent>
@@ -681,7 +709,11 @@ export function DatabaseManagement() {
                     <div>
                       <p className="text-sm font-medium">Timestamp</p>
                       <p className="text-sm text-muted-foreground">
+<<<<<<< Updated upstream
                         {formatDate(selectedSubmission.createdAt)}
+=======
+                        {formatDate(selectedSubmission.timestamp)}
+>>>>>>> Stashed changes
                       </p>
                     </div>
                     <div>
