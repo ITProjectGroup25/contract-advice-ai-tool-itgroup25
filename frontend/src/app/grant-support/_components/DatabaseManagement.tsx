@@ -19,7 +19,6 @@ import { ChangeEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { FormSubmission, localDB } from "../_utils/localDatabase";
 import { SubmissionDisplay } from "./SubmissionDisplay/SubmissionDisplay";
-import { getSubmissions } from "./getSubmissions/getSubmissions";
 import { GrantSupportSubmission } from "./getSubmissions/grantSupportSubmissionSchema";
 import { Camelize } from "./getSubmissions/snakeToCamel";
 import {
@@ -78,7 +77,7 @@ export function DatabaseManagement() {
   } = useQuery({
     queryKey: ["submissions"],
     queryFn: async () => {
-      const result = await getSubmissions();
+      const result = await localDB.getAllSubmissions();
       return result;
     },
     staleTime: 0,
@@ -541,7 +540,7 @@ export function DatabaseManagement() {
                           {submission.submissionUid.substring(0, 20)}...
                         </TableCell>
                         <TableCell className="text-sm">
-                          {formatDate(submission.createdAt)}
+                          {formatDate(submission.timestamp)}
                         </TableCell>
                         <TableCell>
                           <Badge

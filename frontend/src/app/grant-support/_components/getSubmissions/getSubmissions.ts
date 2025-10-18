@@ -28,7 +28,7 @@ type Args = {};
  * Optionally filter by userEmail, status, or submissionUid.
  * Throws on any error (for compatibility with React Query).
  */
-export async function getSubmissions({}: Args = {}): Promise<
+export async function getSubmissions(): Promise<
   Camelize<GrantSupportSubmission>[]
 > {
   const { data, error } = await supabaseAdmin
