@@ -4,23 +4,21 @@ import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import GrantSupportApp from "./GrantSupportApp";
 
-// Zod schema matching your Drizzle table
-const formStatusEnum = z.enum(["draft", "published", "archived"]);
+const formStatusEnum = z.enum(["Active", "Draft", "Published", "Archived"]); // Add "Active"
 
 const formSchema = z.object({
-  id: z.number(),
+  id: z.string().transform((val) => parseInt(val, 10)), // Convert string id to number
   formKey: z.string().max(64).optional(),
   title: z.string().max(200).optional(),
   description: z.string().optional(),
   status: formStatusEnum,
   versionNo: z.number(),
-  emailSubjectTpl: z.string().max(255).optional(),
-  emailBodyTpl: z.string().optional(),
+  emailSubjectTpl: z.string().max(255).optional().nullable(),
+  emailBodyTpl: z.string().optional().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
   formSections: z.any().optional(),
 });
-
 // API response wrapper
 const apiResponseSchema = z.object({
   form: formSchema,
@@ -32,6 +30,8 @@ type Form = z.infer<typeof formSchema>;
 // Fetch and validate function
 async function fetchForm(formId: number): Promise<Form> {
   const response = await fetch(`/api/grant-support/forms/${formId}`);
+
+  console.log({ response });
 
   if (!response.ok) {
     if (response.status === 404) {
