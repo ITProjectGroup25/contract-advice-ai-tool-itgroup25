@@ -83,40 +83,34 @@ export function DatabaseManagement() {
     staleTime: 0,
   });
 
-  const {
-    data: statsData,
-    isFetching: isFetchingStats,
-    refetch: refetchStats,
-  } = useQuery({
-    queryKey: ["submissionStats"],
-    queryFn: async () => {
-      try {
-        const result = await localDB.getSubmissionStats();
-        return result;
-      } catch (error: any) {
-        toast.error(error?.message ?? "Failed to fetch stats");
-        throw error;
-      }
+  const stats = submissionsData?.reduce(
+    (acc, s) => {
+      acc.total++;
+      if (s.queryType === "simple") acc.simple++;
+      else if (s.queryType === "complex") acc.complex++;
+      if (s.status === "processed") acc.processed++;
+      if (s.status === "escalated") acc.escalated++;
+      if (s.userSatisfied) acc.satisfied++;
+      return acc;
     },
-    staleTime: 0,
-  });
+    {
+      total: 0,
+      simple: 0,
+      complex: 0,
+      processed: 0,
+      escalated: 0,
+      satisfied: 0,
+    }
+  );
 
   const submissions = submissionsData ?? [];
 
   console.log({ submissions });
 
-  const stats = statsData ?? {
-    total: 0,
-    simple: 0,
-    complex: 0,
-    processed: 0,
-    escalated: 0,
-    satisfied: 0,
-  };
+  console.log({ stats });
 
   const handleRefresh = async () => {
     refetchSubmissions();
-    refetchStats();
   };
 
   const handleDeleteSubmission = async (id: string) => {
@@ -176,10 +170,6 @@ export function DatabaseManagement() {
       console.error("Error exporting database:", error);
       toast.error("Failed to export database");
     }
-  };
-
-  const loadData = () => {
-    throw new Error("Not implemented, should call revalidate on rquery");
   };
 
   const formatDate = (timestamp: string) =>
@@ -320,7 +310,7 @@ export function DatabaseManagement() {
     }
   };
 
-  const isLoading = isFetchingSubmissions || isFetchingStats;
+  const isLoading = isFetchingSubmissions;
 
   if (isLoading) {
     return (
