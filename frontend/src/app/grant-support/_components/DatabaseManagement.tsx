@@ -102,6 +102,8 @@ export function DatabaseManagement() {
 
   const submissions = submissionsData ?? [];
 
+  console.log({ submissions });
+
   const stats = statsData ?? {
     total: 0,
     simple: 0,
@@ -529,8 +531,7 @@ export function DatabaseManagement() {
                     {submissions.map((submission) => (
                       <TableRow key={submission.id}>
                         <TableCell className="font-mono text-xs">
-                          {/* {submission.id.substring(0, 20)}... */}
-                          FILL INFNSEINFOISE
+                          {submission.submissionUid.substring(0, 20)}...
                         </TableCell>
                         <TableCell className="text-sm">
                           {formatDate(submission.createdAt)}

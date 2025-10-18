@@ -37,7 +37,11 @@ export async function getSubmissions({
   status,
   submissionUid,
 }: Args = {}): Promise<Camelize<GrantSupportSubmission>[]> {
-  let query = supabaseAdmin.from("grant_support_submissions").select("*");
+  let query = supabaseAdmin
+    .from("grant_support_submissions")
+    .select(
+      "submissions_uid,query_type,status,user_email,user_name,form_data,user_satisfied,needs_human_review,created_at,updated_at"
+    );
 
   if (userEmail) query = query.eq("user_email", userEmail);
   if (status) query = query.eq("status", status);
