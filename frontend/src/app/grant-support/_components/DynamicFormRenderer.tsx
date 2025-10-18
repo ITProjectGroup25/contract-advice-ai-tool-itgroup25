@@ -1,25 +1,47 @@
-'use client';
+"use client";
 
-import { useForm, Controller } from "react-hook-form";
+import {
+  Clock,
+  FileText,
+  HelpCircle,
+  Search,
+  Settings,
+  Users,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import {
+  GrantSupportSubmissionResponse,
+  createGrantSupportSubmission,
+} from "../_utils/api";
+import {
+  EmailData,
+  GrantTeamEmailData,
+  emailService,
+} from "../_utils/emailService";
+import { FormSection, Question } from "./AdminInterface";
+import FixedLogo from "./FixedLogo";
 import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Checkbox } from "./ui/checkbox";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Checkbox } from "./ui/checkbox";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Separator } from "./ui/separator";
-import { toast } from "sonner";
-import { FileText, Users, Clock, HelpCircle, Search, Settings } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
-import { Question, FormSection } from "./AdminInterface";
 import {
-  createGrantSupportSubmission,
-  GrantSupportSubmissionResponse,
-} from "../_utils/api";
-import { emailService, EmailData, GrantTeamEmailData } from "../_utils/emailService";
-import { FileUpload } from "./FileUpload";
-import FixedLogo from "./FixedLogo";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Separator } from "./ui/separator";
+import { Textarea } from "./ui/textarea";
 
 interface DynamicFormRendererProps {
   questions: Question[];
@@ -57,69 +79,92 @@ const isUploadedFileArray = (value: unknown): value is UploadedFile[] => {
   );
 };
 
-export function DynamicFormRenderer({ 
-  questions, 
-  sections, 
-  onSimpleQuerySuccess, 
-  onComplexQuerySuccess 
+export function DynamicFormRenderer({
+  questions,
+  sections,
+  onSimpleQuerySuccess,
+  onComplexQuerySuccess,
 }: DynamicFormRendererProps) {
-  const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormData>();
-  
-  const [otherFields, setOtherFields] = useState<{[key: string]: boolean}>({});
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>();
+
+  const [otherFields, setOtherFields] = useState<{ [key: string]: boolean }>(
+    {}
+  );
   const formValues = watch();
 
-  const visibleQuestions = questions.filter(q => q.visible);
+  const visibleQuestions = questions.filter((q) => q.visible);
   const sortedSections = [...sections].sort((a, b) => a.order - b.order);
 
   const getQueryType = useCallback(() => {
-    const queryTypeQuestion = questions.find(q => q.id === "query-type");
+    const queryTypeQuestion = questions.find((q) => q.id === "query-type");
     if (!queryTypeQuestion) return "";
     return formValues[queryTypeQuestion.id] || "";
   }, [formValues, questions]);
 
-  const isQuestionVisible = useCallback((question: Question, checkingStack: Set<string> = new Set()): boolean => {
-    if (checkingStack.has(question.id)) {
-      return false;
-    }
-
-    const conditional = question.conditional;
-
-    if (!conditional) {
-      return true;
-    }
-
-    const queryType = getQueryType();
-    if (conditional.dependsOn === "query-type") {
-      return conditional.showWhen.includes(queryType);
-    }
-
-    const dependentValue = formValues[conditional.dependsOn];
-    const dependentQuestion = questions.find(
-      (candidate) => candidate.id === conditional.dependsOn,
-    );
-
-    if (dependentQuestion) {
-      checkingStack.add(question.id);
-      const isParentVisible = isQuestionVisible(dependentQuestion, checkingStack);
-      checkingStack.delete(question.id);
-
-      if (!isParentVisible) {
+  const isQuestionVisible = useCallback(
+    (question: Question, checkingStack: Set<string> = new Set()): boolean => {
+      if (checkingStack.has(question.id)) {
         return false;
       }
-    }
 
-    if (Array.isArray(dependentValue)) {
-      return conditional.showWhen.some((value) => dependentValue.includes(value));
-    }
+      const conditional = question.conditional;
 
-    return conditional.showWhen.includes(dependentValue);
-  }, [formValues, questions, getQueryType]);
-  
+      if (!conditional) {
+        return true;
+      }
+
+      const queryType = getQueryType();
+      if (conditional.dependsOn === "query-type") {
+        return conditional.showWhen.includes(queryType);
+      }
+
+      const dependentValue = formValues[conditional.dependsOn];
+      const dependentQuestion = questions.find(
+        (candidate) => candidate.id === conditional.dependsOn
+      );
+
+      if (dependentQuestion) {
+        checkingStack.add(question.id);
+        const isParentVisible = isQuestionVisible(
+          dependentQuestion,
+          checkingStack
+        );
+        checkingStack.delete(question.id);
+
+        if (!isParentVisible) {
+          return false;
+        }
+      }
+
+      if (Array.isArray(dependentValue)) {
+        return conditional.showWhen.some((value) =>
+          dependentValue.includes(value)
+        );
+      }
+
+      return conditional.showWhen.includes(dependentValue);
+    },
+    [formValues, questions, getQueryType]
+  );
+
   // Clear values for invisible questions
   useEffect(() => {
-    const invisibleQuestions = visibleQuestions.filter(q => !isQuestionVisible(q));
-    invisibleQuestions.forEach(q => {
-      if (formValues[q.id] !== undefined && formValues[q.id] !== null && formValues[q.id] !== '') {
+    const invisibleQuestions = visibleQuestions.filter(
+      (q) => !isQuestionVisible(q)
+    );
+    invisibleQuestions.forEach((q) => {
+      if (
+        formValues[q.id] !== undefined &&
+        formValues[q.id] !== null &&
+        formValues[q.id] !== ""
+      ) {
         setValue(q.id, undefined);
       }
     });
@@ -133,39 +178,52 @@ export function DynamicFormRenderer({
     return false;
   };
 
-  const handleCheckboxChange = (questionId: string, value: string, currentValues: string[] = []) => {
+  const handleCheckboxChange = (
+    questionId: string,
+    value: string,
+    currentValues: string[] = []
+  ) => {
     const updatedValues = currentValues.includes(value)
-      ? currentValues.filter(v => v !== value)
+      ? currentValues.filter((v) => v !== value)
       : [...currentValues, value];
     setValue(questionId, updatedValues);
 
     // Handle "other" field visibility
-    const question = questions.find(q => q.id === questionId);
+    const question = questions.find((q) => q.id === questionId);
     if (question?.options) {
-      const hasOtherSelected = question.options.some(opt => 
-        opt.hasOtherField && updatedValues.includes(opt.id)
+      const hasOtherSelected = question.options.some(
+        (opt) => opt.hasOtherField && updatedValues.includes(opt.id)
       );
-      setOtherFields(prev => ({ ...prev, [`${questionId}_other`]: hasOtherSelected }));
+      setOtherFields((prev) => ({
+        ...prev,
+        [`${questionId}_other`]: hasOtherSelected,
+      }));
     }
   };
 
   const handleRadioChange = (questionId: string, value: string) => {
     setValue(questionId, value);
-    
+
     // Handle "other" field visibility
-    const question = questions.find(q => q.id === questionId);
+    const question = questions.find((q) => q.id === questionId);
     if (question?.options) {
-      const selectedOption = question.options.find(opt => opt.id === value);
-      setOtherFields(prev => ({ 
-        ...prev, 
-        [`${questionId}_other`]: selectedOption?.hasOtherField || false 
+      const selectedOption = question.options.find((opt) => opt.id === value);
+      setOtherFields((prev) => ({
+        ...prev,
+        [`${questionId}_other`]: selectedOption?.hasOtherField || false,
       }));
     }
   };
 
   const onSubmit = async (data: FormData) => {
     try {
+      console.log("Testing");
+
       const queryType = (getQueryType() as "simple" | "complex") || "simple";
+
+      console.log("Hi");
+
+      console.log({ data });
 
       const submissionResponse: GrantSupportSubmissionResponse =
         await createGrantSupportSubmission({
@@ -181,7 +239,7 @@ export function DynamicFormRenderer({
       // Send confirmation email to user
       const userEmail = data.email as string;
       const userName = data.name as string;
-      
+
       if (userEmail && userName) {
         const emailData: EmailData = {
           userEmail,
@@ -192,7 +250,10 @@ export function DynamicFormRenderer({
         };
 
         try {
-          console.log("📧 FORM: Sending USER CONFIRMATION email to:", userEmail);
+          console.log(
+            "📧 FORM: Sending USER CONFIRMATION email to:",
+            userEmail
+          );
           const emailSent = await emailService.sendConfirmationEmail(emailData);
           if (emailSent) {
             console.log(
@@ -233,10 +294,9 @@ export function DynamicFormRenderer({
               "📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:",
               submissionId
             );
-            const grantEmailSent =
-              await emailService.sendGrantTeamNotification(
-                grantTeamEmailData
-              );
+            const grantEmailSent = await emailService.sendGrantTeamNotification(
+              grantTeamEmailData
+            );
             if (grantEmailSent) {
               console.log(
                 "✅ FORM: Grant team notification sent successfully for complex query:",
@@ -279,19 +339,18 @@ export function DynamicFormRenderer({
     const getValidationRules = () => {
       const rules: any = {};
       if (question.required) {
-        if (question.type === 'checkbox-group') {
-          rules.validate = (value: any) => 
+        if (question.type === "checkbox-group") {
+          rules.validate = (value: any) =>
             value && value.length > 0 ? true : `${question.title} is required`;
-        }
-         else {
+        } else {
           rules.required = `${question.title} is required`;
         }
       }
 
-      if (question.type === 'email') {
+      if (question.type === "email") {
         rules.pattern = {
           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-          message: "Invalid email address"
+          message: "Invalid email address",
         };
       }
 
@@ -299,19 +358,19 @@ export function DynamicFormRenderer({
         if (question.validation.minLength) {
           rules.minLength = {
             value: question.validation.minLength,
-            message: `Minimum length is ${question.validation.minLength} characters`
+            message: `Minimum length is ${question.validation.minLength} characters`,
           };
         }
         if (question.validation.maxLength) {
           rules.maxLength = {
             value: question.validation.maxLength,
-            message: `Maximum length is ${question.validation.maxLength} characters`
+            message: `Maximum length is ${question.validation.maxLength} characters`,
           };
         }
         if (question.validation.pattern) {
           rules.pattern = {
             value: new RegExp(question.validation.pattern),
-            message: "Invalid format"
+            message: "Invalid format",
           };
         }
       }
@@ -321,20 +380,20 @@ export function DynamicFormRenderer({
 
     const renderDescription = (description?: string) => {
       if (!description) return null;
-      
+
       // Check if description contains a URL
       const urlPattern = /((?:https?:)?\/\/[^\s)]+|\/[^\s)]+)/g;
       const parts = description.split(urlPattern);
-      
+
       return (
         <div className="text-sm text-muted-foreground mb-2">
           {parts.map((part, index) => {
             if (urlPattern.test(part)) {
               return (
-                <a 
-                  key={index} 
-                  href={part} 
-                  target="_blank" 
+                <a
+                  key={index}
+                  href={part}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary underline hover:text-primary/80"
                 >
@@ -349,12 +408,12 @@ export function DynamicFormRenderer({
     };
 
     switch (question.type) {
-      case 'text':
-      case 'email':
+      case "text":
+      case "email":
         return (
           <div key={question.id} className="space-y-2">
             <Label htmlFor={fieldName}>
-              {question.title} {question.required && '*'}
+              {question.title} {question.required && "*"}
             </Label>
             {renderDescription(question.description)}
             <Input
@@ -371,11 +430,11 @@ export function DynamicFormRenderer({
           </div>
         );
 
-      case 'textarea':
+      case "textarea":
         return (
           <div key={question.id} className="space-y-2">
             <Label htmlFor={fieldName}>
-              {question.title} {question.required && '*'}
+              {question.title} {question.required && "*"}
             </Label>
             {renderDescription(question.description)}
             <Textarea
@@ -392,11 +451,11 @@ export function DynamicFormRenderer({
           </div>
         );
 
-      case 'date':
+      case "date":
         return (
           <div key={question.id} className="space-y-2">
             <Label htmlFor={fieldName}>
-              {question.title} {question.required && '*'}
+              {question.title} {question.required && "*"}
             </Label>
             {renderDescription(question.description)}
             <Input
@@ -412,11 +471,11 @@ export function DynamicFormRenderer({
           </div>
         );
 
-      case 'select':
+      case "select":
         return (
           <div key={question.id} className="space-y-2">
             <Label htmlFor={fieldName}>
-              {question.title} {question.required && '*'}
+              {question.title} {question.required && "*"}
             </Label>
             {renderDescription(question.description)}
             <Controller
@@ -446,11 +505,11 @@ export function DynamicFormRenderer({
           </div>
         );
 
-      case 'checkbox-group':
+      case "checkbox-group":
         return (
           <div key={question.id} className="space-y-3">
             <Label>
-              {question.title} {question.required && '*'}
+              {question.title} {question.required && "*"}
             </Label>
             {renderDescription(question.description)}
             <Controller
@@ -465,7 +524,7 @@ export function DynamicFormRenderer({
                         <Checkbox
                           id={`${fieldName}-${option.id}`}
                           checked={value.includes(option.id)}
-                          onCheckedChange={() => 
+                          onCheckedChange={() =>
                             handleCheckboxChange(fieldName, option.id, value)
                           }
                         />
@@ -498,11 +557,11 @@ export function DynamicFormRenderer({
           </div>
         );
 
-      case 'radio-group':
+      case "radio-group":
         return (
           <div key={question.id} className="space-y-3">
             <Label>
-              {question.title} {question.required && '*'}
+              {question.title} {question.required && "*"}
             </Label>
             {renderDescription(question.description)}
             <Controller
@@ -558,21 +617,23 @@ export function DynamicFormRenderer({
   };
 
   const getIconForSection = (sectionId: string) => {
-    const iconMap: {[key: string]: React.ComponentType<{className?: string}>} = {
-      'basic-info': FileText,
-      'grants-team': Users,
-      'stage-query': Clock,
-      'query-type': HelpCircle,
-      'simple-grants': Search,
-      'simple-mri': Settings,
-      'simple-type': HelpCircle,
-      'simple-explanation': FileText,
-      'complex-grants': Search,
-      'complex-mri': Settings,
-      'complex-project': FileText,
-      'complex-parties': Users,
-      'complex-agreements': FileText,
-      'complex-support': HelpCircle
+    const iconMap: {
+      [key: string]: React.ComponentType<{ className?: string }>;
+    } = {
+      "basic-info": FileText,
+      "grants-team": Users,
+      "stage-query": Clock,
+      "query-type": HelpCircle,
+      "simple-grants": Search,
+      "simple-mri": Settings,
+      "simple-type": HelpCircle,
+      "simple-explanation": FileText,
+      "complex-grants": Search,
+      "complex-mri": Settings,
+      "complex-project": FileText,
+      "complex-parties": Users,
+      "complex-agreements": FileText,
+      "complex-support": HelpCircle,
     };
     return iconMap[sectionId] || FileText;
   };
@@ -590,56 +651,49 @@ export function DynamicFormRenderer({
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-        {sortedSections.map((section) => {
-          if (!isSectionVisible(section)) return null;
+          {sortedSections.map((section) => {
+            if (!isSectionVisible(section)) return null;
 
-          const sectionQuestions = visibleQuestions
-            .filter(q => q.section === section.id)
-            .filter(q => isQuestionVisible(q))
-            .sort((a, b) => a.order - b.order);
+            const sectionQuestions = visibleQuestions
+              .filter((q) => q.section === section.id)
+              .filter((q) => isQuestionVisible(q))
+              .sort((a, b) => a.order - b.order);
 
-          if (sectionQuestions.length === 0) return null;
+            if (sectionQuestions.length === 0) return null;
 
-          const IconComponent = getIconForSection(section.id);
+            const IconComponent = getIconForSection(section.id);
 
-          return (
-            <Card key={section.id}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <IconComponent className="h-5 w-5" />
-                  {section.title}
-                </CardTitle>
-                {section.description && (
-                  <CardDescription>
-                    {section.description}
-                  </CardDescription>
-                )}
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {sectionQuestions.map(renderQuestion)}
-              </CardContent>
-            </Card>
-          );
-        })}
+            return (
+              <Card key={section.id}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <IconComponent className="h-5 w-5" />
+                    {section.title}
+                  </CardTitle>
+                  {section.description && (
+                    <CardDescription>{section.description}</CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {sectionQuestions.map(renderQuestion)}
+                </CardContent>
+              </Card>
+            );
+          })}
 
-        <Separator />
+          <Separator />
 
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="bg-green-700 border border-white text-white hover:bg-green-600 px-4 py-2"
-          >
-            {isSubmitting ? "Submitting..." : "Submit Referral Request"}
-          </Button>
-        </div>
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-green-700 border border-white text-white hover:bg-green-600 px-4 py-2"
+            >
+              {isSubmitting ? "Submitting..." : "Submit Referral Request"}
+            </Button>
+          </div>
         </form>
       </div>
     </>
   );
 }
-
-
-
-
-
