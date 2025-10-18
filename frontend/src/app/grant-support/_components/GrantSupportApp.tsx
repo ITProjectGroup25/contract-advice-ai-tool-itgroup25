@@ -1,75 +1,79 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from "react";
+import { Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { defaultQuestions, defaultSections } from "../_data/defaultQuestions";
+import { AdminInterface, FormSection, Question } from "./AdminInterface";
 import { ChatBot } from "./ChatBot";
-import { SuccessPage } from "./SuccessPage";
-import { SimpleQueryResponse } from "./SimpleQueryResponse";
-import { AdminInterface, Question, FormSection } from "./AdminInterface";
 import { DynamicFormRenderer } from "./DynamicFormRenderer";
 import { PasswordDialog } from "./PasswordDialog";
+import { SimpleQueryResponse } from "./SimpleQueryResponse";
+import { SuccessPage } from "./SuccessPage";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
-import { Settings } from "lucide-react";
-import { defaultQuestions, defaultSections } from "../_data/defaultQuestions";
 
-type AppState = 'form' | 'simple-response' | 'success' | 'admin' | 'chatbot';
+type AppState = "form" | "simple-response" | "success" | "admin" | "chatbot";
 
 export default function App() {
-  const [currentState, setCurrentState] = useState<AppState>('form');
+  const [currentState, setCurrentState] = useState<AppState>("form");
   const [questions, setQuestions] = useState<Question[]>(defaultQuestions);
   const [sections, setSections] = useState<FormSection[]>(defaultSections);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
-  const [successPageType, setSuccessPageType] = useState<'complex' | 'simple-escalated'>('complex');
-  const [currentSubmissionId, setCurrentSubmissionId] = useState<string | undefined>();
+  const [successPageType, setSuccessPageType] = useState<
+    "complex" | "simple-escalated"
+  >("complex");
+  const [currentSubmissionId, setCurrentSubmissionId] = useState<
+    string | undefined
+  >();
 
   // Check EmailJS on app start
   useEffect(() => {
-    console.log('[EmailJS] App started, checking EmailJS availability...');
+    console.log("[EmailJS] App started, checking EmailJS availability...");
     const checkEmailJS = () => {
       const emailjs = (window as any).emailjs;
       const emailJSReady = (window as any).emailJSReady;
-      console.log('[EmailJS] EmailJS check:', {
-        available: typeof emailjs !== 'undefined',
+      console.log("[EmailJS] EmailJS check:", {
+        available: typeof emailjs !== "undefined",
         methods: emailjs ? Object.keys(emailjs) : null,
         emailJSReady: emailJSReady,
-        hasInit: emailjs && typeof emailjs.init === 'function',
-        hasSend: emailjs && typeof emailjs.send === 'function'
+        hasInit: emailjs && typeof emailjs.init === "function",
+        hasSend: emailjs && typeof emailjs.send === "function",
       });
     };
-    
+
     // Check immediately
     checkEmailJS();
-    
+
     // Check periodically for more detailed monitoring
     const intervals = [500, 1000, 2000, 5000];
-    intervals.forEach(delay => {
+    intervals.forEach((delay) => {
       setTimeout(checkEmailJS, delay);
     });
   }, []);
 
   const handleSimpleQuerySuccess = (submissionId?: string) => {
     setCurrentSubmissionId(submissionId);
-    setCurrentState('simple-response');
+    setCurrentState("simple-response");
   };
 
   const handleComplexQuerySuccess = () => {
-    setSuccessPageType('complex');
-    setCurrentState('success');
+    setSuccessPageType("complex");
+    setCurrentState("success");
   };
 
   const handleSimpleQuerySatisfied = () => {
     setCurrentSubmissionId(undefined);
-    setCurrentState('form');
+    setCurrentState("form");
   };
 
   const handleSimpleQueryNeedHelp = () => {
-    setSuccessPageType('simple-escalated');
-    setCurrentState('success');
+    setSuccessPageType("simple-escalated");
+    setCurrentState("success");
   };
 
   const handleBackToForm = () => {
     setCurrentSubmissionId(undefined);
-    setCurrentState('form');
+    setCurrentState("form");
   };
 
   const handleGoToAdmin = () => {
@@ -77,7 +81,7 @@ export default function App() {
   };
 
   const handlePasswordSuccess = () => {
-    setCurrentState('admin');
+    setCurrentState("admin");
   };
 
   const handlePasswordDialogClose = () => {
@@ -85,7 +89,7 @@ export default function App() {
   };
 
   const handleBackFromAdmin = () => {
-    setCurrentState('form');
+    setCurrentState("form");
   };
 
   const handleQuestionsUpdate = (updatedQuestions: Question[]) => {
@@ -98,20 +102,20 @@ export default function App() {
 
   const renderCurrentView = () => {
     switch (currentState) {
-      case 'chatbot':
+      case "chatbot":
         return <ChatBot onBack={handleBackToForm} />;
-      case 'simple-response':
+      case "simple-response":
         return (
-          <SimpleQueryResponse 
-            onBack={handleBackToForm} 
+          <SimpleQueryResponse
+            onBack={handleBackToForm}
             onSatisfied={handleSimpleQuerySatisfied}
             onNeedHumanHelp={handleSimpleQueryNeedHelp}
             submissionId={currentSubmissionId}
           />
         );
-      case 'success':
+      case "success":
         return <SuccessPage onBack={handleBackToForm} type={successPageType} />;
-      case 'admin':
+      case "admin":
         return (
           <AdminInterface
             onBack={handleBackFromAdmin}
@@ -140,7 +144,7 @@ export default function App() {
       }`}
     >
       {/* Admin Panel Access - Only show on form page */}
-      {currentState === 'form' && (
+      {currentState === "form" && (
         <div className="fixed top-4 right-4 z-50">
           <Button
             variant="outline"
@@ -153,22 +157,17 @@ export default function App() {
           </Button>
         </div>
       )}
-      
+
       {renderCurrentView()}
-      
+
       {/* Password Dialog */}
       <PasswordDialog
         open={showPasswordDialog}
         onClose={handlePasswordDialogClose}
         onSuccess={handlePasswordSuccess}
       />
-      
+
       <Toaster />
     </div>
   );
 }
-
-
-
-
-
