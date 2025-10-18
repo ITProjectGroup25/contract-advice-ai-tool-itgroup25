@@ -68,7 +68,7 @@ export function DatabaseManagement() {
   const [exportingGoogle, setExportingGoogle] = useState(false);
 
   const [selectedSubmission, setSelectedSubmission] =
-    useState<Camelize<GrantSupportSubmission> | null>(null);
+    useState<FormSubmission | null>(null);
 
   const {
     data: submissionsData,
@@ -438,7 +438,7 @@ export function DatabaseManagement() {
           <CardContent className="flex items-center gap-2 p-4">
             <FileText className="h-5 w-5 text-blue-500" />
             <div>
-              <p className="text-2xl font-medium">{stats.total}</p>
+              <p className="text-2xl font-medium">{stats?.total}</p>
               <p className="text-sm text-muted-foreground">Total</p>
             </div>
           </CardContent>
@@ -448,7 +448,7 @@ export function DatabaseManagement() {
           <CardContent className="flex items-center gap-2 p-4">
             <Users className="h-5 w-5 text-green-500" />
             <div>
-              <p className="text-2xl font-medium">{stats.simple}</p>
+              <p className="text-2xl font-medium">{stats?.simple}</p>
               <p className="text-sm text-muted-foreground">Simple</p>
             </div>
           </CardContent>
@@ -458,7 +458,7 @@ export function DatabaseManagement() {
           <CardContent className="flex items-center gap-2 p-4">
             <BarChart3 className="h-5 w-5 text-purple-500" />
             <div>
-              <p className="text-2xl font-medium">{stats.complex}</p>
+              <p className="text-2xl font-medium">{stats?.complex}</p>
               <p className="text-sm text-muted-foreground">Complex</p>
             </div>
           </CardContent>
@@ -468,7 +468,7 @@ export function DatabaseManagement() {
           <CardContent className="flex items-center gap-2 p-4">
             <Clock className="h-5 w-5 text-orange-500" />
             <div>
-              <p className="text-2xl font-medium">{stats.processed}</p>
+              <p className="text-2xl font-medium">{stats?.processed}</p>
               <p className="text-sm text-muted-foreground">Processed</p>
             </div>
           </CardContent>
@@ -478,7 +478,7 @@ export function DatabaseManagement() {
           <CardContent className="flex items-center gap-2 p-4">
             <Users className="h-5 w-5 text-red-500" />
             <div>
-              <p className="text-2xl font-medium">{stats.escalated}</p>
+              <p className="text-2xl font-medium">{stats?.escalated}</p>
               <p className="text-sm text-muted-foreground">Escalated</p>
             </div>
           </CardContent>
@@ -488,7 +488,7 @@ export function DatabaseManagement() {
           <CardContent className="flex items-center gap-2 p-4">
             <Users className="h-5 w-5 text-green-600" />
             <div>
-              <p className="text-2xl font-medium">{stats.satisfied}</p>
+              <p className="text-2xl font-medium">{stats?.satisfied}</p>
               <p className="text-sm text-muted-foreground">Satisfied</p>
             </div>
           </CardContent>
@@ -527,7 +527,7 @@ export function DatabaseManagement() {
                     {submissions.map((submission) => (
                       <TableRow key={submission.id}>
                         <TableCell className="font-mono text-xs">
-                          {submission.submissionUid.substring(0, 20)}...
+                          {submission.submissionUid?.substring(0, 20)}...
                         </TableCell>
                         <TableCell className="text-sm">
                           {formatDate(submission.timestamp)}
@@ -681,7 +681,7 @@ export function DatabaseManagement() {
                     <div>
                       <p className="text-sm font-medium">Timestamp</p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDate(selectedSubmission.createdAt)}
+                        {formatDate(selectedSubmission.timestamp)}
                       </p>
                     </div>
                     <div>
@@ -732,7 +732,7 @@ export function DatabaseManagement() {
                       variant="outline"
                       onClick={() =>
                         handleUpdateStatus(
-                          selectedSubmission.submissionUid,
+                          selectedSubmission.submissionUid!,
                           "processed"
                         )
                       }
@@ -745,7 +745,7 @@ export function DatabaseManagement() {
                       variant="outline"
                       onClick={() =>
                         handleUpdateStatus(
-                          selectedSubmission.submissionUid,
+                          selectedSubmission.submissionUid!,
                           "escalated"
                         )
                       }
