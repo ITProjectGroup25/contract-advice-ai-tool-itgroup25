@@ -9,16 +9,17 @@ import { DynamicFormRenderer } from "./DynamicFormRenderer";
 import { PasswordDialog } from "./PasswordDialog";
 import { SimpleQueryResponse } from "./SimpleQueryResponse";
 import { SuccessPage } from "./SuccessPage";
+import { Form } from "./types";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
 
 type AppState = "form" | "simple-response" | "success" | "admin" | "chatbot";
 
 type Props = {
-  form: 
-}
+  form: Form;
+};
 
-export default function App() {
+export default function App({ form }: Props) {
   const [currentState, setCurrentState] = useState<AppState>("form");
   const [questions, setQuestions] = useState<Question[]>(defaultQuestions);
   const [sections, setSections] = useState<FormSection[]>(defaultSections);
@@ -132,6 +133,7 @@ export default function App() {
       default:
         return (
           <DynamicFormRenderer
+            title={form.title!}
             questions={questions}
             sections={sections}
             onSimpleQuerySuccess={handleSimpleQuerySuccess}

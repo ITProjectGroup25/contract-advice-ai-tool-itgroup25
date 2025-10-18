@@ -48,6 +48,7 @@ interface DynamicFormRendererProps {
   sections: FormSection[];
   onSimpleQuerySuccess?: (submissionId?: string) => void;
   onComplexQuerySuccess?: () => void;
+  title: string;
 }
 
 interface FormData {
@@ -84,6 +85,7 @@ export function DynamicFormRenderer({
   sections,
   onSimpleQuerySuccess,
   onComplexQuerySuccess,
+  title,
 }: DynamicFormRendererProps) {
   const {
     register,
@@ -644,7 +646,7 @@ export function DynamicFormRenderer({
 
       <div className="max-w-4xl mx-auto p-6 space-y-8">
         <div className="text-center space-y-2">
-          <h1 className="text-5xl font-bold">Referral Request Form</h1>
+          <h1 className="text-5xl font-bold">{title}</h1>
           <p className="text-l">
             Please complete this form to submit your referral request
           </p>
