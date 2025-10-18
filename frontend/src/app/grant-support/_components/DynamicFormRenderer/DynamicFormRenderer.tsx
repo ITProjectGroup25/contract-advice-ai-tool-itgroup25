@@ -1,6 +1,6 @@
 "use client";
 
-import { uploadFile } from "@/app/actions/uploadFile";
+import { uploadFile } from "@/app/actions/uploadFile/uploadFile";
 import { Clock, FileText, HelpCircle, Users } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";

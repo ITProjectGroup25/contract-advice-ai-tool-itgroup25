@@ -124,8 +124,7 @@ export default function App({ form }: Props) {
         return (
           <AdminInterface
             onBack={handleBackFromAdmin}
-            questions={[]}
-            sections={[]}
+            sections={sections!}
             onQuestionsUpdate={handleQuestionsUpdate}
             onSectionsUpdate={handleSectionsUpdate}
           />

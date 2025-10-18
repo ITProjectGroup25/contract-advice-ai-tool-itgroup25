@@ -1,148 +1,152 @@
-'use client';
+"use client";
 
-import { useState } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Checkbox } from "./ui/checkbox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
-import { 
-  Settings, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save, 
-  X, 
+import {
   ArrowLeft,
-  Eye,
-  EyeOff,
-  Move,
   Copy,
-  Database
+  Edit,
+  Plus,
+  Save,
+  Settings,
+  Trash2,
+  X,
 } from "lucide-react";
+import { useState } from "react";
 import { DatabaseManagement } from "./DatabaseManagement";
 import { EmailConfiguration } from "./EmailConfiguration";
-
-export interface QuestionOption {
-  id: string;
-  label: string;
-  hasOtherField?: boolean;
-}
-
-export interface Question {
-  id: string;
-  title: string;
-  description?: string;
-  type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox-group' | 'radio-group' | 'date';
-  required: boolean;
-  options?: QuestionOption[];
-  placeholder?: string;
-  validation?: {
-    minLength?: number;
-    maxLength?: number;
-    pattern?: string;
-  };
-  conditional?: {
-    dependsOn: string;
-    showWhen: string[];
-  };
-  section: string;
-  order: number;
-  visible: boolean;
-}
-
-export interface FormSection {
-  id: string;
-  title: string;
-  description?: string;
-  order: number;
-  queryType?: 'both' | 'simple' | 'complex';
-}
+import {
+  FormSectionChildrenItemsType,
+  FormSectionChildrenType,
+  FormSectionType,
+  FormSectionsType,
+} from "./types";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Checkbox } from "./ui/checkbox";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Separator } from "./ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Textarea } from "./ui/textarea";
 
 interface AdminInterfaceProps {
   onBack: () => void;
-  questions: Question[];
-  sections: FormSection[];
-  onQuestionsUpdate: (questions: Question[]) => void;
-  onSectionsUpdate: (sections: FormSection[]) => void;
+  sections: FormSectionsType;
+  onSectionsUpdate: (sections: FormSectionsType) => void;
 }
 
-export function AdminInterface({ 
-  onBack, 
-  questions, 
-  sections, 
-  onQuestionsUpdate, 
-  onSectionsUpdate 
+export function AdminInterface({
+  onBack,
+  sections,
+  onSectionsUpdate,
 }: AdminInterfaceProps) {
-  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-  const [editingSection, setEditingSection] = useState<FormSection | null>(null);
-  const [isCreatingQuestion, setIsCreatingQuestion] = useState(false);
+  const [editingField, setEditingField] =
+    useState<FormSectionChildrenType | null>(null);
+  const [editingSection, setEditingSection] = useState<FormSectionType | null>(
+    null
+  );
+  const [isCreatingField, setIsCreatingField] = useState(false);
   const [isCreatingSection, setIsCreatingSection] = useState(false);
-  const [activeTab, setActiveTab] = useState("questions");
+  const [activeTab, setActiveTab] = useState("fields");
 
-  const [newQuestion, setNewQuestion] = useState<Partial<Question>>({
-    title: "",
+  const [newField, setNewField] = useState<Partial<FormSectionChildrenType>>({
+    controlName: "text-field",
+    displayText: "Text Field",
     description: "",
-    type: "text",
+    labelName: "",
+    itemType: "control",
+    icon: "fas fa-text-height",
     required: false,
-    options: [],
-    section: "",
-    order: questions.length + 1,
-    visible: true
+    category: "text-elements",
+    containerId: "",
+    placeholder: "",
+    dataType: "text",
   });
 
-  const [newSection, setNewSection] = useState<Partial<FormSection>>({
-    title: "",
-    description: "",
-    order: sections.length + 1,
-    queryType: "both"
+  const [newSection, setNewSection] = useState<Partial<FormSectionType>>({
+    container: {
+      controlName: "step-container",
+      displayText: "Workflow Step",
+      itemType: "container",
+      icon: "fa fa-building",
+      heading: "",
+      subHeading: "",
+      id: `section_${Date.now()}`,
+      alwaysVisible: true,
+    },
+    children: [],
   });
 
-  const handleSaveQuestion = () => {
-    if (!newQuestion.title || !newQuestion.section) return;
+  const handleSaveField = () => {
+    if (!newField.labelName || !newField.containerId) return;
 
-    const question: Question = {
-      id: editingQuestion?.id || `q_${Date.now()}`,
-      title: newQuestion.title!,
-      description: newQuestion.description,
-      type: newQuestion.type!,
-      required: newQuestion.required!,
-      options: newQuestion.options,
-      placeholder: newQuestion.placeholder,
-      validation: newQuestion.validation,
-      conditional: newQuestion.conditional,
-      section: newQuestion.section!,
-      order: newQuestion.order!,
-      visible: newQuestion.visible!
+    const field: FormSectionChildrenType = {
+      controlName: newField.controlName!,
+      displayText: newField.displayText!,
+      description: newField.description!,
+      labelName: newField.labelName!,
+      itemType: newField.itemType!,
+      icon: newField.icon!,
+      required: newField.required!,
+      category: newField.category!,
+      id: editingField?.id || `field_${Date.now()}`,
+      containerId: newField.containerId!,
+      placeholder: newField.placeholder,
+      rows: newField.rows,
+      dataType: newField.dataType,
+      items: newField.items,
+      containersToMakeVisible: newField.containersToMakeVisible,
     };
 
-    if (editingQuestion) {
-      onQuestionsUpdate(questions.map(q => q.id === question.id ? question : q));
-    } else {
-      onQuestionsUpdate([...questions, question]);
-    }
+    const updatedSections = sections.map((section) => {
+      if (section.container.id === field.containerId) {
+        if (editingField) {
+          // Update existing field
+          return {
+            ...section,
+            children: section.children.map((child) =>
+              child.id === field.id ? field : child
+            ),
+          };
+        } else {
+          // Add new field
+          return {
+            ...section,
+            children: [...section.children, field],
+          };
+        }
+      }
+      return section;
+    });
 
-    resetQuestionForm();
+    onSectionsUpdate(updatedSections);
+    resetFieldForm();
   };
 
   const handleSaveSection = () => {
-    if (!newSection.title) return;
+    if (!newSection.container?.heading) return;
 
-    const section: FormSection = {
-      id: editingSection?.id || `s_${Date.now()}`,
-      title: newSection.title!,
-      description: newSection.description,
-      order: newSection.order!,
-      queryType: newSection.queryType!
+    const section: FormSectionType = {
+      container: {
+        ...newSection.container!,
+        id: newSection.container.id || `section_${Date.now()}`,
+      },
+      children: newSection.children || [],
     };
 
     if (editingSection) {
-      onSectionsUpdate(sections.map(s => s.id === section.id ? section : s));
+      onSectionsUpdate(
+        sections.map((s) =>
+          s.container.id === section.container.id ? section : s
+        )
+      );
     } else {
       onSectionsUpdate([...sections, section]);
     }
@@ -150,105 +154,135 @@ export function AdminInterface({
     resetSectionForm();
   };
 
-  const resetQuestionForm = () => {
-    setNewQuestion({
-      title: "",
+  const resetFieldForm = () => {
+    setNewField({
+      controlName: "text-field",
+      displayText: "Text Field",
       description: "",
-      type: "text",
+      labelName: "",
+      itemType: "control",
+      icon: "fas fa-text-height",
       required: false,
-      options: [],
-      section: "",
-      order: questions.length + 1,
-      visible: true
+      category: "text-elements",
+      containerId: "",
+      placeholder: "",
+      dataType: "text",
     });
-    setEditingQuestion(null);
-    setIsCreatingQuestion(false);
+    setEditingField(null);
+    setIsCreatingField(false);
   };
 
   const resetSectionForm = () => {
     setNewSection({
-      title: "",
-      description: "",
-      order: sections.length + 1,
-      queryType: "both"
+      container: {
+        controlName: "step-container",
+        displayText: "Workflow Step",
+        itemType: "container",
+        icon: "fa fa-building",
+        heading: "",
+        subHeading: "",
+        id: `section_${Date.now()}`,
+        alwaysVisible: true,
+      },
+      children: [],
     });
     setEditingSection(null);
     setIsCreatingSection(false);
   };
 
-  const handleEditQuestion = (question: Question) => {
-    setNewQuestion(question);
-    setEditingQuestion(question);
-    setIsCreatingQuestion(true);
+  const handleEditField = (field: FormSectionChildrenType) => {
+    setNewField(field);
+    setEditingField(field);
+    setIsCreatingField(true);
   };
 
-  const handleEditSection = (section: FormSection) => {
+  const handleEditSection = (section: FormSectionType) => {
     setNewSection(section);
     setEditingSection(section);
     setIsCreatingSection(true);
   };
 
-  const handleDeleteQuestion = (questionId: string) => {
-    onQuestionsUpdate(questions.filter(q => q.id !== questionId));
+  const handleDeleteField = (fieldId: string | number, containerId: string) => {
+    const updatedSections = sections.map((section) => {
+      if (section.container.id === containerId) {
+        return {
+          ...section,
+          children: section.children.filter((child) => child.id !== fieldId),
+        };
+      }
+      return section;
+    });
+    onSectionsUpdate(updatedSections);
   };
 
   const handleDeleteSection = (sectionId: string) => {
-    // Also remove questions in this section
-    onQuestionsUpdate(questions.filter(q => q.section !== sectionId));
-    onSectionsUpdate(sections.filter(s => s.id !== sectionId));
+    onSectionsUpdate(sections.filter((s) => s.container.id !== sectionId));
   };
 
   const addOption = () => {
-    const currentOptions = newQuestion.options || [];
-    setNewQuestion({
-      ...newQuestion,
-      options: [...currentOptions, { id: `opt_${Date.now()}`, label: "" }]
+    const currentItems = newField.items || [];
+    setNewField({
+      ...newField,
+      items: [
+        ...currentItems,
+        { id: `opt_${Date.now()}`, label: "", value: "" },
+      ],
     });
   };
 
-  const updateOption = (index: number, field: keyof QuestionOption, value: string | boolean) => {
-    const currentOptions = newQuestion.options || [];
-    const updatedOptions = [...currentOptions];
-    updatedOptions[index] = { ...updatedOptions[index], [field]: value };
-    setNewQuestion({ ...newQuestion, options: updatedOptions });
+  const updateOption = (
+    index: number,
+    field: keyof FormSectionChildrenItemsType,
+    value: string
+  ) => {
+    const currentItems = newField.items || [];
+    const updatedItems = [...currentItems];
+    updatedItems[index] = { ...updatedItems[index], [field]: value };
+    setNewField({ ...newField, items: updatedItems });
   };
 
   const removeOption = (index: number) => {
-    const currentOptions = newQuestion.options || [];
-    setNewQuestion({
-      ...newQuestion,
-      options: currentOptions.filter((_, i) => i !== index)
+    const currentItems = newField.items || [];
+    setNewField({
+      ...newField,
+      items: currentItems.filter((_, i) => i !== index),
     });
   };
 
-  const toggleQuestionVisibility = (questionId: string) => {
-    onQuestionsUpdate(
-      questions.map(q => 
-        q.id === questionId ? { ...q, visible: !q.visible } : q
-      )
-    );
-  };
-
-  const duplicateQuestion = (question: Question) => {
-    const newQ: Question = {
-      ...question,
-      id: `q_${Date.now()}`,
-      title: `${question.title} (Copy)`,
-      order: questions.length + 1
+  const duplicateField = (field: FormSectionChildrenType) => {
+    const newField: FormSectionChildrenType = {
+      ...field,
+      id: `field_${Date.now()}`,
+      labelName: `${field.labelName} (Copy)`,
     };
-    onQuestionsUpdate([...questions, newQ]);
+
+    const updatedSections = sections.map((section) => {
+      if (section.container.id === field.containerId) {
+        return {
+          ...section,
+          children: [...section.children, newField],
+        };
+      }
+      return section;
+    });
+
+    onSectionsUpdate(updatedSections);
   };
 
-  const sortedSections = [...sections].sort((a, b) => a.order - b.order);
-  const sortedQuestions = [...questions].sort((a, b) => a.order - b.order);
+  const allFields = sections.flatMap((section) =>
+    section.children.map((child) => ({
+      ...child,
+      sectionTitle: section.container.heading,
+    }))
+  );
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={onBack}
             className="flex items-center gap-2"
@@ -259,12 +293,15 @@ export function AdminInterface({
           <div className="space-y-1">
             <h1 className="text-3xl">Form Administration</h1>
             <p className="text-muted-foreground">
-              Manage questions, sections, and form configuration
+              Manage fields, sections, and form configuration
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+          <Badge
+            variant="secondary"
+            className="flex items-center gap-1 text-xs"
+          >
             <Settings className="h-3 w-3" />
             Admin Mode
           </Badge>
@@ -273,77 +310,96 @@ export function AdminInterface({
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="questions">Questions Management</TabsTrigger>
+          <TabsTrigger value="fields">Fields Management</TabsTrigger>
           <TabsTrigger value="sections">Sections Management</TabsTrigger>
           <TabsTrigger value="email">Email Configuration</TabsTrigger>
           <TabsTrigger value="database">Database Management</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="questions" className="space-y-6">
-          {/* Questions Header */}
+        <TabsContent value="fields" className="space-y-6">
+          {/* Fields Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-xl">Questions ({questions.length})</h2>
-              <p className="text-muted-foreground">Add, edit, and manage form questions</p>
+              <h2 className="text-xl">Fields ({allFields.length})</h2>
+              <p className="text-muted-foreground">
+                Add, edit, and manage form fields
+              </p>
             </div>
-            <Button 
-              onClick={() => setIsCreatingQuestion(true)}
+            <Button
+              onClick={() => setIsCreatingField(true)}
               className="flex items-center gap-2"
             >
               <Plus className="h-4 w-4" />
-              Add Question
+              Add Field
             </Button>
           </div>
 
-          {/* Question Form */}
-          {isCreatingQuestion && (
+          {/* Field Form */}
+          {isCreatingField && (
             <Card className="border-2 border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Settings className="h-5 w-5" />
-                  {editingQuestion ? 'Edit Question' : 'Create New Question'}
+                  {editingField ? "Edit Field" : "Create New Field"}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="question-title">Question Title *</Label>
+                    <Label htmlFor="field-label">Field Label *</Label>
                     <Input
-                      id="question-title"
-                      value={newQuestion.title}
-                      onChange={(e) => setNewQuestion({ ...newQuestion, title: e.target.value })}
-                      placeholder="Enter question title"
+                      id="field-label"
+                      value={newField.labelName}
+                      onChange={(e) =>
+                        setNewField({
+                          ...newField,
+                          labelName: e.target.value,
+                        })
+                      }
+                      placeholder="Enter field label"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="question-type">Question Type *</Label>
+                    <Label htmlFor="field-type">Field Type *</Label>
                     <Select
-                      value={newQuestion.type}
-                      onValueChange={(value) => setNewQuestion({ ...newQuestion, type: value as Question['type'] })}
+                      value={newField.controlName}
+                      onValueChange={(value) =>
+                        setNewField({
+                          ...newField,
+                          controlName: value,
+                        })
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="text">Text Input</SelectItem>
-                        <SelectItem value="email">Email Input</SelectItem>
-                        <SelectItem value="textarea">Text Area</SelectItem>
-                        <SelectItem value="select">Dropdown</SelectItem>
-                        <SelectItem value="checkbox-group">Checkbox Group</SelectItem>
+                        <SelectItem value="text-field">Text Input</SelectItem>
+                        <SelectItem value="multiline-text-field">
+                          Text Area
+                        </SelectItem>
+                        <SelectItem value="checklist">
+                          Checkbox Group
+                        </SelectItem>
                         <SelectItem value="radio-group">Radio Group</SelectItem>
-                        <SelectItem value="date">Date Input</SelectItem>
+                        <SelectItem value="file-upload">File Upload</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="question-description">Description</Label>
+                  <Label htmlFor="field-description">Description</Label>
                   <Textarea
-                    id="question-description"
-                    value={newQuestion.description}
-                    onChange={(e) => setNewQuestion({ ...newQuestion, description: e.target.value })}
+                    id="field-description"
+                    value={newField.description}
+                    onChange={(e) =>
+                      setNewField({
+                        ...newField,
+                        description: e.target.value,
+                      })
+                    }
                     placeholder="Optional description or helper text"
                     rows={2}
                   />
@@ -351,18 +407,23 @@ export function AdminInterface({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="question-section">Section *</Label>
+                    <Label htmlFor="field-section">Section *</Label>
                     <Select
-                      value={newQuestion.section}
-                      onValueChange={(value) => setNewQuestion({ ...newQuestion, section: value })}
+                      value={newField.containerId}
+                      onValueChange={(value) =>
+                        setNewField({ ...newField, containerId: value })
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select section" />
                       </SelectTrigger>
                       <SelectContent>
-                        {sortedSections.map((section) => (
-                          <SelectItem key={section.id} value={section.id}>
-                            {section.title}
+                        {sections.map((section) => (
+                          <SelectItem
+                            key={section.container.id}
+                            value={section.container.id}
+                          >
+                            {section.container.heading}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -370,11 +431,16 @@ export function AdminInterface({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="question-placeholder">Placeholder</Label>
+                    <Label htmlFor="field-placeholder">Placeholder</Label>
                     <Input
-                      id="question-placeholder"
-                      value={newQuestion.placeholder}
-                      onChange={(e) => setNewQuestion({ ...newQuestion, placeholder: e.target.value })}
+                      id="field-placeholder"
+                      value={newField.placeholder}
+                      onChange={(e) =>
+                        setNewField({
+                          ...newField,
+                          placeholder: e.target.value,
+                        })
+                      }
                       placeholder="Input placeholder text"
                     />
                   </div>
@@ -382,43 +448,51 @@ export function AdminInterface({
 
                 <div className="flex items-center space-x-2">
                   <Checkbox
-                    id="question-required"
-                    checked={newQuestion.required}
-                    onCheckedChange={(checked) => 
-                      setNewQuestion({ ...newQuestion, required: !!checked })
+                    id="field-required"
+                    checked={newField.required}
+                    onCheckedChange={(checked) =>
+                      setNewField({ ...newField, required: !!checked })
                     }
                   />
-                  <Label htmlFor="question-required">Required field</Label>
+                  <Label htmlFor="field-required">Required field</Label>
                 </div>
 
-                {/* Options for select/checkbox/radio types */}
-                {(['select', 'checkbox-group', 'radio-group'].includes(newQuestion.type!)) && (
+                {/* Options for checklist/radio types */}
+                {["checklist", "radio-group"].includes(
+                  newField.controlName!
+                ) && (
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label>Options</Label>
-                      <Button type="button" variant="outline" size="sm" onClick={addOption}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={addOption}
+                      >
                         <Plus className="h-4 w-4 mr-1" />
                         Add Option
                       </Button>
                     </div>
                     <div className="space-y-2">
-                      {(newQuestion.options || []).map((option, index) => (
+                      {(newField.items || []).map((item, index) => (
                         <div key={index} className="flex items-center gap-2">
                           <Input
-                            value={option.label}
-                            onChange={(e) => updateOption(index, 'label', e.target.value)}
+                            value={item.label}
+                            onChange={(e) =>
+                              updateOption(index, "label", e.target.value)
+                            }
                             placeholder="Option label"
                             className="flex-1"
                           />
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              checked={option.hasOtherField}
-                              onCheckedChange={(checked) => 
-                                updateOption(index, 'hasOtherField', !!checked)
-                              }
-                            />
-                            <Label className="text-sm">Has &quot;Other&quot; field</Label>
-                          </div>
+                          <Input
+                            value={item.value}
+                            onChange={(e) =>
+                              updateOption(index, "value", e.target.value)
+                            }
+                            placeholder="Option value"
+                            className="flex-1"
+                          />
                           <Button
                             type="button"
                             variant="outline"
@@ -433,44 +507,52 @@ export function AdminInterface({
                   </div>
                 )}
 
-              
                 <Separator />
 
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={resetQuestionForm}>
+                  <Button variant="outline" onClick={resetFieldForm}>
                     <X className="h-4 w-4 mr-1" />
                     Cancel
                   </Button>
-                  <Button onClick={handleSaveQuestion}>
+                  <Button onClick={handleSaveField}>
                     <Save className="h-4 w-4 mr-1" />
-                    {editingQuestion ? 'Update' : 'Create'} Question
+                    {editingField ? "Update" : "Create"} Field
                   </Button>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Questions List */}
+          {/* Fields List */}
           <div className="space-y-3">
-            {sortedQuestions.map((question) => (
-              <Card key={question.id} className={!question.visible ? "opacity-50" : ""}>
+            {allFields.map((field) => (
+              <Card key={field.id}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium">{question.title}</h3>
-                        {question.required && <Badge variant="destructive" className="text-xs">Required</Badge>}
-                        <Badge variant="outline" className="text-xs">{question.type}</Badge>
+                        <h3 className="font-medium">{field.labelName}</h3>
+                        {field.required && (
+                          <Badge variant="destructive" className="text-xs">
+                            Required
+                          </Badge>
+                        )}
+                        <Badge variant="outline" className="text-xs">
+                          {field.controlName}
+                        </Badge>
                         <Badge variant="secondary" className="text-xs">
-                          {sections.find(s => s.id === question.section)?.title}
+                          {field.sectionTitle}
                         </Badge>
                       </div>
-                      {question.description && (
-                        <p className="text-sm text-muted-foreground">{question.description}</p>
+                      {field.description && (
+                        <p className="text-sm text-muted-foreground">
+                          {field.description}
+                        </p>
                       )}
-                      {question.options && question.options.length > 0 && (
+                      {field.items && field.items.length > 0 && (
                         <div className="mt-2 text-xs text-muted-foreground">
-                          Options: {question.options.map(opt => opt.label).join(', ')}
+                          Options:{" "}
+                          {field.items.map((item) => item.label).join(", ")}
                         </div>
                       )}
                     </div>
@@ -478,30 +560,24 @@ export function AdminInterface({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => toggleQuestionVisibility(question.id)}
-                        title={question.visible ? "Hide question" : "Show question"}
-                      >
-                        {question.visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => duplicateQuestion(question)}
-                        title="Duplicate question"
+                        onClick={() => duplicateField(field)}
+                        title="Duplicate field"
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleEditQuestion(question)}
+                        onClick={() => handleEditField(field)}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteQuestion(question.id)}
+                        onClick={() =>
+                          handleDeleteField(field.id, field.containerId)
+                        }
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -519,9 +595,11 @@ export function AdminInterface({
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-xl">Sections ({sections.length})</h2>
-              <p className="text-muted-foreground">Organize questions into logical sections</p>
+              <p className="text-muted-foreground">
+                Organize fields into logical sections
+              </p>
             </div>
-            <Button 
+            <Button
               onClick={() => setIsCreatingSection(true)}
               className="flex items-center gap-2"
             >
@@ -536,46 +614,62 @@ export function AdminInterface({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Settings className="h-5 w-5" />
-                  {editingSection ? 'Edit Section' : 'Create New Section'}
+                  {editingSection ? "Edit Section" : "Create New Section"}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="section-title">Section Title *</Label>
+                  <Label htmlFor="section-heading">Section Heading *</Label>
                   <Input
-                    id="section-title"
-                    value={newSection.title}
-                    onChange={(e) => setNewSection({ ...newSection, title: e.target.value })}
-                    placeholder="Enter section title"
+                    id="section-heading"
+                    value={newSection.container?.heading}
+                    onChange={(e) =>
+                      setNewSection({
+                        ...newSection,
+                        container: {
+                          ...newSection.container!,
+                          heading: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="Enter section heading"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="section-description">Description</Label>
+                  <Label htmlFor="section-subheading">Sub-Heading</Label>
                   <Textarea
-                    id="section-description"
-                    value={newSection.description}
-                    onChange={(e) => setNewSection({ ...newSection, description: e.target.value })}
-                    placeholder="Optional section description"
+                    id="section-subheading"
+                    value={newSection.container?.subHeading}
+                    onChange={(e) =>
+                      setNewSection({
+                        ...newSection,
+                        container: {
+                          ...newSection.container!,
+                          subHeading: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="Optional section sub-heading"
                     rows={2}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="section-query-type">Visibility</Label>
-                  <Select
-                    value={newSection.queryType}
-                    onValueChange={(value) => setNewSection({ ...newSection, queryType: value as FormSection['queryType'] })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="both">Both Query Types</SelectItem>
-                      <SelectItem value="simple">Simple Queries Only</SelectItem>
-                      <SelectItem value="complex">Complex Queries Only</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="section-always-visible"
+                    checked={newSection.container?.alwaysVisible}
+                    onCheckedChange={(checked) =>
+                      setNewSection({
+                        ...newSection,
+                        container: {
+                          ...newSection.container!,
+                          alwaysVisible: !!checked,
+                        },
+                      })
+                    }
+                  />
+                  <Label htmlFor="section-always-visible">Always Visible</Label>
                 </div>
 
                 <Separator />
@@ -587,7 +681,7 @@ export function AdminInterface({
                   </Button>
                   <Button onClick={handleSaveSection}>
                     <Save className="h-4 w-4 mr-1" />
-                    {editingSection ? 'Update' : 'Create'} Section
+                    {editingSection ? "Update" : "Create"} Section
                   </Button>
                 </div>
               </CardContent>
@@ -596,22 +690,30 @@ export function AdminInterface({
 
           {/* Sections List */}
           <div className="space-y-3">
-            {sortedSections.map((section) => {
-              const sectionQuestions = questions.filter(q => q.section === section.id);
+            {sections.map((section) => {
+              const sectionFields = section.children.length;
               return (
-                <Card key={section.id}>
+                <Card key={section.container.id}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium">{section.title}</h3>
-                          <Badge variant="outline" className="text-xs">{section.queryType}</Badge>
+                          <h3 className="font-medium">
+                            {section.container.heading}
+                          </h3>
+                          {section.container.alwaysVisible && (
+                            <Badge variant="outline" className="text-xs">
+                              Always Visible
+                            </Badge>
+                          )}
                           <Badge variant="secondary" className="text-xs">
-                            {sectionQuestions.length} questions
+                            {sectionFields} fields
                           </Badge>
                         </div>
-                        {section.description && (
-                          <p className="text-sm text-muted-foreground">{section.description}</p>
+                        {section.container.subHeading && (
+                          <p className="text-sm text-muted-foreground">
+                            {section.container.subHeading}
+                          </p>
                         )}
                       </div>
                       <div className="flex items-center gap-1">
@@ -625,7 +727,9 @@ export function AdminInterface({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteSection(section.id)}
+                          onClick={() =>
+                            handleDeleteSection(section.container.id)
+                          }
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -650,5 +754,3 @@ export function AdminInterface({
     </div>
   );
 }
-
-
