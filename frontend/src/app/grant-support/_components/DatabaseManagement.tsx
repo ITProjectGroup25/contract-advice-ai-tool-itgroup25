@@ -731,7 +731,10 @@ export function DatabaseManagement() {
                       size="sm"
                       variant="outline"
                       onClick={() =>
-                        handleUpdateStatus(selectedSubmission.id, "processed")
+                        handleUpdateStatus(
+                          selectedSubmission.submissionUid,
+                          "processed"
+                        )
                       }
                       disabled={selectedSubmission.status === "processed"}
                     >
@@ -741,7 +744,10 @@ export function DatabaseManagement() {
                       size="sm"
                       variant="outline"
                       onClick={() =>
-                        handleUpdateStatus(selectedSubmission.id, "escalated")
+                        handleUpdateStatus(
+                          selectedSubmission.submissionUid,
+                          "escalated"
+                        )
                       }
                       disabled={selectedSubmission.status === "escalated"}
                     >

@@ -8,7 +8,7 @@ export const GrantSupportSubmissionSchema = z.object({
   status: z.string().max(32).default("submitted"),
   user_email: z.string().email().nullable().optional(),
   user_name: z.string().max(200).nullable().optional(),
-  form_data: FormValuesSchema.optional(), // jsonb
+  form_data: FormValuesSchema, // jsonb
   user_satisfied: z.boolean().nullable().optional(),
   needs_human_review: z.boolean().nullable().optional(),
   created_at: z.string(), // timestamp with timezone, mode: string
