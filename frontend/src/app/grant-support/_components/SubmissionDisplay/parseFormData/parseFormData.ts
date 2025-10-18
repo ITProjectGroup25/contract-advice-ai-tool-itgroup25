@@ -4,10 +4,10 @@ type Args = {
   uncleanFormData: string;
 };
 
-const parsedFormDataSchema = z.record(
+export const parsedFormDataSchema = z.record(
   z.union([z.string(), z.array(z.string())])
 );
-type ParsedFormDataSchema = z.infer<typeof parsedFormDataSchema>;
+export type ParsedFormDataSchema = z.infer<typeof parsedFormDataSchema>;
 
 function parseFormData({ uncleanFormData }: Args): ParsedFormDataSchema {
   try {

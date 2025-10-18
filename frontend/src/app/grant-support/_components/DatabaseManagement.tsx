@@ -1,5 +1,7 @@
 "use client";
 
+import { Input } from "@nextui-org/react";
+import { useQuery } from "@tanstack/react-query";
 import {
   BarChart3,
   Clock,
@@ -13,11 +15,12 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import type { ChangeEvent } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { FormSubmission, localDB } from "../_utils/localDatabase";
 import { SubmissionDisplay } from "./SubmissionDisplay/SubmissionDisplay";
+import { GrantSupportSubmission } from "./getSubmissions/grantSupportSubmissionSchema";
+import { Camelize } from "./getSubmissions/snakeToCamel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,8 +48,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { Input } from "./ui/input";
-import { ScrollArea } from "./ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -60,22 +61,153 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 const GOOGLE_USER_STORAGE_KEY = "grant-support-google-user-id";
 
 export function DatabaseManagement() {
-  const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
-  const [stats, setStats] = useState({
-    total: 0,
-    simple: 0,
-    complex: 0,
-    processed: 0,
-    escalated: 0,
-    satisfied: 0,
-  });
-  const [selectedSubmission, setSelectedSubmission] =
-    useState<FormSubmission | null>(null);
-  const [loading, setLoading] = useState(true);
   const [googleUserId, setGoogleUserId] = useState("");
+
   const [googleConnected, setGoogleConnected] = useState<boolean | null>(null);
   const [checkingGoogle, setCheckingGoogle] = useState(false);
   const [exportingGoogle, setExportingGoogle] = useState(false);
+
+  const [selectedSubmission, setSelectedSubmission] =
+    useState<Camelize<GrantSupportSubmission> | null>(null);
+
+  const {
+    data: submissionsData,
+    isFetching: isFetchingSubmissions,
+    refetch: refetchSubmissions,
+  } = useQuery({
+    queryKey: ["submissions"],
+    queryFn: async () => {
+      const result = await localDB.getAllSubmissions();
+      return result;
+    },
+    staleTime: 0,
+  });
+
+  const stats = submissionsData?.reduce(
+    (acc, s) => {
+      acc.total++;
+      if (s.queryType === "simple") acc.simple++;
+      else if (s.queryType === "complex") acc.complex++;
+      if (s.status === "processed") acc.processed++;
+      if (s.status === "escalated") acc.escalated++;
+      if (s.userSatisfied) acc.satisfied++;
+      return acc;
+    },
+    {
+      total: 0,
+      simple: 0,
+      complex: 0,
+      processed: 0,
+      escalated: 0,
+      satisfied: 0,
+    }
+  );
+
+  const submissions = submissionsData ?? [];
+
+  console.log({ submissions });
+
+  console.log({ stats });
+
+  const handleRefresh = async () => {
+    refetchSubmissions();
+  };
+
+  const handleDeleteSubmission = async (id: string) => {
+    try {
+      await localDB.deleteSubmission(id);
+      await handleRefresh();
+      toast.success("Submission deleted successfully");
+    } catch (error) {
+      console.error("Error deleting submission:", error);
+      toast.error("Failed to delete submission");
+    }
+  };
+
+  const handleClearAll = async () => {
+    try {
+      await localDB.clearAllSubmissions();
+      await handleRefresh();
+      toast.success("All submissions cleared successfully");
+    } catch (error) {
+      console.error("Error clearing submissions:", error);
+      toast.error("Failed to clear submissions");
+    }
+  };
+
+  const handleUpdateStatus = async (
+    id: string,
+    status: FormSubmission["status"]
+  ) => {
+    try {
+      await localDB.updateSubmission(id, { status });
+      await handleRefresh();
+      toast.success("Status updated successfully");
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status");
+    }
+  };
+
+  const handleExportAll = async () => {
+    try {
+      const sqlContent = await localDB.exportAllToSQL();
+      const blob = new Blob([sqlContent], { type: "application/sql" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `all_submissions_${
+        new Date().toISOString().split("T")[0]
+      }.sql`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+      toast.success("Database exported successfully");
+    } catch (error) {
+      console.error("Error exporting database:", error);
+      toast.error("Failed to export database");
+    }
+  };
+
+  const formatDate = (timestamp: string) =>
+    new Date(timestamp).toLocaleString();
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "submitted":
+        return "bg-blue-100 text-blue-800";
+      case "processed":
+        return "bg-green-100 text-green-800";
+      case "escalated":
+        return "bg-orange-100 text-orange-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const trimmedGoogleUserId = googleUserId.trim();
+  const googleStatusLabel = checkingGoogle
+    ? "Checking..."
+    : googleConnected
+    ? "Google Connected"
+    : trimmedGoogleUserId
+    ? "Not Connected"
+    : "Not Configured";
+  const googleStatusClass = checkingGoogle
+    ? "bg-blue-100 text-blue-800"
+    : googleConnected
+    ? "bg-green-100 text-green-800"
+    : trimmedGoogleUserId
+    ? "bg-red-100 text-red-800"
+    : "bg-gray-100 text-gray-800";
+
+  const handleGoogleUserIdChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setGoogleUserId(event.target.value);
+    setGoogleConnected(null);
+  };
 
   const checkGoogleStatus = useCallback(async (userId: string) => {
     const trimmed = userId.trim();
@@ -109,59 +241,6 @@ export function DatabaseManagement() {
       setCheckingGoogle(false);
     }
   }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const storedId = window.localStorage.getItem(GOOGLE_USER_STORAGE_KEY);
-    if (storedId) {
-      setGoogleUserId(storedId);
-      void checkGoogleStatus(storedId);
-    } else {
-      setGoogleConnected(false);
-    }
-  }, [checkGoogleStatus]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const trimmed = googleUserId.trim();
-    if (trimmed) {
-      window.localStorage.setItem(GOOGLE_USER_STORAGE_KEY, trimmed);
-    } else {
-      window.localStorage.removeItem(GOOGLE_USER_STORAGE_KEY);
-    }
-  }, [googleUserId]);
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [submissionsData, statsData] = await Promise.all([
-        localDB.getAllSubmissions(),
-        localDB.getSubmissionStats(),
-      ]);
-
-      setSubmissions(
-        submissionsData.sort(
-          (a, b) =>
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-        )
-      );
-      setStats(statsData);
-    } catch (error) {
-      console.error("Error loading database data:", error);
-      toast.error("Failed to load database data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleUserIdChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setGoogleUserId(event.target.value);
-    setGoogleConnected(null);
-  };
 
   const handleCheckGoogle = async () => {
     const trimmed = googleUserId.trim();
@@ -231,104 +310,14 @@ export function DatabaseManagement() {
     }
   };
 
-  const handleExportAll = async () => {
-    try {
-      const sqlContent = await localDB.exportAllToSQL();
-      const blob = new Blob([sqlContent], { type: "application/sql" });
-      const url = URL.createObjectURL(blob);
+  const isLoading = isFetchingSubmissions;
 
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `all_submissions_${
-        new Date().toISOString().split("T")[0]
-      }.sql`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      URL.revokeObjectURL(url);
-      toast.success("Database exported successfully");
-    } catch (error) {
-      console.error("Error exporting database:", error);
-      toast.error("Failed to export database");
-    }
-  };
-
-  const handleDeleteSubmission = async (id: string) => {
-    try {
-      await localDB.deleteSubmission(id);
-      await loadData();
-      toast.success("Submission deleted successfully");
-    } catch (error) {
-      console.error("Error deleting submission:", error);
-      toast.error("Failed to delete submission");
-    }
-  };
-
-  const handleClearAll = async () => {
-    try {
-      await localDB.clearAllSubmissions();
-      await loadData();
-      toast.success("All submissions cleared successfully");
-    } catch (error) {
-      console.error("Error clearing submissions:", error);
-      toast.error("Failed to clear submissions");
-    }
-  };
-
-  const handleUpdateStatus = async (
-    id: string,
-    status: FormSubmission["status"]
-  ) => {
-    try {
-      await localDB.updateSubmission(id, { status });
-      await loadData();
-      toast.success("Status updated successfully");
-    } catch (error) {
-      console.error("Error updating status:", error);
-      toast.error("Failed to update status");
-    }
-  };
-
-  const formatDate = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString();
-  };
-
-  const getStatusColor = (status: FormSubmission["status"]) => {
-    switch (status) {
-      case "submitted":
-        return "bg-blue-100 text-blue-800";
-      case "processed":
-        return "bg-green-100 text-green-800";
-      case "escalated":
-        return "bg-orange-100 text-orange-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const trimmedGoogleUserId = googleUserId.trim();
-  const googleStatusLabel = checkingGoogle
-    ? "Checking..."
-    : googleConnected
-    ? "Google Connected"
-    : trimmedGoogleUserId
-    ? "Not Connected"
-    : "Not Configured";
-  const googleStatusClass = checkingGoogle
-    ? "bg-blue-100 text-blue-800"
-    : googleConnected
-    ? "bg-green-100 text-green-800"
-    : trimmedGoogleUserId
-    ? "bg-red-100 text-red-800"
-    : "bg-gray-100 text-gray-800";
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <RefreshCw className="h-5 w-5 animate-spin" />
-          <p>Loading database...</p>
+          <p>Loading submissions...</p>
         </div>
       </div>
     );
@@ -432,7 +421,7 @@ export function DatabaseManagement() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={loadData} variant="outline" size="sm">
+          <Button onClick={handleRefresh} variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -538,7 +527,7 @@ export function DatabaseManagement() {
                     {submissions.map((submission) => (
                       <TableRow key={submission.id}>
                         <TableCell className="font-mono text-xs">
-                          {submission.id.substring(0, 20)}...
+                          {submission.submissionUid.substring(0, 20)}...
                         </TableCell>
                         <TableCell className="text-sm">
                           {formatDate(submission.timestamp)}
@@ -667,14 +656,17 @@ export function DatabaseManagement() {
                 <TabsTrigger value="metadata">Metadata</TabsTrigger>
               </TabsList>
 
-              <SubmissionDisplay submission={selectedSubmission} value="data" />
+              <SubmissionDisplay
+                submission={selectedSubmission!}
+                value="data"
+              />
 
               <TabsContent value="sql">
-                <ScrollArea className="h-[400px] w-full rounded-md border p-4">
-                  <pre className="text-xs whitespace-pre-wrap font-mono">
-                    {selectedSubmission.sqlStatement}
+                <div className="h-[400px] w-full overflow-auto border rounded-md p-4">
+                  <pre className="text-xs font-mono whitespace-pre-wrap break-all">
+                    {JSON.stringify(selectedSubmission, null, 2)}
                   </pre>
-                </ScrollArea>
+                </div>
               </TabsContent>
 
               <TabsContent value="metadata">
@@ -689,7 +681,7 @@ export function DatabaseManagement() {
                     <div>
                       <p className="text-sm font-medium">Timestamp</p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDate(selectedSubmission.timestamp)}
+                        {formatDate(selectedSubmission.createdAt)}
                       </p>
                     </div>
                     <div>

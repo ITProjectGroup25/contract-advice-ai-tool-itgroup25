@@ -11,7 +11,9 @@
     "build": "npm run build --workspace frontend",
     "start": "npm run start --workspace frontend",
     "lint": "npm run lint --workspace frontend",
-    "typecheck": "npm run typecheck --workspace shared && npm run typecheck --workspace backend && npm run typecheck --workspace frontend"
+    "typecheck": "npm run typecheck --workspace shared && npm run typecheck --workspace backend && npm run typecheck --workspace frontend",
+    "test": "bun test",
+    "test:watch": "bun test --watch"
   },
   "engines": {
     "node": ">=18.17.0"
@@ -34,5 +36,9 @@
     "react-dom": "18.2.0",
     "server-only": "^0.0.1",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^20.0.5",
+    "bun-types": "^1.3.0"
   }
 }

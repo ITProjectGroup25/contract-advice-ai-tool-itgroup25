@@ -1,20 +1,14 @@
 import { Download } from "lucide-react";
+import z from "zod";
+import { FieldValue, FileUpload, FileUploadSchema } from "../../types";
 import { formatDashDelimitedString } from "../formatDashDelimitedString/formatDashDelimitedString";
 
-interface FileUpload {
-  fileUrl: string;
-  fileName: string;
-  fileSize: number;
-}
-
 const isFileUpload = (value: any): value is FileUpload => {
-  return (
-    value &&
-    typeof value === "object" &&
-    "fileUrl" in value &&
-    "fileName" in value &&
-    "fileSize" in value
-  );
+  return z.array(FileUploadSchema).safeParse(value).success;
+};
+
+const isListOfStrings = (value: any): value is string[] => {
+  return z.array(z.string()).safeParse(value).success;
 };
 
 const formatFileSize = (bytes: number): string => {
@@ -25,27 +19,32 @@ const formatFileSize = (bytes: number): string => {
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 };
 
-type FieldValue = string | string[] | FileUpload;
-
 const renderValue = (value: FieldValue) => {
+  if (Array.isArray(value)) {
+    console.log({ value });
+    console.log({ value, isFileUpload: isFileUpload(value) });
+  }
+
   if (isFileUpload(value)) {
+    const file = value[0];
+    const parsedFile = FileUploadSchema.parse(file);
     return (
       <a
-        href={value.fileUrl}
+        href={parsedFile.fileUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline transition-colors"
       >
         <Download className="w-4 h-4" />
-        <span className="font-medium">{value.fileName}</span>
+        <span className="font-medium">{parsedFile.fileName}</span>
         <span className="text-xs text-gray-500">
-          ({formatFileSize(value.fileSize)})
+          ({formatFileSize(parsedFile.fileSize)})
         </span>
       </a>
     );
   }
 
-  if (Array.isArray(value)) {
+  if (isListOfStrings(value)) {
     return value.map(formatDashDelimitedString).join(", ");
   }
 
