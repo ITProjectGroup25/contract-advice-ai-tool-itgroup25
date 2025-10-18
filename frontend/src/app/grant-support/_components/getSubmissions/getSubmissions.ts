@@ -40,8 +40,10 @@ export async function getSubmissions({
   let query = supabaseAdmin
     .from("grant_support_submissions")
     .select(
-      "submissions_uid,query_type,status,user_email,user_name,form_data,user_satisfied,needs_human_review,created_at,updated_at"
+      "submission_uid,query_type,status,user_email,user_name,form_data,user_satisfied,needs_human_review,created_at,updated_at"
     );
+
+  console.log({ query });
 
   if (userEmail) query = query.eq("user_email", userEmail);
   if (status) query = query.eq("status", status);
