@@ -1,4 +1,5 @@
 import { Download } from "lucide-react";
+import { FieldValue } from "../../types";
 import { formatDashDelimitedString } from "../formatDashDelimitedString/formatDashDelimitedString";
 
 interface FileUpload {
@@ -24,8 +25,6 @@ const formatFileSize = (bytes: number): string => {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 };
-
-type FieldValue = string | string[] | FileUpload;
 
 const renderValue = (value: FieldValue) => {
   if (isFileUpload(value)) {

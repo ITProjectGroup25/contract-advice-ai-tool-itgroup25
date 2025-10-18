@@ -175,3 +175,15 @@ export const apiResponseSchema = z.object({
 
 // Infer TypeScript type
 export type Form = z.infer<typeof formSchema>;
+
+export const FieldValueSchema = z.union([
+  z.string(),
+  z.array(z.string()),
+  z.array(FileUploadSchema),
+]);
+
+export type FieldValue = z.infer<typeof FieldValueSchema>;
+
+export const FormValuesSchema = z.record(FieldValueSchema);
+
+export type FormValues = z.infer<typeof FormValuesSchema>;

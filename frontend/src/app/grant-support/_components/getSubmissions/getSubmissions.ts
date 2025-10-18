@@ -71,6 +71,8 @@ export async function getSubmissions({
     // Validate fetched data
     const parsed = z.array(GrantSupportSubmissionSchema).safeParse(data);
 
+    console.log({ parsed });
+
     if (!parsed.success) {
       console.error("Zod validation error:", parsed.error.format());
       return {
