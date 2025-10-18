@@ -1,5 +1,6 @@
 // @ts-ignore
 import { sqlClient } from "@backend";
+import console from "console";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -72,6 +73,8 @@ export async function GET(
       updatedAt: row.updated_at,
       formSections: row.form_sections ?? undefined,
     };
+
+    console.log({ form });
 
     return NextResponse.json({ form }, { status: 200 });
   } catch (error: any) {
