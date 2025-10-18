@@ -19,6 +19,8 @@ async function fetchForm(formId: number): Promise<Form> {
 
   const data = await response.json();
 
+  console.log({ data });
+
   // Validate with Zod
   const validatedData = apiResponseSchema.parse(data);
 
@@ -46,11 +48,26 @@ const GrantSupportWrapper = ({ formId = 2 }: Props) => {
       <div>
         <h2>Error loading form</h2>
         <p>{error instanceof Error ? error.message : "Unknown error"}</p>
+        {error instanceof Error && error.stack && (
+          <details>
+            <summary>Stack Trace</summary>
+            <pre
+              style={{
+                whiteSpace: "pre-wrap",
+                fontSize: "12px",
+                backgroundColor: "#f5f5f5",
+                padding: "10px",
+                borderRadius: "4px",
+              }}
+            >
+              {error.stack}
+            </pre>
+          </details>
+        )}
       </div>
     );
   }
-
-  return <GrantSupportApp form={data} />;
+  return <GrantSupportApp form={data!} />;
 };
 
 export default GrantSupportWrapper;

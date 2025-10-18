@@ -2,7 +2,6 @@
 
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
-import { defaultQuestions, defaultSections } from "../_data/defaultQuestions";
 import { AdminInterface, FormSection, Question } from "./AdminInterface";
 import { ChatBot } from "./ChatBot";
 import { DynamicFormRenderer } from "./DynamicFormRenderer";
@@ -20,9 +19,8 @@ type Props = {
 };
 
 export default function App({ form }: Props) {
+  const { formSections: sections } = form;
   const [currentState, setCurrentState] = useState<AppState>("form");
-  const [questions, setQuestions] = useState<Question[]>(defaultQuestions);
-  const [sections, setSections] = useState<FormSection[]>(defaultSections);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [successPageType, setSuccessPageType] = useState<
     "complex" | "simple-escalated"
@@ -98,12 +96,14 @@ export default function App({ form }: Props) {
   };
 
   const handleQuestionsUpdate = (updatedQuestions: Question[]) => {
-    setQuestions(updatedQuestions);
+    // setQuestions(updatedQuestions);
   };
 
   const handleSectionsUpdate = (updatedSections: FormSection[]) => {
-    setSections(updatedSections);
+    // setSections(updatedSections);
   };
+
+  console.log({ sections });
 
   const renderCurrentView = () => {
     switch (currentState) {
@@ -124,8 +124,8 @@ export default function App({ form }: Props) {
         return (
           <AdminInterface
             onBack={handleBackFromAdmin}
-            questions={questions}
-            sections={sections}
+            questions={[]}
+            sections={[]}
             onQuestionsUpdate={handleQuestionsUpdate}
             onSectionsUpdate={handleSectionsUpdate}
           />
@@ -134,8 +134,7 @@ export default function App({ form }: Props) {
         return (
           <DynamicFormRenderer
             title={form.title!}
-            questions={questions}
-            sections={sections}
+            sections={sections!}
             onSimpleQuerySuccess={handleSimpleQuerySuccess}
             onComplexQuerySuccess={handleComplexQuerySuccess}
           />

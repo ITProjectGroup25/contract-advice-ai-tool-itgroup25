@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  Clock,
-  FileText,
-  HelpCircle,
-  Search,
-  Settings,
-  Users,
-} from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Clock, FileText, HelpCircle, Users } from "lucide-react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
@@ -20,8 +13,7 @@ import {
   GrantTeamEmailData,
   emailService,
 } from "../_utils/emailService";
-import { FormSection, Question } from "./AdminInterface";
-import FixedLogo from "./FixedLogo";
+import { FormSectionsType } from "./types";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -33,19 +25,12 @@ import {
 import { Checkbox } from "./ui/checkbox";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
+import FixedLogo from "./FixedLogo";
 
 interface DynamicFormRendererProps {
-  questions: Question[];
-  sections: FormSection[];
+  sections: FormSectionsType;
   onSimpleQuerySuccess?: (submissionId?: string) => void;
   onComplexQuerySuccess?: () => void;
   title: string;
@@ -81,7 +66,6 @@ const isUploadedFileArray = (value: unknown): value is UploadedFile[] => {
 };
 
 export function DynamicFormRenderer({
-  questions,
   sections,
   onSimpleQuerySuccess,
   onComplexQuerySuccess,
@@ -101,130 +85,13 @@ export function DynamicFormRenderer({
   );
   const formValues = watch();
 
-  const visibleQuestions = questions.filter((q) => q.visible);
-  const sortedSections = [...sections].sort((a, b) => a.order - b.order);
-
-  const getQueryType = useCallback(() => {
-    const queryTypeQuestion = questions.find((q) => q.id === "query-type");
-    if (!queryTypeQuestion) return "";
-    return formValues[queryTypeQuestion.id] || "";
-  }, [formValues, questions]);
-
-  const isQuestionVisible = useCallback(
-    (question: Question, checkingStack: Set<string> = new Set()): boolean => {
-      if (checkingStack.has(question.id)) {
-        return false;
-      }
-
-      const conditional = question.conditional;
-
-      if (!conditional) {
-        return true;
-      }
-
-      const queryType = getQueryType();
-      if (conditional.dependsOn === "query-type") {
-        return conditional.showWhen.includes(queryType);
-      }
-
-      const dependentValue = formValues[conditional.dependsOn];
-      const dependentQuestion = questions.find(
-        (candidate) => candidate.id === conditional.dependsOn
-      );
-
-      if (dependentQuestion) {
-        checkingStack.add(question.id);
-        const isParentVisible = isQuestionVisible(
-          dependentQuestion,
-          checkingStack
-        );
-        checkingStack.delete(question.id);
-
-        if (!isParentVisible) {
-          return false;
-        }
-      }
-
-      if (Array.isArray(dependentValue)) {
-        return conditional.showWhen.some((value) =>
-          dependentValue.includes(value)
-        );
-      }
-
-      return conditional.showWhen.includes(dependentValue);
-    },
-    [formValues, questions, getQueryType]
-  );
-
-  // Clear values for invisible questions
-  useEffect(() => {
-    const invisibleQuestions = visibleQuestions.filter(
-      (q) => !isQuestionVisible(q)
-    );
-    invisibleQuestions.forEach((q) => {
-      if (
-        formValues[q.id] !== undefined &&
-        formValues[q.id] !== null &&
-        formValues[q.id] !== ""
-      ) {
-        setValue(q.id, undefined);
-      }
-    });
-  }, [formValues, visibleQuestions, setValue, isQuestionVisible]);
-
-  const isSectionVisible = (section: FormSection) => {
-    const queryType = getQueryType();
-    if (section.queryType === "both") return true;
-    if (section.queryType === "simple" && queryType === "simple") return true;
-    if (section.queryType === "complex" && queryType === "complex") return true;
-    return false;
-  };
-
-  const handleCheckboxChange = (
-    questionId: string,
-    value: string,
-    currentValues: string[] = []
-  ) => {
-    const updatedValues = currentValues.includes(value)
-      ? currentValues.filter((v) => v !== value)
-      : [...currentValues, value];
-    setValue(questionId, updatedValues);
-
-    // Handle "other" field visibility
-    const question = questions.find((q) => q.id === questionId);
-    if (question?.options) {
-      const hasOtherSelected = question.options.some(
-        (opt) => opt.hasOtherField && updatedValues.includes(opt.id)
-      );
-      setOtherFields((prev) => ({
-        ...prev,
-        [`${questionId}_other`]: hasOtherSelected,
-      }));
-    }
-  };
-
-  const handleRadioChange = (questionId: string, value: string) => {
-    setValue(questionId, value);
-
-    // Handle "other" field visibility
-    const question = questions.find((q) => q.id === questionId);
-    if (question?.options) {
-      const selectedOption = question.options.find((opt) => opt.id === value);
-      setOtherFields((prev) => ({
-        ...prev,
-        [`${questionId}_other`]: selectedOption?.hasOtherField || false,
-      }));
-    }
-  };
-
   const onSubmit = async (data: FormData) => {
     try {
       console.log("Testing");
 
-      const queryType = (getQueryType() as "simple" | "complex") || "simple";
+      const queryType = "simple" as "simple" | "complex"; // You'll need to determine this from your form data
 
       console.log("Hi");
-
       console.log({ data });
 
       const submissionResponse: GrantSupportSubmissionResponse =
@@ -332,49 +199,26 @@ export function DynamicFormRenderer({
     }
   };
 
-  const renderQuestion = (question: Question) => {
-    if (!isQuestionVisible(question)) return null;
-
-    const fieldName = question.id;
+  const renderField = (child: any) => {
+    const fieldName = child.id;
     const currentValue = formValues[fieldName];
 
     const getValidationRules = () => {
       const rules: any = {};
-      if (question.required) {
-        if (question.type === "checkbox-group") {
+      if (child.required) {
+        if (child.controlName === "checkbox-group") {
           rules.validate = (value: any) =>
-            value && value.length > 0 ? true : `${question.title} is required`;
+            value && value.length > 0 ? true : `${child.labelName} is required`;
         } else {
-          rules.required = `${question.title} is required`;
+          rules.required = `${child.labelName} is required`;
         }
       }
 
-      if (question.type === "email") {
+      if (child.dataType === "email") {
         rules.pattern = {
           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
           message: "Invalid email address",
         };
-      }
-
-      if (question.validation) {
-        if (question.validation.minLength) {
-          rules.minLength = {
-            value: question.validation.minLength,
-            message: `Minimum length is ${question.validation.minLength} characters`,
-          };
-        }
-        if (question.validation.maxLength) {
-          rules.maxLength = {
-            value: question.validation.maxLength,
-            message: `Maximum length is ${question.validation.maxLength} characters`,
-          };
-        }
-        if (question.validation.pattern) {
-          rules.pattern = {
-            value: new RegExp(question.validation.pattern),
-            message: "Invalid format",
-          };
-        }
       }
 
       return rules;
@@ -383,7 +227,6 @@ export function DynamicFormRenderer({
     const renderDescription = (description?: string) => {
       if (!description) return null;
 
-      // Check if description contains a URL
       const urlPattern = /((?:https?:)?\/\/[^\s)]+|\/[^\s)]+)/g;
       const parts = description.split(urlPattern);
 
@@ -403,26 +246,25 @@ export function DynamicFormRenderer({
                 </a>
               );
             }
-            return part;
+            return <span key={index}>{part}</span>;
           })}
         </div>
       );
     };
 
-    switch (question.type) {
-      case "text":
-      case "email":
+    switch (child.controlName) {
+      case "text-field":
         return (
-          <div key={question.id} className="space-y-2">
+          <div key={child.id} className="space-y-2">
             <Label htmlFor={fieldName}>
-              {question.title} {question.required && "*"}
+              {child.labelName} {child.required && "*"}
             </Label>
-            {renderDescription(question.description)}
+            {renderDescription(child.description)}
             <Input
               id={fieldName}
-              type={question.type}
+              type={child.dataType || "text"}
               {...register(fieldName, getValidationRules())}
-              placeholder={question.placeholder}
+              placeholder={child.placeholder}
             />
             {errors[fieldName] && (
               <p className="text-sm text-destructive">
@@ -432,124 +274,18 @@ export function DynamicFormRenderer({
           </div>
         );
 
-      case "textarea":
+      case "multiline-text-field":
         return (
-          <div key={question.id} className="space-y-2">
+          <div key={child.id} className="space-y-2">
             <Label htmlFor={fieldName}>
-              {question.title} {question.required && "*"}
+              {child.labelName} {child.required && "*"}
             </Label>
-            {renderDescription(question.description)}
+            {renderDescription(child.description)}
             <Textarea
               id={fieldName}
               {...register(fieldName, getValidationRules())}
-              placeholder={question.placeholder}
-              rows={4}
-            />
-            {errors[fieldName] && (
-              <p className="text-sm text-destructive">
-                {errors[fieldName]?.message as string}
-              </p>
-            )}
-          </div>
-        );
-
-      case "date":
-        return (
-          <div key={question.id} className="space-y-2">
-            <Label htmlFor={fieldName}>
-              {question.title} {question.required && "*"}
-            </Label>
-            {renderDescription(question.description)}
-            <Input
-              id={fieldName}
-              type="date"
-              {...register(fieldName, getValidationRules())}
-            />
-            {errors[fieldName] && (
-              <p className="text-sm text-destructive">
-                {errors[fieldName]?.message as string}
-              </p>
-            )}
-          </div>
-        );
-
-      case "select":
-        return (
-          <div key={question.id} className="space-y-2">
-            <Label htmlFor={fieldName}>
-              {question.title} {question.required && "*"}
-            </Label>
-            {renderDescription(question.description)}
-            <Controller
-              name={fieldName}
-              control={control}
-              rules={getValidationRules()}
-              render={({ field: { value, onChange } }) => (
-                <Select value={value} onValueChange={onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={question.placeholder} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {question.options?.map((option) => (
-                      <SelectItem key={option.id} value={option.id}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors[fieldName] && (
-              <p className="text-sm text-destructive">
-                {errors[fieldName]?.message as string}
-              </p>
-            )}
-          </div>
-        );
-
-      case "checkbox-group":
-        return (
-          <div key={question.id} className="space-y-3">
-            <Label>
-              {question.title} {question.required && "*"}
-            </Label>
-            {renderDescription(question.description)}
-            <Controller
-              name={fieldName}
-              control={control}
-              rules={getValidationRules()}
-              render={({ field: { value = [] } }) => (
-                <div className="space-y-3">
-                  {question.options?.map((option) => (
-                    <div key={option.id} className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`${fieldName}-${option.id}`}
-                          checked={value.includes(option.id)}
-                          onCheckedChange={() =>
-                            handleCheckboxChange(fieldName, option.id, value)
-                          }
-                        />
-                        <Label htmlFor={`${fieldName}-${option.id}`}>
-                          {option.label}
-                        </Label>
-                      </div>
-                      {option.hasOtherField && value.includes(option.id) && (
-                        <div className="ml-6 space-y-2">
-                          <Label htmlFor={`${fieldName}_${option.id}_other`}>
-                            Please specify
-                          </Label>
-                          <Input
-                            id={`${fieldName}_${option.id}_other`}
-                            {...register(`${fieldName}_${option.id}_other`)}
-                            placeholder="Enter details"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+              placeholder={child.placeholder}
+              rows={child.rows || 4}
             />
             {errors[fieldName] && (
               <p className="text-sm text-destructive">
@@ -561,45 +297,31 @@ export function DynamicFormRenderer({
 
       case "radio-group":
         return (
-          <div key={question.id} className="space-y-3">
+          <div key={child.id} className="space-y-3">
             <Label>
-              {question.title} {question.required && "*"}
+              {child.labelName} {child.required && "*"}
             </Label>
-            {renderDescription(question.description)}
+            {renderDescription(child.description)}
             <Controller
               name={fieldName}
               control={control}
               rules={getValidationRules()}
               render={({ field: { value, onChange } }) => (
                 <div className="space-y-3">
-                  {question.options?.map((option) => (
-                    <div key={option.id} className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`${fieldName}-${option.id}`}
-                          checked={value === option.id}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              handleRadioChange(fieldName, option.id);
-                            }
-                          }}
-                        />
-                        <Label htmlFor={`${fieldName}-${option.id}`}>
-                          {option.label}
-                        </Label>
-                      </div>
-                      {option.hasOtherField && value === option.id && (
-                        <div className="ml-6 space-y-2">
-                          <Label htmlFor={`${fieldName}_${option.id}_other`}>
-                            Please specify
-                          </Label>
-                          <Input
-                            id={`${fieldName}_${option.id}_other`}
-                            {...register(`${fieldName}_${option.id}_other`)}
-                            placeholder="Enter details"
-                          />
-                        </div>
-                      )}
+                  {child.items?.map((item: any) => (
+                    <div key={item.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`${fieldName}-${item.id}`}
+                        checked={value === item.value}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            onChange(item.value);
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`${fieldName}-${item.id}`}>
+                        {item.label}
+                      </Label>
                     </div>
                   ))}
                 </div>
@@ -618,26 +340,16 @@ export function DynamicFormRenderer({
     }
   };
 
-  const getIconForSection = (sectionId: string) => {
+  const getIconForSection = (icon: string) => {
     const iconMap: {
       [key: string]: React.ComponentType<{ className?: string }>;
     } = {
-      "basic-info": FileText,
-      "grants-team": Users,
-      "stage-query": Clock,
-      "query-type": HelpCircle,
-      "simple-grants": Search,
-      "simple-mri": Settings,
-      "simple-type": HelpCircle,
-      "simple-explanation": FileText,
-      "complex-grants": Search,
-      "complex-mri": Settings,
-      "complex-project": FileText,
-      "complex-parties": Users,
-      "complex-agreements": FileText,
-      "complex-support": HelpCircle,
+      "fa fa-user": Users,
+      "fa fa-question-circle": HelpCircle,
+      "fas fa-file-alt": FileText,
+      "fas fa-clock": Clock,
     };
-    return iconMap[sectionId] || FileText;
+    return iconMap[icon] || FileText;
   };
 
   return (
@@ -653,31 +365,24 @@ export function DynamicFormRenderer({
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          {sortedSections.map((section) => {
-            if (!isSectionVisible(section)) return null;
-
-            const sectionQuestions = visibleQuestions
-              .filter((q) => q.section === section.id)
-              .filter((q) => isQuestionVisible(q))
-              .sort((a, b) => a.order - b.order);
-
-            if (sectionQuestions.length === 0) return null;
-
-            const IconComponent = getIconForSection(section.id);
+          {sections.map((section) => {
+            const IconComponent = getIconForSection(section.container.icon);
 
             return (
-              <Card key={section.id}>
+              <Card key={section.container.id}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <IconComponent className="h-5 w-5" />
-                    {section.title}
+                    {section.container.heading}
                   </CardTitle>
-                  {section.description && (
-                    <CardDescription>{section.description}</CardDescription>
+                  {section.container.subHeading && (
+                    <CardDescription>
+                      {section.container.subHeading}
+                    </CardDescription>
                   )}
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {sectionQuestions.map(renderQuestion)}
+                  {section.children.map((child) => renderField(child))}
                 </CardContent>
               </Card>
             );
