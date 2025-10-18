@@ -6,7 +6,8 @@
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "db:generate": "dotenv -e ../.env -- drizzle-kit generate:pg",
     "db:migrate": "dotenv -e ../.env -- drizzle-kit migrate",
-    "db:push": "dotenv -e ../.env -- drizzle-kit push:pg"
+    "db:push": "dotenv -e ../.env -- drizzle-kit push:pg",
+    "update-types": "npx drizzle-kit introspect:pg postgresql://postgres:m6rIe9pz2fwQDVBw@db.lfedmwfgftpkknllchxr.supabase.co:5432/postgres"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "0.7.0",
