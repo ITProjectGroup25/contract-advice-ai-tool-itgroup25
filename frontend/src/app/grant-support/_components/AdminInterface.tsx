@@ -225,24 +225,64 @@ export function AdminInterface({
       containersToMakeVisible: newField.containersToMakeVisible,
     };
 
-    const updatedSections = sections.map((section) => {
-      if (section.container.id === field.containerId) {
-        if (fieldId) {
-          return {
-            ...section,
-            children: section.children.map((child) =>
-              child.id === field.id ? field : child
-            ),
-          };
-        } else {
+    let updatedSections: FormSectionsType;
+
+    if (fieldId) {
+      // EDITING an existing field
+      // Find the old section (where the field currently is)
+      const oldField = sections
+        .flatMap((s) => s.children)
+        .find((child) => child.id === fieldId);
+
+      const oldContainerId = oldField?.containerId;
+
+      // If the section changed, we need to remove from old and add to new
+      if (oldContainerId && oldContainerId !== newField.containerId) {
+        updatedSections = sections.map((section) => {
+          // Remove from old section
+          if (section.container.id === oldContainerId) {
+            return {
+              ...section,
+              children: section.children.filter(
+                (child) => child.id !== fieldId
+              ),
+            };
+          }
+          // Add to new section
+          if (section.container.id === newField.containerId) {
+            return {
+              ...section,
+              children: [...section.children, field],
+            };
+          }
+          return section;
+        });
+      } else {
+        // Section didn't change, just update the field in place
+        updatedSections = sections.map((section) => {
+          if (section.container.id === field.containerId) {
+            return {
+              ...section,
+              children: section.children.map((child) =>
+                child.id === field.id ? field : child
+              ),
+            };
+          }
+          return section;
+        });
+      }
+    } else {
+      // CREATING a new field
+      updatedSections = sections.map((section) => {
+        if (section.container.id === field.containerId) {
           return {
             ...section,
             children: [...section.children, field],
           };
         }
-      }
-      return section;
-    });
+        return section;
+      });
+    }
 
     startTransition(async () => {
       const result = await updateFormFields({
@@ -256,13 +296,11 @@ export function AdminInterface({
         );
         onSectionsUpdate(updatedSections);
         resetFieldForm();
-        // window.location.reload();
       } else {
         toast.error(result.error || "Failed to save field");
       }
     });
   };
-
   const performSaveSection = async (sectionId?: string) => {
     if (!newSection.container?.heading) {
       toast.error("Please enter a section heading");
@@ -895,7 +933,10 @@ export function AdminInterface({
                     </SelectTrigger>
                     <SelectContent>
                       {visibilityFieldOptions.map((option) => (
-                        <SelectItem key={option.id} value={option.id}>
+                        <SelectItem
+                          key={option.id}
+                          value={option.id.toLocaleString()}
+                        >
                           {option.label}
                         </SelectItem>
                       ))}
