@@ -14,6 +14,10 @@ import { Toaster } from "./ui/sonner";
 
 type AppState = "form" | "simple-response" | "success" | "admin" | "chatbot";
 
+type Props = {
+  form: 
+}
+
 export default function App() {
   const [currentState, setCurrentState] = useState<AppState>("form");
   const [questions, setQuestions] = useState<Question[]>(defaultQuestions);
