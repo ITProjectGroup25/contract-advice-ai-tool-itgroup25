@@ -1,12 +1,13 @@
 "use client";
+
 import Script from "next/script";
-import GrantSupportWrapper from "./_components/GrantSupportWrapper";
+import GrantSupportApp from "./_components/GrantSupportApp";
 
 export default function GrantSupportPage() {
   return (
     <>
       <Script src="/js/email.min.js" strategy="afterInteractive" />
-      <GrantSupportWrapper />
+      <GrantSupportApp />
     </>
   );
 }

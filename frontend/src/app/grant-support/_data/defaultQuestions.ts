@@ -1,4 +1,3 @@
-// @ts-ignore
 import { Question, FormSection } from "../_components/AdminInterface";
 
 export const defaultSections: FormSection[] = [

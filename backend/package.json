@@ -6,14 +6,12 @@
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "db:generate": "dotenv -e ../.env -- drizzle-kit generate:pg",
     "db:migrate": "dotenv -e ../.env -- drizzle-kit migrate",
-    "db:push": "dotenv -e ../.env -- drizzle-kit push:pg",
-    "update-types": "npx drizzle-kit pull && npx shx mv ./drizzle/*.ts ./src/db/"
+    "db:push": "dotenv -e ../.env -- drizzle-kit push:pg"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "0.7.0",
-    "@tanstack/react-query": "^5.90.5",
     "dotenv": "^17.2.2",
-    "drizzle-orm": "^0.44.6",
+    "drizzle-orm": "^0.29.4",
     "next-auth": "^4.24.11",
     "pg": "^8.11.3",
     "postgres": "^3.4.3"
@@ -21,8 +19,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "dotenv-cli": "^7.4.1",
-    "drizzle-kit": "^0.31.5",
-    "shx": "^0.4.0",
+    "drizzle-kit": "^0.20.14",
     "supabase": "^2.39.2",
     "typescript": "^5"
   },
