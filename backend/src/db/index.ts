@@ -2,22 +2,30 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 
+console.log("📍 Loading database configuration...");
+
 const DATABASE_URL =
-  "postgresql://postgres:m6rIe9pz2fwQDVBw@db.lfedmwfgftpkknllchxr.supabase.co:5432/postgres";
+  "postgresql://postgres.lfedmwfgftpkknllchxr:m6rIe9pz2fwQDVBw@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres";
 
 const connectionString =
   DATABASE_URL ?? "postgres://postgres:postgres@localhost:5432/postgres";
 
-console.log(`Using database connection string ${connectionString}`);
+if (!connectionString) {
+  throw new Error("DATABASE_URL environment variable is not set");
+}
 
-console.log("Connecting to database...");
+console.log(`Connecting to database...`);
+console.log(`Database host: ${new URL(connectionString).hostname}`);
 
-// Configure postgres client with better options for Supabase
+// Configure postgres client for serverless (Vercel)
 const client = postgres(connectionString, {
-  max: 10,
+  max: 1, // Important: Use 1 connection for serverless
   idle_timeout: 20,
   connect_timeout: 10,
-  ssl: "require", // Enforce SSL for Supabase connection
+  ssl: "require",
+  // Add these for better serverless performance
+  prepare: false, // Disable prepared statements for pgbouncer
+  onnotice: () => {}, // Silence notices
 });
 
 export const db = drizzle(client, { schema });
