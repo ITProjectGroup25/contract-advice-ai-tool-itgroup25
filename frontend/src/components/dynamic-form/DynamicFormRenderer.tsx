@@ -1,20 +1,36 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  EmailData,
+  GrantTeamEmailData,
+  emailService,
+} from "@/lib/emailService";
+import { FormData, FormSection, Question } from "@shared";
+import {
+  Clock,
+  FileText,
+  HelpCircle,
+  Search,
+  Settings,
+  Users,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { FileText, Users, Clock, HelpCircle, Search, Settings } from "lucide-react";
-import { useState, useEffect } from "react";
-import { Question, FormSection, FormData } from "@shared";
-import { emailService, EmailData, GrantTeamEmailData } from "@/lib/emailService";
 
 interface DynamicFormRendererProps {
   questions: Question[];
@@ -23,95 +39,128 @@ interface DynamicFormRendererProps {
   onComplexQuerySuccess?: () => void;
 }
 
-export function DynamicFormRenderer({ 
-  questions, 
-  sections, 
-  onSimpleQuerySuccess, 
-  onComplexQuerySuccess 
+export function DynamicFormRenderer({
+  questions,
+  sections,
+  onSimpleQuerySuccess,
+  onComplexQuerySuccess,
 }: DynamicFormRendererProps) {
-  const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormData>();
-  
-  const [otherFields, setOtherFields] = useState<{[key: string]: boolean}>({});
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>();
+
+  const [otherFields, setOtherFields] = useState<{ [key: string]: boolean }>(
+    {}
+  );
   const formValues = watch();
 
-  const visibleQuestions = questions.filter(q => q.visible);
+  const visibleQuestions = questions.filter((q) => q.visible);
   const sortedSections = [...sections].sort((a, b) => a.order - b.order);
 
   const getQueryType = () => {
-    const queryTypeQuestion = questions.find(q => q.id === "query-type");
+    const queryTypeQuestion = questions.find((q) => q.id === "query-type");
     if (!queryTypeQuestion) return "";
     const value = formValues[queryTypeQuestion.id];
     return Array.isArray(value) ? value[0] || "" : value || "";
   };
 
   // Check question visibility with circular dependency protection
-  const isQuestionVisible = (question: Question, checkingStack: Set<string> = new Set()): boolean => {
-    // Prevent infinite recursion
-    if (checkingStack.has(question.id)) {
-      return false;
-    }
-    
-    // Check query type visibility
-    const queryType = getQueryType();
-    if (question.conditional?.dependsOn === "query-type" && question.conditional.showWhen) {
-      return question.conditional.showWhen.includes(queryType);
-    }
+  const isQuestionVisible = useCallback(
+    (question: Question, checkingStack: Set<string> = new Set()): boolean => {
+      // Prevent infinite recursion
+      if (checkingStack.has(question.id)) {
+        return false;
+      }
 
-    // Check other conditional dependencies
-    if (question.conditional && question.conditional.dependsOn) {
-      const dependentValue = formValues[question.conditional.dependsOn];
-      
-      // First check if the question we depend on is itself visible
-      const dependentQuestion = questions.find(q => q.id === question.conditional?.dependsOn);
-      if (dependentQuestion) {
-        checkingStack.add(question.id);
-        const isParentVisible = isQuestionVisible(dependentQuestion, checkingStack);
-        checkingStack.delete(question.id);
-        
-        if (!isParentVisible) {
-          return false;
+      // Check query type visibility
+      const queryType = getQueryType();
+      if (
+        question.conditional?.dependsOn === "query-type" &&
+        question.conditional.showWhen
+      ) {
+        return question.conditional.showWhen.includes(queryType);
+      }
+
+      // Check other conditional dependencies
+      if (question.conditional && question.conditional.dependsOn) {
+        const dependentValue = formValues[question.conditional.dependsOn];
+
+        // First check if the question we depend on is itself visible
+        const dependentQuestion = questions.find(
+          (q) => q.id === question.conditional?.dependsOn
+        );
+        if (dependentQuestion) {
+          checkingStack.add(question.id);
+          const isParentVisible = isQuestionVisible(
+            dependentQuestion,
+            checkingStack
+          );
+          checkingStack.delete(question.id);
+
+          if (!isParentVisible) {
+            return false;
+          }
+        }
+
+        if (question.conditional?.showWhen) {
+          if (Array.isArray(dependentValue)) {
+            return question.conditional.showWhen.some((val: string) =>
+              dependentValue.includes(val)
+            );
+          }
+          return question.conditional.showWhen.includes(dependentValue);
         }
       }
-      
-      if (question.conditional?.showWhen) {
-        if (Array.isArray(dependentValue)) {
-          return question.conditional.showWhen.some((val: string) => dependentValue.includes(val));
-        }
-        return question.conditional.showWhen.includes(dependentValue);
-      }
-    }
 
-    return true;
-  };
-
+      return true;
+    },
+    [getQueryType, formValues, questions]
+  );
   // Clear values for invisible questions
   useEffect(() => {
-    const invisibleQuestions = visibleQuestions.filter(q => !isQuestionVisible(q));
-    invisibleQuestions.forEach(q => {
-      if (formValues[q.id] !== undefined && formValues[q.id] !== null && formValues[q.id] !== '') {
+    const invisibleQuestions = visibleQuestions.filter(
+      (q) => !isQuestionVisible(q)
+    );
+    invisibleQuestions.forEach((q) => {
+      if (
+        formValues[q.id] !== undefined &&
+        formValues[q.id] !== null &&
+        formValues[q.id] !== ""
+      ) {
         setValue(q.id, undefined);
       }
     });
-  }, [formValues, visibleQuestions, setValue]);
+  }, [formValues, visibleQuestions, setValue, isQuestionVisible]);
 
   const isSectionVisible = (section: FormSection) => {
     const queryType = getQueryType();
-    
+
     // Check section conditional logic
     if (section.conditional) {
       const dependentValue = formValues[section.conditional.dependsOn];
       if (Array.isArray(dependentValue)) {
-        return section.conditional.showWhen.some(val => dependentValue.includes(val));
+        return section.conditional.showWhen.some((val) =>
+          dependentValue.includes(val)
+        );
       }
       return section.conditional.showWhen.includes(dependentValue);
     }
-    
+
     return true;
   };
 
-  const handleCheckboxChange = (questionId: string, value: string, currentValues: string[] = []) => {
+  const handleCheckboxChange = (
+    questionId: string,
+    value: string,
+    currentValues: string[] = []
+  ) => {
     const updatedValues = currentValues.includes(value)
-      ? currentValues.filter(v => v !== value)
+      ? currentValues.filter((v) => v !== value)
       : [...currentValues, value];
     setValue(questionId, updatedValues);
   };
@@ -119,14 +168,14 @@ export function DynamicFormRenderer({
   const onSubmit = async (data: FormData) => {
     try {
       console.log("Form submitted:", data);
-      
-      const queryType = getQueryType() as 'simple' | 'complex';
+
+      const queryType = getQueryType() as "simple" | "complex";
       const submissionId = `submission_${Date.now()}`;
-      
+
       // Send confirmation email to user
       const userEmail = data.email as string;
       const userName = data.name as string;
-      
+
       if (userEmail && userName && emailService.isConfigured()) {
         const emailData: EmailData = {
           to: userEmail,
@@ -135,25 +184,36 @@ export function DynamicFormRenderer({
           submitterEmail: userEmail,
           submissionId,
           queryType,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
-        
+
         try {
-          console.log('📧 FORM: Sending USER CONFIRMATION email to:', userEmail);
+          console.log(
+            "📧 FORM: Sending USER CONFIRMATION email to:",
+            userEmail
+          );
           const emailSent = await emailService.sendConfirmationEmail(emailData);
           if (emailSent) {
-            console.log('✅ FORM: User confirmation email sent successfully to:', userEmail);
+            console.log(
+              "✅ FORM: User confirmation email sent successfully to:",
+              userEmail
+            );
           } else {
-            console.warn('⚠️ FORM: Failed to send user confirmation email');
+            console.warn("⚠️ FORM: Failed to send user confirmation email");
           }
         } catch (emailError) {
-          console.error('❌ FORM: User confirmation email service error:', emailError);
+          console.error(
+            "❌ FORM: User confirmation email service error:",
+            emailError
+          );
           // Don't fail the form submission if email fails
         }
       }
-      
+
       if (queryType === "simple") {
-        toast.success("Simple request submitted successfully! Check your email for confirmation.");
+        toast.success(
+          "Simple request submitted successfully! Check your email for confirmation."
+        );
         setTimeout(() => {
           onSimpleQuerySuccess?.(submissionId);
         }, 1000);
@@ -164,35 +224,52 @@ export function DynamicFormRenderer({
             to: "grants@example.com", // This should be configured
             subject: "New Complex Contract Advice Request",
             submissionId,
-            queryType: 'complex',
+            queryType: "complex",
             submitterName: userName,
             submitterEmail: userEmail,
             timestamp: new Date().toISOString(),
             formData: data,
-            grantTeam: Array.isArray(data['grants-team']) ? data['grants-team'] : [],
-            urgency: data['is-urgent'] === 'yes'
+            grantTeam: Array.isArray(data["grants-team"])
+              ? data["grants-team"]
+              : [],
+            urgency: data["is-urgent"] === "yes",
           };
-          
+
           try {
-            console.log('📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:', submissionId);
-            const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
+            console.log(
+              "📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:",
+              submissionId
+            );
+            const grantEmailSent = await emailService.sendGrantTeamNotification(
+              grantTeamEmailData
+            );
             if (grantEmailSent) {
-              console.log('✅ FORM: Grant team notification sent successfully for complex query:', submissionId);
+              console.log(
+                "✅ FORM: Grant team notification sent successfully for complex query:",
+                submissionId
+              );
             } else {
-              console.warn('⚠️ FORM: Failed to send grant team notification');
+              console.warn("⚠️ FORM: Failed to send grant team notification");
             }
           } catch (grantEmailError) {
-            console.error('❌ FORM: Grant team notification error:', grantEmailError);
+            console.error(
+              "❌ FORM: Grant team notification error:",
+              grantEmailError
+            );
             // Don't fail the form submission if grant team email fails
           }
         }
-        
-        toast.success("Complex request submitted successfully! Check your email for confirmation.");
+
+        toast.success(
+          "Complex request submitted successfully! Check your email for confirmation."
+        );
         setTimeout(() => {
           onComplexQuerySuccess?.();
         }, 1000);
       } else {
-        toast.success("Form submitted successfully! Check your email for confirmation.");
+        toast.success(
+          "Form submitted successfully! Check your email for confirmation."
+        );
       }
     } catch (error) {
       console.error("Form submission error:", error);
@@ -209,18 +286,18 @@ export function DynamicFormRenderer({
     const getValidationRules = () => {
       const rules: any = {};
       if (question.required) {
-        if (question.type === 'checkbox') {
-          rules.validate = (value: any) => 
+        if (question.type === "checkbox") {
+          rules.validate = (value: any) =>
             value && value.length > 0 ? true : `${question.label} is required`;
         } else {
           rules.required = `${question.label} is required`;
         }
       }
 
-      if (question.type === 'email') {
+      if (question.type === "email") {
         rules.pattern = {
           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-          message: "Invalid email address"
+          message: "Invalid email address",
         };
       }
 
@@ -228,19 +305,19 @@ export function DynamicFormRenderer({
         if (question.validation.minLength) {
           rules.minLength = {
             value: question.validation.minLength,
-            message: `Minimum length is ${question.validation.minLength} characters`
+            message: `Minimum length is ${question.validation.minLength} characters`,
           };
         }
         if (question.validation.maxLength) {
           rules.maxLength = {
             value: question.validation.maxLength,
-            message: `Maximum length is ${question.validation.maxLength} characters`
+            message: `Maximum length is ${question.validation.maxLength} characters`,
           };
         }
         if (question.validation.pattern) {
           rules.pattern = {
             value: new RegExp(question.validation.pattern),
-            message: "Invalid format"
+            message: "Invalid format",
           };
         }
       }
@@ -249,16 +326,20 @@ export function DynamicFormRenderer({
     };
 
     switch (question.type) {
-      case 'text':
-      case 'email':
+      case "text":
+      case "email":
         return (
           <div key={question.id} className="space-y-2">
             <Label htmlFor={question.id} className="text-sm font-medium">
               {question.label}
-              {question.required && <span className="text-red-500 ml-1">*</span>}
+              {question.required && (
+                <span className="text-red-500 ml-1">*</span>
+              )}
             </Label>
             {question.helpText && (
-              <p className="text-sm text-muted-foreground">{question.helpText}</p>
+              <p className="text-sm text-muted-foreground">
+                {question.helpText}
+              </p>
             )}
             <Input
               id={question.id}
@@ -268,42 +349,56 @@ export function DynamicFormRenderer({
               className={errors[question.id] ? "border-red-500" : ""}
             />
             {errors[question.id] && (
-              <p className="text-sm text-red-500">{String(errors[question.id]?.message || '')}</p>
+              <p className="text-sm text-red-500">
+                {String(errors[question.id]?.message || "")}
+              </p>
             )}
           </div>
         );
 
-      case 'textarea':
+      case "textarea":
         return (
           <div key={question.id} className="space-y-2">
             <Label htmlFor={question.id} className="text-sm font-medium">
               {question.label}
-              {question.required && <span className="text-red-500 ml-1">*</span>}
+              {question.required && (
+                <span className="text-red-500 ml-1">*</span>
+              )}
             </Label>
             {question.helpText && (
-              <p className="text-sm text-muted-foreground">{question.helpText}</p>
+              <p className="text-sm text-muted-foreground">
+                {question.helpText}
+              </p>
             )}
             <Textarea
               id={question.id}
               placeholder={question.placeholder}
               {...register(question.id, getValidationRules())}
-              className={`min-h-[100px] ${errors[question.id] ? "border-red-500" : ""}`}
+              className={`min-h-[100px] ${
+                errors[question.id] ? "border-red-500" : ""
+              }`}
             />
             {errors[question.id] && (
-              <p className="text-sm text-red-500">{String(errors[question.id]?.message || '')}</p>
+              <p className="text-sm text-red-500">
+                {String(errors[question.id]?.message || "")}
+              </p>
             )}
           </div>
         );
 
-      case 'select':
+      case "select":
         return (
           <div key={question.id} className="space-y-2">
             <Label className="text-sm font-medium">
               {question.label}
-              {question.required && <span className="text-red-500 ml-1">*</span>}
+              {question.required && (
+                <span className="text-red-500 ml-1">*</span>
+              )}
             </Label>
             {question.helpText && (
-              <p className="text-sm text-muted-foreground">{question.helpText}</p>
+              <p className="text-sm text-muted-foreground">
+                {question.helpText}
+              </p>
             )}
             <Controller
               name={question.id}
@@ -311,8 +406,12 @@ export function DynamicFormRenderer({
               rules={getValidationRules()}
               render={({ field }) => (
                 <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger className={errors[question.id] ? "border-red-500" : ""}>
-                    <SelectValue placeholder={question.placeholder || "Select an option"} />
+                  <SelectTrigger
+                    className={errors[question.id] ? "border-red-500" : ""}
+                  >
+                    <SelectValue
+                      placeholder={question.placeholder || "Select an option"}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {question.options?.map((option) => (
@@ -325,20 +424,26 @@ export function DynamicFormRenderer({
               )}
             />
             {errors[question.id] && (
-              <p className="text-sm text-red-500">{String(errors[question.id]?.message || '')}</p>
+              <p className="text-sm text-red-500">
+                {String(errors[question.id]?.message || "")}
+              </p>
             )}
           </div>
         );
 
-      case 'checkbox':
+      case "checkbox":
         return (
           <div key={question.id} className="space-y-3">
             <Label className="text-sm font-medium">
               {question.label}
-              {question.required && <span className="text-red-500 ml-1">*</span>}
+              {question.required && (
+                <span className="text-red-500 ml-1">*</span>
+              )}
             </Label>
             {question.helpText && (
-              <p className="text-sm text-muted-foreground">{question.helpText}</p>
+              <p className="text-sm text-muted-foreground">
+                {question.helpText}
+              </p>
             )}
             <div className="space-y-3">
               {question.options?.map((option) => (
@@ -350,10 +455,20 @@ export function DynamicFormRenderer({
                     render={({ field }) => (
                       <Checkbox
                         id={`${question.id}-${option.value}`}
-                        checked={Array.isArray(field.value) ? field.value.includes(option.value) : false}
+                        checked={
+                          Array.isArray(field.value)
+                            ? field.value.includes(option.value)
+                            : false
+                        }
                         onCheckedChange={(checked) => {
-                          const currentValues = Array.isArray(field.value) ? field.value : [];
-                          handleCheckboxChange(question.id, option.value, currentValues);
+                          const currentValues = Array.isArray(field.value)
+                            ? field.value
+                            : [];
+                          handleCheckboxChange(
+                            question.id,
+                            option.value,
+                            currentValues
+                          );
                         }}
                       />
                     )}
@@ -368,20 +483,26 @@ export function DynamicFormRenderer({
               ))}
             </div>
             {errors[question.id] && (
-              <p className="text-sm text-red-500">{String(errors[question.id]?.message || '')}</p>
+              <p className="text-sm text-red-500">
+                {String(errors[question.id]?.message || "")}
+              </p>
             )}
           </div>
         );
 
-      case 'radio':
+      case "radio":
         return (
           <div key={question.id} className="space-y-3">
             <Label className="text-sm font-medium">
               {question.label}
-              {question.required && <span className="text-red-500 ml-1">*</span>}
+              {question.required && (
+                <span className="text-red-500 ml-1">*</span>
+              )}
             </Label>
             {question.helpText && (
-              <p className="text-sm text-muted-foreground">{question.helpText}</p>
+              <p className="text-sm text-muted-foreground">
+                {question.helpText}
+              </p>
             )}
             <Controller
               name={question.id}
@@ -394,7 +515,10 @@ export function DynamicFormRenderer({
                   className="space-y-3"
                 >
                   {question.options?.map((option) => (
-                    <div key={option.value} className="flex items-center space-x-3">
+                    <div
+                      key={option.value}
+                      className="flex items-center space-x-3"
+                    >
                       <RadioGroupItem
                         value={option.value}
                         id={`${question.id}-${option.value}`}
@@ -411,7 +535,9 @@ export function DynamicFormRenderer({
               )}
             />
             {errors[question.id] && (
-              <p className="text-sm text-red-500">{String(errors[question.id]?.message || '')}</p>
+              <p className="text-sm text-red-500">
+                {String(errors[question.id]?.message || "")}
+              </p>
             )}
           </div>
         );
@@ -423,14 +549,22 @@ export function DynamicFormRenderer({
 
   const getIconComponent = (iconName?: string) => {
     switch (iconName) {
-      case 'User': return <Users className="w-5 h-5" />;
-      case 'Users': return <Users className="w-5 h-5" />;
-      case 'Clock': return <Clock className="w-5 h-5" />;
-      case 'HelpCircle': return <HelpCircle className="w-5 h-5" />;
-      case 'FileText': return <FileText className="w-5 h-5" />;
-      case 'Search': return <Search className="w-5 h-5" />;
-      case 'Settings': return <Settings className="w-5 h-5" />;
-      default: return <HelpCircle className="w-5 h-5" />;
+      case "User":
+        return <Users className="w-5 h-5" />;
+      case "Users":
+        return <Users className="w-5 h-5" />;
+      case "Clock":
+        return <Clock className="w-5 h-5" />;
+      case "HelpCircle":
+        return <HelpCircle className="w-5 h-5" />;
+      case "FileText":
+        return <FileText className="w-5 h-5" />;
+      case "Search":
+        return <Search className="w-5 h-5" />;
+      case "Settings":
+        return <Settings className="w-5 h-5" />;
+      default:
+        return <HelpCircle className="w-5 h-5" />;
     }
   };
 
@@ -451,13 +585,16 @@ export function DynamicFormRenderer({
             if (!isSectionVisible(section)) return null;
 
             const sectionQuestions = visibleQuestions
-              .filter(q => q.sectionId === section.id)
+              .filter((q) => q.sectionId === section.id)
               .sort((a, b) => a.order - b.order);
 
             if (sectionQuestions.length === 0) return null;
 
             return (
-              <Card key={section.id} className="border border-gray-200 bg-white">
+              <Card
+                key={section.id}
+                className="border border-gray-200 bg-white"
+              >
                 <CardContent className="p-6">
                   <div className="flex items-center gap-2 mb-4">
                     {getIconComponent(section.icon)}
