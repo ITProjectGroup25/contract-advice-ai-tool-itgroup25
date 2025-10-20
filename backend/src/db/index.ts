@@ -8,8 +8,7 @@ const DATABASE_URL =
   "postgresql://postgres.lfedmwfgftpkknllchxr:m6rIe9pz2fwQDVBw@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres";
 
 const connectionString =
-  process.env.DATABASE_URL ??
-  "postgres://postgres:postgres@localhost:5432/postgres";
+  DATABASE_URL ?? "postgres://postgres:postgres@localhost:5432/postgres";
 
 if (!connectionString) {
   throw new Error("DATABASE_URL environment variable is not set");
@@ -32,4 +31,3 @@ const client = postgres(connectionString, {
 export const db = drizzle(client, { schema });
 export { schema };
 export const sqlClient = client;
-
