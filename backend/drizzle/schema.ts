@@ -1,22 +1,5 @@
-import {
-  pgTable,
-  unique,
-  pgEnum,
-  bigint,
-  varchar,
-  boolean,
-  timestamp,
-  serial,
-  integer,
-  jsonb,
-  text,
-  index,
-  foreignKey,
-  char,
-  date,
-  primaryKey,
-} from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
+import { pgTable, unique, pgEnum, bigint, varchar, boolean, timestamp, serial, integer, jsonb, text, index, foreignKey, char, date, primaryKey } from "drizzle-orm/pg-core"
+  import { sql } from "drizzle-orm"
 
 export const factorType = pgEnum("factor_type", ['totp', 'webauthn', 'phone'])
 export const factorStatus = pgEnum("factor_status", ['unverified', 'verified'])
@@ -87,26 +70,6 @@ export const form = pgTable("form", {
 	emailBodyTpl: text("email_body_tpl"),
 	createdAt: timestamp("created_at", { mode: 'string' }).notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
-});
-
-export const referralSubmissions = pgTable("referral_submissions", {
-	id: serial("id").primaryKey().notNull(),
-	submissionUid: varchar("submission_uid", { length: 64 }).notNull(),
-	formId: integer("form_id").references(() => form.id, { onDelete: "set null" } ),
-	queryType: varchar("query_type", { length: 32 }).notNull(),
-	status: varchar("status", { length: 32 }).default('submitted').notNull(),
-	userName: varchar("user_name", { length: 200 }),
-	userEmail: varchar("user_email", { length: 200 }),
-	formData: jsonb("form_data").notNull(),
-	attachments: jsonb("attachments").default(sql`'[]'::jsonb`).notNull(),
-	metadata: jsonb("metadata"),
-	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
-	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
-},
-(table) => {
-	return {
-		referralSubmissionsSubmissionUidKey: unique("referral_submissions_submission_uid_key").on(table.submissionUid),
-	}
 });
 
 export const formSection = pgTable("form_section", {

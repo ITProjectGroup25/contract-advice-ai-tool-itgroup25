@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-// @ts-ignore
 import { db, referralSubmissions } from "@backend";
 
 const submissionPayload = z.object({
@@ -87,3 +86,4 @@ export async function POST(request: Request) {
     );
   }
 }
+
