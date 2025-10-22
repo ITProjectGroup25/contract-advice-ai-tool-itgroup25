@@ -43,32 +43,35 @@ const FormsPicker = ({ options, setData, setCols, setRows }: FormPickerProps) =>
     return null;
   };
 
-  const fetchData = async (selectedFormId: number) => {
-    try {
-      const response = await getSubmissions(selectedFormId);
-      if (response) {
-        setCols(response.columns);
-        setRows(response.data);
-        setData(response);
-      } else {
+  const fetchData = useCallback(
+    async (selectedFormId: number) => {
+      try {
+        const response = await getSubmissions(selectedFormId);
+        if (response) {
+          setCols(response.columns);
+          setRows(response.data);
+          setData(response);
+        } else {
+          setCols([]);
+          setRows([]);
+          setData(null);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
         setCols([]);
         setRows([]);
         setData(null);
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setCols([]);
-      setRows([]);
-      setData(null);
-    }
-  };
+    },
+    [setCols, setData, setRows]
+  );
 
   useEffect(() => {
     fetchData(Number(formId));
-  }, [formId]);
+  }, [fetchData, formId]);
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex items-center gap-2">
       <Label className="font-bold">Select a form</Label>
       <Select
         value={formId}

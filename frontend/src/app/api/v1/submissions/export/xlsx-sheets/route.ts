@@ -10,23 +10,30 @@ export async function GET(req: NextRequest) {
   try {
     const sp = new URL(req.url).searchParams;
 
-     // Reuse the same query parameters as /api/v1/submissions
-    const expand   = sp.get("expand") === "1";
-    const page     = Number(sp.get("page") ?? "1");
+    // Reuse the same query parameters as /api/v1/submissions
+    const expand = sp.get("expand") === "1";
+    const page = Number(sp.get("page") ?? "1");
     const pageSize = Number(sp.get("pageSize") ?? "20");
-    const orderBy  = sp.get("orderBy") ?? "created_at";
-    const asc      = (sp.get("asc") ?? "false") === "true";
-    const status   = sp.get("status") as any;
-    const formId   = sp.get("formId") ? Number(sp.get("formId")) : undefined;
+    const orderBy = sp.get("orderBy") ?? "created_at";
+    const asc = (sp.get("asc") ?? "false") === "true";
+    const status = sp.get("status") as any;
+    const formId = sp.get("formId") ? Number(sp.get("formId")) : undefined;
     const dateFrom = sp.get("dateFrom") ?? undefined;
-    const dateTo   = sp.get("dateTo") ?? undefined;
+    const dateTo = sp.get("dateTo") ?? undefined;
 
     // Optional: customize filename prefix via ?name=
     const name = sp.get("name") ?? "submissions";
 
-
     const { data } = await listSubmissions({
-      page, pageSize, orderBy, asc, status, formId, dateFrom, dateTo, expand,
+      page,
+      pageSize,
+      orderBy,
+      asc,
+      status,
+      formId,
+      dateFrom,
+      dateTo,
+      expand,
     });
 
     // Create workbook
@@ -45,7 +52,7 @@ export async function GET(req: NextRequest) {
         "Updated At",
       ];
 
-      const rows = (data as any[]).map((s) => ([
+      const rows = (data as any[]).map((s) => [
         s.id ?? "",
         s.form_id ?? s.form?.id ?? "",
         s.form?.title ?? "",
@@ -54,7 +61,7 @@ export async function GET(req: NextRequest) {
         s.status ?? "",
         s.created_at ?? "",
         s.updated_at ?? "",
-      ]));
+      ]);
 
       const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
       XLSX.utils.book_append_sheet(wb, ws, "Submissions");
@@ -119,7 +126,6 @@ export async function GET(req: NextRequest) {
         const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
         XLSX.utils.book_append_sheet(wb, ws, "Attachments");
       }
-
     }
 
     // Serialize workbook and return as downloadable attachment
@@ -129,8 +135,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse(buf, {
       status: 200,
       headers: {
-        "Content-Type":
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "Content-Disposition": `attachment; filename="${fileName}"`,
         "Cache-Control": "no-store",
       },

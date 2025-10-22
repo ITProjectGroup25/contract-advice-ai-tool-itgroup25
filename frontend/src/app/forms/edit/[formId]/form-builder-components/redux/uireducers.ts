@@ -4,5 +4,5 @@ import modalstripReducer from "./uireducers/modalstrip";
 
 export default combineReducers({
   progress: progressReducer,
-  modalstrip: modalstripReducer
+  modalstrip: modalstripReducer,
 });

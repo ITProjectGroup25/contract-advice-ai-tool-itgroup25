@@ -18,4 +18,3 @@ export async function deleteForm({ id }: Args) {
     return { message: "Failed to delete form" };
   }
 }
-

@@ -126,15 +126,8 @@ const RenderItem: FC<RenderItemProps> = (props) => {
     case FormControlNames.FILEUPLOAD:
       return (
         <>
-          <input
-            style={{ display: "none" }}
-            id={item.controlName + item.id}
-            type="file"
-          />
-          <label
-            className="control-input-trigger-buttons"
-            htmlFor={item.controlName + item.id}
-          >
+          <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
+          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
             <i className="fas fa-cloud-upload-alt"></i>
           </label>
         </>
@@ -143,15 +136,8 @@ const RenderItem: FC<RenderItemProps> = (props) => {
     case FormControlNames.IMAGEUPLOAD:
       return (
         <>
-          <input
-            style={{ display: "none" }}
-            id={item.controlName + item.id}
-            type="file"
-          />
-          <label
-            className="control-input-trigger-buttons"
-            htmlFor={item.controlName + item.id}
-          >
+          <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
+          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
             <i className="far fa-image"></i>
           </label>
         </>
@@ -160,15 +146,8 @@ const RenderItem: FC<RenderItemProps> = (props) => {
     case FormControlNames.SCANCODE:
       return (
         <>
-          <input
-            style={{ display: "none" }}
-            id={item.controlName + item.id}
-            type="file"
-          />
-          <label
-            className="control-input-trigger-buttons"
-            htmlFor={item.controlName + item.id}
-          >
+          <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
+          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
             <i className="fas fa-qrcode"></i>
           </label>
         </>
@@ -177,15 +156,8 @@ const RenderItem: FC<RenderItemProps> = (props) => {
     case FormControlNames.SCANCODE:
       return (
         <>
-          <input
-            style={{ display: "none" }}
-            id={item.controlName + item.id}
-            type="file"
-          />
-          <label
-            className="control-input-trigger-buttons"
-            htmlFor={item.controlName + item.id}
-          >
+          <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
+          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
             <i className="fas fa-qrcode"></i>
           </label>
         </>

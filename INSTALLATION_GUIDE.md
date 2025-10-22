@@ -31,7 +31,7 @@ Then uncomment the EmailJS imports in `frontend/src/lib/emailService.ts`:
 // import emailjs from '@emailjs/browser';
 
 // To this:
-import emailjs from '@emailjs/browser';
+import emailjs from "@emailjs/browser";
 ```
 
 ### 3. Environment Configuration
@@ -60,6 +60,7 @@ npm run dev
 ```
 
 The application will be available at:
+
 - **Main App**: http://localhost:3000
 - **Dynamic Form**: http://localhost:3000/dynamic-form
 - **Admin Panel**: http://localhost:3000/admin (password: admin123)
@@ -77,12 +78,14 @@ If you see errors like "Module not found: Can't resolve '@emailjs/browser'":
 ### TypeScript Errors
 
 The project includes some TypeScript warnings that don't affect functionality:
+
 - `'question.conditional' is possibly 'undefined'` - This is handled safely in the code
 - Schema loading warnings - These don't affect the application
 
 ### EmailJS Not Working
 
 If emails aren't being sent:
+
 1. Check that EmailJS is properly installed
 2. Verify your EmailJS configuration in `.env.local`
 3. Check the browser console for EmailJS initialization messages

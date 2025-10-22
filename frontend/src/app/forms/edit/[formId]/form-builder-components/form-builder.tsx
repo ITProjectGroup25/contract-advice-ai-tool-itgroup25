@@ -49,8 +49,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
 
   const router = useRouter();
 
-  const { showPreview, openPreviewDrawer, closePreviewDrawer } =
-    useFormPreview();
+  const { showPreview, openPreviewDrawer, closePreviewDrawer } = useFormPreview();
 
   const { classes } = useStyles();
 
@@ -63,10 +62,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
       // Convert your form layout/components into FormData
       const formData = new FormData();
       formData.append("formName", selectedTemplate?.formName ?? "");
-      formData.append(
-        "formLayoutComponents",
-        JSON.stringify(formLayoutComponents)
-      );
+      formData.append("formLayoutComponents", JSON.stringify(formLayoutComponents));
       formData.append("id", String(selectedTemplate?.id ?? ""));
 
       console.log({ formLayoutComponents });
@@ -124,7 +120,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                 </div>
               </div>
               <div className="col-lg-6">
-                <div className="container p-20 h-100">
+                <div className="h-100 container p-20">
                   {/* Form Details and Action */}
                   <div className="row mb-5">
                     <div className="col-12">
@@ -133,7 +129,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
                         <div className="action-buttons d-flex">
                           <Button
                             onClick={handleDelete}
-                            className="mx-2 text-red"
+                            className="text-red mx-2"
                             disabled={isDeleting}
                           >
                             {isDeleting ? "Deleting..." : "Delete"}
@@ -232,8 +228,3 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
 };
 
 export default FormBuilder;
-
-
-
-
-

@@ -27,6 +27,7 @@ npm install
 Create the following files (or copy from the provided examples) and fill in the values as needed.
 
 ### Root `.env`
+
 ```
 DATABASE_URL=your-supabase-connection-string
 NEXTAUTH_SECRET=change-me
@@ -34,6 +35,7 @@ NEXTAUTH_URL=http://localhost:3000
 ```
 
 ### Frontend `.env.local`
+
 ```
 DATABASE_URL=your-supabase-connection-string
 NEXTAUTH_SECRET=change-me
@@ -47,6 +49,7 @@ GEMINI_API_KEY=
 ```
 
 **Important Notes:**
+
 - Replace `your-supabase-connection-string` with the actual connection string from Supabase
 - Replace `your-supabase-project-url` with your Project URL (e.g., https://xxxxx.supabase.co)
 - Replace `your-supabase-anon-key` with your anon/public key
@@ -74,6 +77,7 @@ The app will be available at http://localhost:3000.
 ## Managing Your Database
 
 You can manage your Supabase database through:
+
 - **Supabase Dashboard**: Visual interface at https://app.supabase.com
 - **Table Editor**: View and edit data directly
 - **SQL Editor**: Run custom SQL queries

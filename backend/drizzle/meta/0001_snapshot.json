@@ -62,12 +62,8 @@
           "name": "form_details_form_id_form_id_fk",
           "tableFrom": "form_details",
           "tableTo": "form",
-          "columnsFrom": [
-            "form_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["form_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -77,9 +73,7 @@
         "form_details_form_id_key": {
           "name": "form_details_form_id_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "form_id"
-          ]
+          "columns": ["form_id"]
         }
       }
     },
@@ -119,12 +113,8 @@
           "name": "form_results_form_id_form_id_fk",
           "tableFrom": "form_results",
           "tableTo": "form",
-          "columnsFrom": [
-            "form_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["form_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

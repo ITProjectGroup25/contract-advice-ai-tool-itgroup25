@@ -10,7 +10,7 @@ export async function getUserForms() {
   }
 
   const sql = postgres(connectionString);
-  
+
   try {
     // Use direct SQL query to fetch all forms
     const rows = await sql`
@@ -18,7 +18,7 @@ export async function getUserForms() {
       FROM form
       ORDER BY created_at DESC
     `;
-    
+
     console.log("Fetched forms:", rows);
     return rows;
   } catch (error) {

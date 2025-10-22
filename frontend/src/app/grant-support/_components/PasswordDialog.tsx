@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { Button } from "./ui/button";
@@ -28,7 +28,7 @@ export function PasswordDialog({ open, onClose, onSuccess }: PasswordDialogProps
     setError("");
 
     // Simulate a small delay for security
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     if (password === ADMIN_PASSWORD) {
       setPassword("");
@@ -84,11 +84,7 @@ export function PasswordDialog({ open, onClose, onSuccess }: PasswordDialogProps
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isVerifying}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
           </div>
@@ -100,18 +96,10 @@ export function PasswordDialog({ open, onClose, onSuccess }: PasswordDialogProps
           )}
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isVerifying}
-            >
+            <Button type="button" variant="outline" onClick={handleClose} disabled={isVerifying}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={!password.trim() || isVerifying}
-            >
+            <Button type="submit" disabled={!password.trim() || isVerifying}>
               {isVerifying ? "Verifying..." : "Access Admin Panel"}
             </Button>
           </div>

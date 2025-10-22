@@ -2,7 +2,7 @@
 
 export interface Question {
   id: string;
-  type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'file';
+  type: "text" | "email" | "textarea" | "select" | "checkbox" | "radio" | "file";
   label: string;
   placeholder?: string;
   required: boolean;
@@ -46,8 +46,8 @@ export interface FormSubmission {
   id: string;
   formData: FormData;
   submittedAt: Date;
-  status: 'pending' | 'processing' | 'completed' | 'escalated';
-  queryType: 'simple' | 'complex';
+  status: "pending" | "processing" | "completed" | "escalated";
+  queryType: "simple" | "complex";
   submitterEmail?: string;
   submitterName?: string;
 }
@@ -95,7 +95,7 @@ export interface AdminSettings {
   };
 }
 
-export type AppState = 'form' | 'simple-response' | 'success' | 'admin' | 'chatbot';
+export type AppState = "form" | "simple-response" | "success" | "admin" | "chatbot";
 
 export interface SimpleQueryResponse {
   submissionId: string;

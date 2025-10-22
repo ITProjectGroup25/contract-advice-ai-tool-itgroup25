@@ -63,12 +63,8 @@
           "tableFrom": "form_details",
           "tableTo": "form",
           "schemaTo": "public",
-          "columnsFrom": [
-            "form_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["form_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -76,9 +72,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "form_details_form_id_key": {
-          "columns": [
-            "form_id"
-          ],
+          "columns": ["form_id"],
           "nullsNotDistinct": false,
           "name": "form_details_form_id_key"
         }
@@ -121,12 +115,8 @@
           "tableFrom": "form_results",
           "tableTo": "form",
           "schemaTo": "public",
-          "columnsFrom": [
-            "form_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["form_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

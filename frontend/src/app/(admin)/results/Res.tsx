@@ -1,17 +1,5 @@
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-} from "@nextui-org/react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 
 import type { SubmissionTable, SubmissionColumn, SubmissionRow } from "./types";
 
@@ -59,9 +47,7 @@ const Res = ({ data, cols, rows }: ResultsProps) => {
                 {row.answers.map((answer, idx) => (
                   <TableCell key={idx} className="font-light">
                     <div className="line-clamp-2">
-                      {answer.value == null
-                        ? answer.fieldOption?.text ?? ""
-                        : answer.value}
+                      {answer.value == null ? (answer.fieldOption?.text ?? "") : answer.value}
                     </div>
                   </TableCell>
                 ))}
@@ -75,4 +61,3 @@ const Res = ({ data, cols, rows }: ResultsProps) => {
 };
 
 export default Res;
-

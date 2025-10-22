@@ -15,9 +15,7 @@ interface ControlDragComponentProps {
   formLayoutComponents: FormLayoutComponentsType[];
 }
 
-const ControlDragComponent: FunctionComponent<ControlDragComponentProps> = (
-  props
-) => {
+const ControlDragComponent: FunctionComponent<ControlDragComponentProps> = (props) => {
   const { item, handleItemAdded } = props;
 
   const [{ isDragging }, drag] = useDrag(
@@ -25,13 +23,10 @@ const ControlDragComponent: FunctionComponent<ControlDragComponentProps> = (
       type: item.itemType,
       item: item,
       end: (
-        item:
-          | FormLayoutComponentChildrenType
-          | FormLayoutComponentContainerType,
+        item: FormLayoutComponentChildrenType | FormLayoutComponentContainerType,
         monitor: any
       ) => {
-        const dropResult: FormLayoutComponentContainerType =
-          monitor.getDropResult();
+        const dropResult: FormLayoutComponentContainerType = monitor.getDropResult();
         if (item && dropResult) {
           if (item.itemType === "container") {
             handleItemAdded(item);
@@ -65,9 +60,7 @@ const ControlDragComponent: FunctionComponent<ControlDragComponentProps> = (
         style={{ opacity, cursor: "move" }}
         className="d-flex align-items-center justify-content-center btn btn-light btn-shadow w-100 my-2"
       >
-        <span
-          style={{ height: "100%", marginRight: "9px", fontSize: "1.2rem" }}
-        >
+        <span style={{ height: "100%", marginRight: "9px", fontSize: "1.2rem" }}>
           <i className={item.icon}></i>
         </span>
         {item.displayText}
@@ -77,4 +70,3 @@ const ControlDragComponent: FunctionComponent<ControlDragComponentProps> = (
 };
 
 export default ControlDragComponent;
-

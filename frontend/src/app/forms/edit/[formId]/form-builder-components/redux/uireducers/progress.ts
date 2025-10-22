@@ -1,17 +1,17 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const slice = createSlice({
   name: "progressReducer",
   initialState: {
-    isCircularProgressOpen: false
+    isCircularProgressOpen: false,
   },
   reducers: {
-    openCircularProgress: (state)=>{
+    openCircularProgress: (state) => {
       state.isCircularProgressOpen = true;
     },
-    closeCircularProgress: (state)=>{
-      state.isCircularProgressOpen = false
-    }
+    closeCircularProgress: (state) => {
+      state.isCircularProgressOpen = false;
+    },
   },
 });
 

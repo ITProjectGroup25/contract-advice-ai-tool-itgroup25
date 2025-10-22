@@ -1,5 +1,8 @@
 import { generateID } from "./common";
-import type { FormLayoutComponentChildrenType, FormLayoutComponentContainerType } from "../types/FormTemplateTypes";
+import type {
+  FormLayoutComponentChildrenType,
+  FormLayoutComponentContainerType,
+} from "../types/FormTemplateTypes";
 
 export const FormControlNames = {
   STEPCONTAINER: "step-container",
@@ -36,7 +39,7 @@ export const FormPublishStatus = {
 
 export const FormContainerList: FormLayoutComponentContainerType[] = [
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.STEPCONTAINER,
     displayText: "Workflow Step",
     itemType: FormItemTypes.CONTAINER,
@@ -48,7 +51,7 @@ export const FormContainerList: FormLayoutComponentContainerType[] = [
 
 export const FormControlList: FormLayoutComponentChildrenType[] = [
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.INPUTTEXTFIELD,
     displayText: "Text Field",
     placeholder: "Placeholder for Text Field",
@@ -59,10 +62,10 @@ export const FormControlList: FormLayoutComponentChildrenType[] = [
     icon: "fas fa-text-height",
     required: false,
     category: "text-elements",
-    containerId: '',
+    containerId: "",
   },
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.INPUTMULTILINE,
     displayText: "Notes",
     description: "Some Description about the field",
@@ -73,10 +76,10 @@ export const FormControlList: FormLayoutComponentChildrenType[] = [
     icon: "far fa-file",
     required: false,
     category: "text-elements",
-    containerId: '',
+    containerId: "",
   },
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.RADIOGROUP,
     displayText: "Radio",
     description: "Some Description about the field",
@@ -97,10 +100,10 @@ export const FormControlList: FormLayoutComponentChildrenType[] = [
       },
     ],
     category: "other-elements",
-    containerId: '',
+    containerId: "",
   },
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.TOGGLE,
     displayText: "Toggle",
     description: "Some Description about the field",
@@ -109,10 +112,10 @@ export const FormControlList: FormLayoutComponentChildrenType[] = [
     icon: "fas fa-toggle-on",
     required: false,
     category: "other-elements",
-    containerId: '',
+    containerId: "",
   },
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.CHECKLIST,
     displayText: "Checklist",
     description: "Some Description about the field",
@@ -133,10 +136,10 @@ export const FormControlList: FormLayoutComponentChildrenType[] = [
       },
     ],
     category: "other-elements",
-    containerId: '',
+    containerId: "",
   },
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.SELECTDROPDOWN,
     displayText: "Dropdown",
     description: "Some Description about the field",
@@ -157,10 +160,10 @@ export const FormControlList: FormLayoutComponentChildrenType[] = [
       },
     ],
     category: "other-elements",
-    containerId: '',
+    containerId: "",
   },
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.CHECKBOX,
     displayText: "Checkbox",
     description: "Some Description about the field",
@@ -170,10 +173,10 @@ export const FormControlList: FormLayoutComponentChildrenType[] = [
     icon: "far fa-check-square",
     required: false,
     category: "other-elements",
-    containerId: '',
+    containerId: "",
   },
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.DATEFIELD,
     displayText: "Date Picker",
     description: "Some Description about the field",
@@ -182,10 +185,10 @@ export const FormControlList: FormLayoutComponentChildrenType[] = [
     icon: "far fa-calendar",
     required: false,
     category: "date-elements",
-    containerId: '',
+    containerId: "",
   },
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.TIMEFIELD,
     displayText: "Time",
     description: "Some Description about the field",
@@ -194,10 +197,10 @@ export const FormControlList: FormLayoutComponentChildrenType[] = [
     icon: "far fa-clock",
     required: false,
     category: "date-elements",
-    containerId: '',
+    containerId: "",
   },
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.SIGNATURE,
     displayText: "Signature",
     description: "Some Description about the field",
@@ -206,10 +209,10 @@ export const FormControlList: FormLayoutComponentChildrenType[] = [
     icon: "fa fa-signature",
     required: false,
     category: "other-elements",
-    containerId: '',
+    containerId: "",
   },
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.FILEUPLOAD,
     displayText: "Upload",
     description: "Some Description about the field",
@@ -218,10 +221,10 @@ export const FormControlList: FormLayoutComponentChildrenType[] = [
     icon: "fas fa-cloud-upload-alt",
     required: false,
     category: "media-elements",
-    containerId: '',
+    containerId: "",
   },
   {
-    id: '',
+    id: "",
     controlName: FormControlNames.IMAGEUPLOAD,
     displayText: "Image",
     description: "Some Description about the field",
@@ -230,6 +233,6 @@ export const FormControlList: FormLayoutComponentChildrenType[] = [
     icon: "far fa-image",
     required: false,
     category: "media-elements",
-    containerId: '',
+    containerId: "",
   },
 ];

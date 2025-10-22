@@ -5,24 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Settings, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save, 
-  X, 
-  ArrowLeft,
-  Eye,
-  EyeOff,
-  Move
-} from "lucide-react";
+import { Settings, Plus, Edit, Trash2, Save, X, ArrowLeft, Eye, EyeOff, Move } from "lucide-react";
 import { Question, FormSection } from "@shared";
 import { toast } from "sonner";
 
@@ -34,12 +29,12 @@ interface AdminInterfaceProps {
   onSectionsUpdate: (sections: FormSection[]) => void;
 }
 
-export function AdminInterface({ 
-  onBack, 
-  questions, 
-  sections, 
-  onQuestionsUpdate, 
-  onSectionsUpdate 
+export function AdminInterface({
+  onBack,
+  questions,
+  sections,
+  onQuestionsUpdate,
+  onSectionsUpdate,
 }: AdminInterfaceProps) {
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [editingSection, setEditingSection] = useState<FormSection | null>(null);
@@ -54,7 +49,7 @@ export function AdminInterface({
     required: false,
     visible: true,
     order: questions.length + 1,
-    sectionId: ""
+    sectionId: "",
   });
 
   const [newSection, setNewSection] = useState<Partial<FormSection>>({
@@ -62,7 +57,7 @@ export function AdminInterface({
     title: "",
     description: "",
     order: sections.length + 1,
-    visible: true
+    visible: true,
   });
 
   const handleCreateQuestion = () => {
@@ -73,7 +68,7 @@ export function AdminInterface({
 
     const question: Question = {
       id: newQuestion.id,
-      type: newQuestion.type || 'text',
+      type: newQuestion.type || "text",
       label: newQuestion.label,
       placeholder: newQuestion.placeholder,
       required: newQuestion.required || false,
@@ -83,7 +78,7 @@ export function AdminInterface({
       helpText: newQuestion.helpText,
       options: newQuestion.options || [],
       validation: newQuestion.validation,
-      conditional: newQuestion.conditional
+      conditional: newQuestion.conditional,
     };
 
     onQuestionsUpdate([...questions, question]);
@@ -94,7 +89,7 @@ export function AdminInterface({
       required: false,
       visible: true,
       order: questions.length + 2,
-      sectionId: ""
+      sectionId: "",
     });
     setIsCreatingQuestion(false);
     toast.success("Question created successfully");
@@ -113,7 +108,7 @@ export function AdminInterface({
       order: newSection.order || sections.length + 1,
       visible: newSection.visible || true,
       conditional: newSection.conditional,
-      icon: newSection.icon
+      icon: newSection.icon,
     };
 
     onSectionsUpdate([...sections, section]);
@@ -122,33 +117,33 @@ export function AdminInterface({
       title: "",
       description: "",
       order: sections.length + 2,
-      visible: true
+      visible: true,
     });
     setIsCreatingSection(false);
     toast.success("Section created successfully");
   };
 
   const handleDeleteQuestion = (questionId: string) => {
-    onQuestionsUpdate(questions.filter(q => q.id !== questionId));
+    onQuestionsUpdate(questions.filter((q) => q.id !== questionId));
     toast.success("Question deleted successfully");
   };
 
   const handleDeleteSection = (sectionId: string) => {
-    onSectionsUpdate(sections.filter(s => s.id !== sectionId));
+    onSectionsUpdate(sections.filter((s) => s.id !== sectionId));
     // Also remove questions in this section
-    onQuestionsUpdate(questions.filter(q => q.sectionId !== sectionId));
+    onQuestionsUpdate(questions.filter((q) => q.sectionId !== sectionId));
     toast.success("Section deleted successfully");
   };
 
   const handleToggleQuestionVisibility = (questionId: string) => {
-    const updatedQuestions = questions.map(q => 
+    const updatedQuestions = questions.map((q) =>
       q.id === questionId ? { ...q, visible: !q.visible } : q
     );
     onQuestionsUpdate(updatedQuestions);
   };
 
   const handleToggleSectionVisibility = (sectionId: string) => {
-    const updatedSections = sections.map(s => 
+    const updatedSections = sections.map((s) =>
       s.id === sectionId ? { ...s, visible: !s.visible } : s
     );
     onSectionsUpdate(updatedSections);
@@ -156,9 +151,9 @@ export function AdminInterface({
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
+      <div className="mx-auto max-w-6xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
@@ -219,7 +214,9 @@ export function AdminInterface({
                       <Label htmlFor="question-type">Type</Label>
                       <Select
                         value={newQuestion.type}
-                        onValueChange={(value) => setNewQuestion({ ...newQuestion, type: value as any })}
+                        onValueChange={(value) =>
+                          setNewQuestion({ ...newQuestion, type: value as any })
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -250,7 +247,9 @@ export function AdminInterface({
                     <Label htmlFor="question-section">Section</Label>
                     <Select
                       value={newQuestion.sectionId}
-                      onValueChange={(value) => setNewQuestion({ ...newQuestion, sectionId: value })}
+                      onValueChange={(value) =>
+                        setNewQuestion({ ...newQuestion, sectionId: value })
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a section" />
@@ -269,21 +268,20 @@ export function AdminInterface({
                     <Checkbox
                       id="question-required"
                       checked={newQuestion.required}
-                      onCheckedChange={(checked) => setNewQuestion({ ...newQuestion, required: !!checked })}
+                      onCheckedChange={(checked) =>
+                        setNewQuestion({ ...newQuestion, required: !!checked })
+                      }
                     />
                     <Label htmlFor="question-required">Required</Label>
                   </div>
 
                   <div className="flex gap-2">
                     <Button onClick={handleCreateQuestion}>
-                      <Save className="h-4 w-4 mr-2" />
+                      <Save className="mr-2 h-4 w-4" />
                       Create Question
                     </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsCreatingQuestion(false)}
-                    >
-                      <X className="h-4 w-4 mr-2" />
+                    <Button variant="outline" onClick={() => setIsCreatingQuestion(false)}>
+                      <X className="mr-2 h-4 w-4" />
                       Cancel
                     </Button>
                   </div>
@@ -300,13 +298,15 @@ export function AdminInterface({
                       <div className="flex items-center gap-4">
                         <div>
                           <h3 className="font-medium">{question.label}</h3>
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="mt-1 flex items-center gap-2">
                             <Badge variant="secondary">{question.type}</Badge>
                             <Badge variant={question.required ? "default" : "outline"}>
                               {question.required ? "Required" : "Optional"}
                             </Badge>
                             <span className="text-sm text-gray-500">
-                              Section: {sections.find(s => s.id === question.sectionId)?.title || "Unknown"}
+                              Section:{" "}
+                              {sections.find((s) => s.id === question.sectionId)?.title ||
+                                "Unknown"}
                             </span>
                           </div>
                         </div>
@@ -317,7 +317,11 @@ export function AdminInterface({
                           size="sm"
                           onClick={() => handleToggleQuestionVisibility(question.id)}
                         >
-                          {question.visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                          {question.visible ? (
+                            <Eye className="h-4 w-4" />
+                          ) : (
+                            <EyeOff className="h-4 w-4" />
+                          )}
                         </Button>
                         <Button
                           variant="ghost"
@@ -386,21 +390,20 @@ export function AdminInterface({
                     <Textarea
                       id="section-description"
                       value={newSection.description || ""}
-                      onChange={(e) => setNewSection({ ...newSection, description: e.target.value })}
+                      onChange={(e) =>
+                        setNewSection({ ...newSection, description: e.target.value })
+                      }
                       placeholder="Section description"
                     />
                   </div>
 
                   <div className="flex gap-2">
                     <Button onClick={handleCreateSection}>
-                      <Save className="h-4 w-4 mr-2" />
+                      <Save className="mr-2 h-4 w-4" />
                       Create Section
                     </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsCreatingSection(false)}
-                    >
-                      <X className="h-4 w-4 mr-2" />
+                    <Button variant="outline" onClick={() => setIsCreatingSection(false)}>
+                      <X className="mr-2 h-4 w-4" />
                       Cancel
                     </Button>
                   </div>
@@ -416,11 +419,11 @@ export function AdminInterface({
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-medium">{section.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{section.description}</p>
-                        <div className="flex items-center gap-2 mt-2">
+                        <p className="mt-1 text-sm text-gray-600">{section.description}</p>
+                        <div className="mt-2 flex items-center gap-2">
                           <Badge variant="outline">Order: {section.order}</Badge>
                           <span className="text-sm text-gray-500">
-                            {questions.filter(q => q.sectionId === section.id).length} questions
+                            {questions.filter((q) => q.sectionId === section.id).length} questions
                           </span>
                         </div>
                       </div>
@@ -430,7 +433,11 @@ export function AdminInterface({
                           size="sm"
                           onClick={() => handleToggleSectionVisibility(section.id)}
                         >
-                          {section.visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                          {section.visible ? (
+                            <Eye className="h-4 w-4" />
+                          ) : (
+                            <EyeOff className="h-4 w-4" />
+                          )}
                         </Button>
                         <Button
                           variant="ghost"

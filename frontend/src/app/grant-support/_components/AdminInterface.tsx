@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { Button } from "./ui/button";
@@ -11,19 +11,19 @@ import { Checkbox } from "./ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
-import { 
-  Settings, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save, 
-  X, 
+import {
+  Settings,
+  Plus,
+  Edit,
+  Trash2,
+  Save,
+  X,
   ArrowLeft,
   Eye,
   EyeOff,
   Move,
   Copy,
-  Database
+  Database,
 } from "lucide-react";
 import { DatabaseManagement } from "./DatabaseManagement";
 import { EmailConfiguration } from "./EmailConfiguration";
@@ -38,7 +38,7 @@ export interface Question {
   id: string;
   title: string;
   description?: string;
-  type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox-group' | 'radio-group' | 'date';
+  type: "text" | "email" | "textarea" | "select" | "checkbox-group" | "radio-group" | "date";
   required: boolean;
   options?: QuestionOption[];
   placeholder?: string;
@@ -61,7 +61,7 @@ export interface FormSection {
   title: string;
   description?: string;
   order: number;
-  queryType?: 'both' | 'simple' | 'complex';
+  queryType?: "both" | "simple" | "complex";
 }
 
 interface AdminInterfaceProps {
@@ -72,12 +72,12 @@ interface AdminInterfaceProps {
   onSectionsUpdate: (sections: FormSection[]) => void;
 }
 
-export function AdminInterface({ 
-  onBack, 
-  questions, 
-  sections, 
-  onQuestionsUpdate, 
-  onSectionsUpdate 
+export function AdminInterface({
+  onBack,
+  questions,
+  sections,
+  onQuestionsUpdate,
+  onSectionsUpdate,
 }: AdminInterfaceProps) {
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [editingSection, setEditingSection] = useState<FormSection | null>(null);
@@ -93,14 +93,14 @@ export function AdminInterface({
     options: [],
     section: "",
     order: questions.length + 1,
-    visible: true
+    visible: true,
   });
 
   const [newSection, setNewSection] = useState<Partial<FormSection>>({
     title: "",
     description: "",
     order: sections.length + 1,
-    queryType: "both"
+    queryType: "both",
   });
 
   const handleSaveQuestion = () => {
@@ -118,11 +118,11 @@ export function AdminInterface({
       conditional: newQuestion.conditional,
       section: newQuestion.section!,
       order: newQuestion.order!,
-      visible: newQuestion.visible!
+      visible: newQuestion.visible!,
     };
 
     if (editingQuestion) {
-      onQuestionsUpdate(questions.map(q => q.id === question.id ? question : q));
+      onQuestionsUpdate(questions.map((q) => (q.id === question.id ? question : q)));
     } else {
       onQuestionsUpdate([...questions, question]);
     }
@@ -138,11 +138,11 @@ export function AdminInterface({
       title: newSection.title!,
       description: newSection.description,
       order: newSection.order!,
-      queryType: newSection.queryType!
+      queryType: newSection.queryType!,
     };
 
     if (editingSection) {
-      onSectionsUpdate(sections.map(s => s.id === section.id ? section : s));
+      onSectionsUpdate(sections.map((s) => (s.id === section.id ? section : s)));
     } else {
       onSectionsUpdate([...sections, section]);
     }
@@ -159,7 +159,7 @@ export function AdminInterface({
       options: [],
       section: "",
       order: questions.length + 1,
-      visible: true
+      visible: true,
     });
     setEditingQuestion(null);
     setIsCreatingQuestion(false);
@@ -170,7 +170,7 @@ export function AdminInterface({
       title: "",
       description: "",
       order: sections.length + 1,
-      queryType: "both"
+      queryType: "both",
     });
     setEditingSection(null);
     setIsCreatingSection(false);
@@ -189,20 +189,20 @@ export function AdminInterface({
   };
 
   const handleDeleteQuestion = (questionId: string) => {
-    onQuestionsUpdate(questions.filter(q => q.id !== questionId));
+    onQuestionsUpdate(questions.filter((q) => q.id !== questionId));
   };
 
   const handleDeleteSection = (sectionId: string) => {
     // Also remove questions in this section
-    onQuestionsUpdate(questions.filter(q => q.section !== sectionId));
-    onSectionsUpdate(sections.filter(s => s.id !== sectionId));
+    onQuestionsUpdate(questions.filter((q) => q.section !== sectionId));
+    onSectionsUpdate(sections.filter((s) => s.id !== sectionId));
   };
 
   const addOption = () => {
     const currentOptions = newQuestion.options || [];
     setNewQuestion({
       ...newQuestion,
-      options: [...currentOptions, { id: `opt_${Date.now()}`, label: "" }]
+      options: [...currentOptions, { id: `opt_${Date.now()}`, label: "" }],
     });
   };
 
@@ -217,15 +217,13 @@ export function AdminInterface({
     const currentOptions = newQuestion.options || [];
     setNewQuestion({
       ...newQuestion,
-      options: currentOptions.filter((_, i) => i !== index)
+      options: currentOptions.filter((_, i) => i !== index),
     });
   };
 
   const toggleQuestionVisibility = (questionId: string) => {
     onQuestionsUpdate(
-      questions.map(q => 
-        q.id === questionId ? { ...q, visible: !q.visible } : q
-      )
+      questions.map((q) => (q.id === questionId ? { ...q, visible: !q.visible } : q))
     );
   };
 
@@ -234,7 +232,7 @@ export function AdminInterface({
       ...question,
       id: `q_${Date.now()}`,
       title: `${question.title} (Copy)`,
-      order: questions.length + 1
+      order: questions.length + 1,
     };
     onQuestionsUpdate([...questions, newQ]);
   };
@@ -243,16 +241,11 @@ export function AdminInterface({
   const sortedQuestions = [...questions].sort((a, b) => a.order - b.order);
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={onBack}
-            className="flex items-center gap-2"
-          >
+          <Button variant="outline" size="sm" onClick={onBack} className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
             Back to Form
           </Button>
@@ -281,15 +274,12 @@ export function AdminInterface({
 
         <TabsContent value="questions" className="space-y-6">
           {/* Questions Header */}
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl">Questions ({questions.length})</h2>
               <p className="text-muted-foreground">Add, edit, and manage form questions</p>
             </div>
-            <Button 
-              onClick={() => setIsCreatingQuestion(true)}
-              className="flex items-center gap-2"
-            >
+            <Button onClick={() => setIsCreatingQuestion(true)} className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
               Add Question
             </Button>
@@ -297,11 +287,11 @@ export function AdminInterface({
 
           {/* Question Form */}
           {isCreatingQuestion && (
-            <Card className="border-2 border-primary/20">
+            <Card className="border-primary/20 border-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Settings className="h-5 w-5" />
-                  {editingQuestion ? 'Edit Question' : 'Create New Question'}
+                  {editingQuestion ? "Edit Question" : "Create New Question"}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -315,12 +305,14 @@ export function AdminInterface({
                       placeholder="Enter question title"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="question-type">Question Type *</Label>
                     <Select
                       value={newQuestion.type}
-                      onValueChange={(value) => setNewQuestion({ ...newQuestion, type: value as Question['type'] })}
+                      onValueChange={(value) =>
+                        setNewQuestion({ ...newQuestion, type: value as Question["type"] })
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -343,7 +335,9 @@ export function AdminInterface({
                   <Textarea
                     id="question-description"
                     value={newQuestion.description}
-                    onChange={(e) => setNewQuestion({ ...newQuestion, description: e.target.value })}
+                    onChange={(e) =>
+                      setNewQuestion({ ...newQuestion, description: e.target.value })
+                    }
                     placeholder="Optional description or helper text"
                     rows={2}
                   />
@@ -374,7 +368,9 @@ export function AdminInterface({
                     <Input
                       id="question-placeholder"
                       value={newQuestion.placeholder}
-                      onChange={(e) => setNewQuestion({ ...newQuestion, placeholder: e.target.value })}
+                      onChange={(e) =>
+                        setNewQuestion({ ...newQuestion, placeholder: e.target.value })
+                      }
                       placeholder="Input placeholder text"
                     />
                   </div>
@@ -384,7 +380,7 @@ export function AdminInterface({
                   <Checkbox
                     id="question-required"
                     checked={newQuestion.required}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       setNewQuestion({ ...newQuestion, required: !!checked })
                     }
                   />
@@ -392,12 +388,12 @@ export function AdminInterface({
                 </div>
 
                 {/* Options for select/checkbox/radio types */}
-                {(['select', 'checkbox-group', 'radio-group'].includes(newQuestion.type!)) && (
+                {["select", "checkbox-group", "radio-group"].includes(newQuestion.type!) && (
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center">
+                    <div className="flex items-center justify-between">
                       <Label>Options</Label>
                       <Button type="button" variant="outline" size="sm" onClick={addOption}>
-                        <Plus className="h-4 w-4 mr-1" />
+                        <Plus className="mr-1 h-4 w-4" />
                         Add Option
                       </Button>
                     </div>
@@ -406,15 +402,15 @@ export function AdminInterface({
                         <div key={index} className="flex items-center gap-2">
                           <Input
                             value={option.label}
-                            onChange={(e) => updateOption(index, 'label', e.target.value)}
+                            onChange={(e) => updateOption(index, "label", e.target.value)}
                             placeholder="Option label"
                             className="flex-1"
                           />
                           <div className="flex items-center space-x-2">
                             <Checkbox
                               checked={option.hasOtherField}
-                              onCheckedChange={(checked) => 
-                                updateOption(index, 'hasOtherField', !!checked)
+                              onCheckedChange={(checked) =>
+                                updateOption(index, "hasOtherField", !!checked)
                               }
                             />
                             <Label className="text-sm">Has &quot;Other&quot; field</Label>
@@ -433,17 +429,16 @@ export function AdminInterface({
                   </div>
                 )}
 
-              
                 <Separator />
 
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={resetQuestionForm}>
-                    <X className="h-4 w-4 mr-1" />
+                    <X className="mr-1 h-4 w-4" />
                     Cancel
                   </Button>
                   <Button onClick={handleSaveQuestion}>
-                    <Save className="h-4 w-4 mr-1" />
-                    {editingQuestion ? 'Update' : 'Create'} Question
+                    <Save className="mr-1 h-4 w-4" />
+                    {editingQuestion ? "Update" : "Create"} Question
                   </Button>
                 </div>
               </CardContent>
@@ -457,20 +452,26 @@ export function AdminInterface({
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="mb-1 flex items-center gap-2">
                         <h3 className="font-medium">{question.title}</h3>
-                        {question.required && <Badge variant="destructive" className="text-xs">Required</Badge>}
-                        <Badge variant="outline" className="text-xs">{question.type}</Badge>
+                        {question.required && (
+                          <Badge variant="destructive" className="text-xs">
+                            Required
+                          </Badge>
+                        )}
+                        <Badge variant="outline" className="text-xs">
+                          {question.type}
+                        </Badge>
                         <Badge variant="secondary" className="text-xs">
-                          {sections.find(s => s.id === question.section)?.title}
+                          {sections.find((s) => s.id === question.section)?.title}
                         </Badge>
                       </div>
                       {question.description && (
-                        <p className="text-sm text-muted-foreground">{question.description}</p>
+                        <p className="text-muted-foreground text-sm">{question.description}</p>
                       )}
                       {question.options && question.options.length > 0 && (
-                        <div className="mt-2 text-xs text-muted-foreground">
-                          Options: {question.options.map(opt => opt.label).join(', ')}
+                        <div className="text-muted-foreground mt-2 text-xs">
+                          Options: {question.options.map((opt) => opt.label).join(", ")}
                         </div>
                       )}
                     </div>
@@ -481,7 +482,11 @@ export function AdminInterface({
                         onClick={() => toggleQuestionVisibility(question.id)}
                         title={question.visible ? "Hide question" : "Show question"}
                       >
-                        {question.visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                        {question.visible ? (
+                          <Eye className="h-4 w-4" />
+                        ) : (
+                          <EyeOff className="h-4 w-4" />
+                        )}
                       </Button>
                       <Button
                         variant="ghost"
@@ -516,15 +521,12 @@ export function AdminInterface({
 
         <TabsContent value="sections" className="space-y-6">
           {/* Sections Header */}
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl">Sections ({sections.length})</h2>
               <p className="text-muted-foreground">Organize questions into logical sections</p>
             </div>
-            <Button 
-              onClick={() => setIsCreatingSection(true)}
-              className="flex items-center gap-2"
-            >
+            <Button onClick={() => setIsCreatingSection(true)} className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
               Add Section
             </Button>
@@ -532,11 +534,11 @@ export function AdminInterface({
 
           {/* Section Form */}
           {isCreatingSection && (
-            <Card className="border-2 border-primary/20">
+            <Card className="border-primary/20 border-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Settings className="h-5 w-5" />
-                  {editingSection ? 'Edit Section' : 'Create New Section'}
+                  {editingSection ? "Edit Section" : "Create New Section"}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -565,7 +567,9 @@ export function AdminInterface({
                   <Label htmlFor="section-query-type">Visibility</Label>
                   <Select
                     value={newSection.queryType}
-                    onValueChange={(value) => setNewSection({ ...newSection, queryType: value as FormSection['queryType'] })}
+                    onValueChange={(value) =>
+                      setNewSection({ ...newSection, queryType: value as FormSection["queryType"] })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -582,12 +586,12 @@ export function AdminInterface({
 
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={resetSectionForm}>
-                    <X className="h-4 w-4 mr-1" />
+                    <X className="mr-1 h-4 w-4" />
                     Cancel
                   </Button>
                   <Button onClick={handleSaveSection}>
-                    <Save className="h-4 w-4 mr-1" />
-                    {editingSection ? 'Update' : 'Create'} Section
+                    <Save className="mr-1 h-4 w-4" />
+                    {editingSection ? "Update" : "Create"} Section
                   </Button>
                 </div>
               </CardContent>
@@ -597,21 +601,23 @@ export function AdminInterface({
           {/* Sections List */}
           <div className="space-y-3">
             {sortedSections.map((section) => {
-              const sectionQuestions = questions.filter(q => q.section === section.id);
+              const sectionQuestions = questions.filter((q) => q.section === section.id);
               return (
                 <Card key={section.id}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="mb-1 flex items-center gap-2">
                           <h3 className="font-medium">{section.title}</h3>
-                          <Badge variant="outline" className="text-xs">{section.queryType}</Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {section.queryType}
+                          </Badge>
                           <Badge variant="secondary" className="text-xs">
                             {sectionQuestions.length} questions
                           </Badge>
                         </div>
                         {section.description && (
-                          <p className="text-sm text-muted-foreground">{section.description}</p>
+                          <p className="text-muted-foreground text-sm">{section.description}</p>
                         )}
                       </div>
                       <div className="flex items-center gap-1">
@@ -650,5 +656,3 @@ export function AdminInterface({
     </div>
   );
 }
-
-

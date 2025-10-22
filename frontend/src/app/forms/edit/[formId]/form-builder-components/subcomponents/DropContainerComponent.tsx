@@ -18,18 +18,12 @@ interface DropContainerComponentProps {
     containerId?: string
   ) => void;
   layout?: FormLayoutComponentChildrenType | FormLayoutComponentContainerType;
-  selectedControl?:
-    | null
-    | FormLayoutComponentChildrenType
-    | FormLayoutComponentContainerType;
+  selectedControl?: null | FormLayoutComponentChildrenType | FormLayoutComponentContainerType;
   childrenComponents?: FormLayoutComponentChildrenType[];
   deleteContainer?: (containerId: string) => void;
   deleteControl?: (controlId: string, containerId: string) => void;
   selectControl?: (
-    layout:
-      | FormLayoutComponentChildrenType
-      | FormLayoutComponentContainerType
-      | undefined
+    layout: FormLayoutComponentChildrenType | FormLayoutComponentContainerType | undefined
   ) => void;
   moveControl?: (
     item: FormLayoutComponentChildrenType,
@@ -39,9 +33,7 @@ interface DropContainerComponentProps {
   ) => void;
 }
 
-const DropContainerComponent: FunctionComponent<DropContainerComponentProps> = (
-  props
-) => {
+const DropContainerComponent: FunctionComponent<DropContainerComponentProps> = (props) => {
   const {
     accept,
     layout,
@@ -75,9 +67,7 @@ const DropContainerComponent: FunctionComponent<DropContainerComponentProps> = (
 
   const isActive = canDrop && isOver;
   let backgroundColor =
-    accept && accept === FormItemTypes.CONTROL
-      ? "rgba(0,0,0,0)"
-      : "rgba(0,0,0,0.1)";
+    accept && accept === FormItemTypes.CONTROL ? "rgba(0,0,0,0)" : "rgba(0,0,0,0.1)";
   let borderColor = "rgba(0,0,0,0.1)";
   const borderBase = "1px solid";
   let border;
@@ -101,9 +91,7 @@ const DropContainerComponent: FunctionComponent<DropContainerComponentProps> = (
     border = `${borderBase} ${borderColor}`;
   }
 
-  const handleDeleteContainer: React.MouseEventHandler<HTMLSpanElement> = (
-    event
-  ) => {
+  const handleDeleteContainer: React.MouseEventHandler<HTMLSpanElement> = (event) => {
     if (deleteContainer) {
       deleteContainer(layout?.id as string);
     }
@@ -144,7 +132,7 @@ const DropContainerComponent: FunctionComponent<DropContainerComponentProps> = (
                 selectControl(layout);
               }
             }}
-            className="container-header d-flex justify-content-between py-3 mb-3"
+            className="container-header d-flex justify-content-between mb-3 py-3"
             style={{
               borderBottom: "1px solid rgba(0,0,0,0.1)",
               cursor: "pointer",

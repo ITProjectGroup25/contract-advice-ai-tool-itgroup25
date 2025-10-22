@@ -1,17 +1,37 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
-import { ScrollArea } from './ui/scroll-area';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
-import { localDB, FormSubmission } from '../_utils/localDatabase';
-import { Database, Download, Trash2, Eye, RefreshCw, BarChart3, Users, FileText, Clock } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
+import { ScrollArea } from "./ui/scroll-area";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
+import { localDB, FormSubmission } from "../_utils/localDatabase";
+import {
+  Database,
+  Download,
+  Trash2,
+  Eye,
+  RefreshCw,
+  BarChart3,
+  Users,
+  FileText,
+  Clock,
+} from "lucide-react";
+import { toast } from "sonner";
 
 export function DatabaseManagement() {
   const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
@@ -35,14 +55,18 @@ export function DatabaseManagement() {
     try {
       const [submissionsData, statsData] = await Promise.all([
         localDB.getAllSubmissions(),
-        localDB.getSubmissionStats()
+        localDB.getSubmissionStats(),
       ]);
-      
-      setSubmissions(submissionsData.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+
+      setSubmissions(
+        submissionsData.sort(
+          (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        )
+      );
       setStats(statsData);
     } catch (error) {
-      console.error('Error loading database data:', error);
-      toast.error('Failed to load database data');
+      console.error("Error loading database data:", error);
+      toast.error("Failed to load database data");
     } finally {
       setLoading(false);
     }
@@ -51,21 +75,21 @@ export function DatabaseManagement() {
   const handleExportAll = async () => {
     try {
       const sqlContent = await localDB.exportAllToSQL();
-      const blob = new Blob([sqlContent], { type: 'application/sql' });
+      const blob = new Blob([sqlContent], { type: "application/sql" });
       const url = URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
+
+      const link = document.createElement("a");
       link.href = url;
-      link.download = `all_submissions_${new Date().toISOString().split('T')[0]}.sql`;
+      link.download = `all_submissions_${new Date().toISOString().split("T")[0]}.sql`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       URL.revokeObjectURL(url);
-      toast.success('Database exported successfully');
+      toast.success("Database exported successfully");
     } catch (error) {
-      console.error('Error exporting database:', error);
-      toast.error('Failed to export database');
+      console.error("Error exporting database:", error);
+      toast.error("Failed to export database");
     }
   };
 
@@ -73,10 +97,10 @@ export function DatabaseManagement() {
     try {
       await localDB.deleteSubmission(id);
       await loadData();
-      toast.success('Submission deleted successfully');
+      toast.success("Submission deleted successfully");
     } catch (error) {
-      console.error('Error deleting submission:', error);
-      toast.error('Failed to delete submission');
+      console.error("Error deleting submission:", error);
+      toast.error("Failed to delete submission");
     }
   };
 
@@ -84,21 +108,21 @@ export function DatabaseManagement() {
     try {
       await localDB.clearAllSubmissions();
       await loadData();
-      toast.success('All submissions cleared successfully');
+      toast.success("All submissions cleared successfully");
     } catch (error) {
-      console.error('Error clearing submissions:', error);
-      toast.error('Failed to clear submissions');
+      console.error("Error clearing submissions:", error);
+      toast.error("Failed to clear submissions");
     }
   };
 
-  const handleUpdateStatus = async (id: string, status: FormSubmission['status']) => {
+  const handleUpdateStatus = async (id: string, status: FormSubmission["status"]) => {
     try {
       await localDB.updateSubmission(id, { status });
       await loadData();
-      toast.success('Status updated successfully');
+      toast.success("Status updated successfully");
     } catch (error) {
-      console.error('Error updating status:', error);
-      toast.error('Failed to update status');
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status");
     }
   };
 
@@ -106,12 +130,16 @@ export function DatabaseManagement() {
     return new Date(timestamp).toLocaleString();
   };
 
-  const getStatusColor = (status: FormSubmission['status']) => {
+  const getStatusColor = (status: FormSubmission["status"]) => {
     switch (status) {
-      case 'submitted': return 'bg-blue-100 text-blue-800';
-      case 'processed': return 'bg-green-100 text-green-800';
-      case 'escalated': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "submitted":
+        return "bg-blue-100 text-blue-800";
+      case "processed":
+        return "bg-green-100 text-green-800";
+      case "escalated":
+        return "bg-orange-100 text-orange-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -135,80 +163,78 @@ export function DatabaseManagement() {
             <Database className="h-5 w-5" />
             Database Management
           </h2>
-          <p className="text-muted-foreground">
-            Manage and export form submission data
-          </p>
+          <p className="text-muted-foreground">Manage and export form submission data</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={loadData} variant="outline" size="sm">
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
           <Button onClick={handleExportAll} size="sm">
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="mr-2 h-4 w-4" />
             Export All
           </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
         <Card>
           <CardContent className="flex items-center gap-2 p-4">
             <FileText className="h-5 w-5 text-blue-500" />
             <div>
               <p className="text-2xl font-medium">{stats.total}</p>
-              <p className="text-sm text-muted-foreground">Total</p>
+              <p className="text-muted-foreground text-sm">Total</p>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="flex items-center gap-2 p-4">
             <Users className="h-5 w-5 text-green-500" />
             <div>
               <p className="text-2xl font-medium">{stats.simple}</p>
-              <p className="text-sm text-muted-foreground">Simple</p>
+              <p className="text-muted-foreground text-sm">Simple</p>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="flex items-center gap-2 p-4">
             <BarChart3 className="h-5 w-5 text-purple-500" />
             <div>
               <p className="text-2xl font-medium">{stats.complex}</p>
-              <p className="text-sm text-muted-foreground">Complex</p>
+              <p className="text-muted-foreground text-sm">Complex</p>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="flex items-center gap-2 p-4">
             <Clock className="h-5 w-5 text-orange-500" />
             <div>
               <p className="text-2xl font-medium">{stats.processed}</p>
-              <p className="text-sm text-muted-foreground">Processed</p>
+              <p className="text-muted-foreground text-sm">Processed</p>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="flex items-center gap-2 p-4">
             <Users className="h-5 w-5 text-red-500" />
             <div>
               <p className="text-2xl font-medium">{stats.escalated}</p>
-              <p className="text-sm text-muted-foreground">Escalated</p>
+              <p className="text-muted-foreground text-sm">Escalated</p>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="flex items-center gap-2 p-4">
             <Users className="h-5 w-5 text-green-600" />
             <div>
               <p className="text-2xl font-medium">{stats.satisfied}</p>
-              <p className="text-sm text-muted-foreground">Satisfied</p>
+              <p className="text-muted-foreground text-sm">Satisfied</p>
             </div>
           </CardContent>
         </Card>
@@ -221,8 +247,8 @@ export function DatabaseManagement() {
         </CardHeader>
         <CardContent>
           {submissions.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <div className="text-muted-foreground py-8 text-center">
+              <Database className="mx-auto mb-4 h-12 w-12 opacity-50" />
               <p>No submissions found</p>
               <p className="text-sm">Submissions will appear here after forms are submitted</p>
             </div>
@@ -250,7 +276,9 @@ export function DatabaseManagement() {
                           {formatDate(submission.timestamp)}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={submission.queryType === 'complex' ? 'default' : 'secondary'}>
+                          <Badge
+                            variant={submission.queryType === "complex" ? "default" : "secondary"}
+                          >
                             {submission.queryType}
                           </Badge>
                         </TableCell>
@@ -260,8 +288,11 @@ export function DatabaseManagement() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {submission.userSatisfied === true ? '✅' : 
-                           submission.userSatisfied === false ? '❌' : '-'}
+                          {submission.userSatisfied === true
+                            ? "✅"
+                            : submission.userSatisfied === false
+                              ? "❌"
+                              : "-"}
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
@@ -282,7 +313,8 @@ export function DatabaseManagement() {
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Delete Submission</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to delete this submission? This action cannot be undone.
+                                    Are you sure you want to delete this submission? This action
+                                    cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -302,16 +334,16 @@ export function DatabaseManagement() {
                   </TableBody>
                 </Table>
               </div>
-              
+
               {submissions.length > 0 && (
-                <div className="flex justify-between items-center pt-4 border-t">
-                  <p className="text-sm text-muted-foreground">
+                <div className="flex items-center justify-between border-t pt-4">
+                  <p className="text-muted-foreground text-sm">
                     Showing {submissions.length} submissions
                   </p>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="outline" size="sm">
-                        <Trash2 className="h-4 w-4 mr-2" />
+                        <Trash2 className="mr-2 h-4 w-4" />
                         Clear All Data
                       </Button>
                     </AlertDialogTrigger>
@@ -319,7 +351,8 @@ export function DatabaseManagement() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Clear All Submissions</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete all form submissions? This action cannot be undone and will permanently remove all data from the local database.
+                          Are you sure you want to delete all form submissions? This action cannot
+                          be undone and will permanently remove all data from the local database.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -338,16 +371,11 @@ export function DatabaseManagement() {
       </Card>
 
       {/* Submission Detail Dialog */}
-      <Dialog 
-        open={selectedSubmission !== null} 
-        onOpenChange={() => setSelectedSubmission(null)}
-      >
-        <DialogContent className="max-w-4xl max-h-[80vh]">
+      <Dialog open={selectedSubmission !== null} onOpenChange={() => setSelectedSubmission(null)}>
+        <DialogContent className="max-h-[80vh] max-w-4xl">
           <DialogHeader>
             <DialogTitle>Submission Details</DialogTitle>
-            <DialogDescription>
-              {selectedSubmission?.id}
-            </DialogDescription>
+            <DialogDescription>{selectedSubmission?.id}</DialogDescription>
           </DialogHeader>
           {selectedSubmission && (
             <Tabs defaultValue="data" className="w-full">
@@ -356,48 +384,52 @@ export function DatabaseManagement() {
                 <TabsTrigger value="sql">Generated SQL</TabsTrigger>
                 <TabsTrigger value="metadata">Metadata</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="data">
                 <ScrollArea className="h-[400px] w-full rounded-md border p-4">
                   <div className="space-y-4">
                     {Object.entries(selectedSubmission.formData).map(([key, value]) => (
                       <div key={key} className="border-b pb-2">
-                        <p className="text-sm font-medium text-muted-foreground">{key}</p>
+                        <p className="text-muted-foreground text-sm font-medium">{key}</p>
                         <p className="text-sm">
-                          {Array.isArray(value) ? value.join(', ') : String(value)}
+                          {Array.isArray(value) ? value.join(", ") : String(value)}
                         </p>
                       </div>
                     ))}
                   </div>
                 </ScrollArea>
               </TabsContent>
-              
+
               <TabsContent value="sql">
                 <ScrollArea className="h-[400px] w-full rounded-md border p-4">
-                  <pre className="text-xs whitespace-pre-wrap font-mono">
+                  <pre className="whitespace-pre-wrap font-mono text-xs">
                     {selectedSubmission.sqlStatement}
                   </pre>
                 </ScrollArea>
               </TabsContent>
-              
+
               <TabsContent value="metadata">
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium">Submission ID</p>
-                      <p className="text-sm text-muted-foreground font-mono">
+                      <p className="text-muted-foreground font-mono text-sm">
                         {selectedSubmission.id}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm font-medium">Timestamp</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         {formatDate(selectedSubmission.timestamp)}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm font-medium">Query Type</p>
-                      <Badge variant={selectedSubmission.queryType === 'complex' ? 'default' : 'secondary'}>
+                      <Badge
+                        variant={
+                          selectedSubmission.queryType === "complex" ? "default" : "secondary"
+                        }
+                      >
                         {selectedSubmission.queryType}
                       </Badge>
                     </div>
@@ -409,34 +441,40 @@ export function DatabaseManagement() {
                     </div>
                     <div>
                       <p className="text-sm font-medium">User Satisfied</p>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedSubmission.userSatisfied === true ? 'Yes ✅' : 
-                         selectedSubmission.userSatisfied === false ? 'No ❌' : 'Not specified'}
+                      <p className="text-muted-foreground text-sm">
+                        {selectedSubmission.userSatisfied === true
+                          ? "Yes ✅"
+                          : selectedSubmission.userSatisfied === false
+                            ? "No ❌"
+                            : "Not specified"}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm font-medium">Needs Human Review</p>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedSubmission.needsHumanReview === true ? 'Yes' : 
-                         selectedSubmission.needsHumanReview === false ? 'No' : 'Not specified'}
+                      <p className="text-muted-foreground text-sm">
+                        {selectedSubmission.needsHumanReview === true
+                          ? "Yes"
+                          : selectedSubmission.needsHumanReview === false
+                            ? "No"
+                            : "Not specified"}
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-2 pt-4">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleUpdateStatus(selectedSubmission.id, 'processed')}
-                      disabled={selectedSubmission.status === 'processed'}
+                      onClick={() => handleUpdateStatus(selectedSubmission.id, "processed")}
+                      disabled={selectedSubmission.status === "processed"}
                     >
                       Mark Processed
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleUpdateStatus(selectedSubmission.id, 'escalated')}
-                      disabled={selectedSubmission.status === 'escalated'}
+                      onClick={() => handleUpdateStatus(selectedSubmission.id, "escalated")}
+                      disabled={selectedSubmission.status === "escalated"}
                     >
                       Mark Escalated
                     </Button>
@@ -450,4 +488,3 @@ export function DatabaseManagement() {
     </div>
   );
 }
-

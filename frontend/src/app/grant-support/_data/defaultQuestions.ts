@@ -6,99 +6,99 @@ export const defaultSections: FormSection[] = [
     title: "Basic Information",
     description: "Please provide your contact details",
     order: 1,
-    queryType: "both"
+    queryType: "both",
   },
   {
     id: "grants-team",
     title: "Grants Team",
     description: "Select the relevant grants team(s) for your query",
     order: 2,
-    queryType: "both"
+    queryType: "both",
   },
   {
     id: "stage-query",
     title: "Stage of Query",
     description: "What stage is your query related to?",
     order: 3,
-    queryType: "both"
+    queryType: "both",
   },
   {
     id: "query-type",
     title: "Query Type",
     description: "Is this a simple query or complex referral?",
     order: 4,
-    queryType: "both"
+    queryType: "both",
   },
   {
     id: "simple-grants",
     title: "Grants Scheme (Simple)",
     description: "Which grants scheme is your query related to?",
     order: 5,
-    queryType: "simple"
+    queryType: "simple",
   },
   {
     id: "simple-mri",
     title: "MRI Involvement (Simple)",
     description: "Does this involve an MRI?",
     order: 6,
-    queryType: "simple"
+    queryType: "simple",
   },
   {
     id: "simple-type",
     title: "Type of Query (Simple)",
     description: "Select all that apply for your query type",
     order: 7,
-    queryType: "simple"
+    queryType: "simple",
   },
   {
     id: "simple-explanation",
     title: "Request Details (Simple)",
     description: "Please provide details about your request",
     order: 8,
-    queryType: "simple"
+    queryType: "simple",
   },
   {
     id: "complex-grants",
     title: "Grants Scheme (Complex)",
     description: "Which grants scheme is your query related to?",
     order: 9,
-    queryType: "complex"
+    queryType: "complex",
   },
   {
     id: "complex-mri",
     title: "MRI Involvement (Complex)",
     description: "Does this involve an MRI?",
     order: 10,
-    queryType: "complex"
+    queryType: "complex",
   },
   {
     id: "complex-project",
     title: "Project Details",
     description: "Information about your project",
     order: 11,
-    queryType: "complex"
+    queryType: "complex",
   },
   {
     id: "complex-parties",
     title: "Project Parties",
     description: "Information about parties involved in the project",
     order: 12,
-    queryType: "complex"
+    queryType: "complex",
   },
   {
     id: "complex-agreements",
     title: "Agreement Information",
     description: "Details about agreements for review",
     order: 13,
-    queryType: "complex"
+    queryType: "complex",
   },
   {
     id: "complex-support",
     title: "Support Required",
     description: "How we can help and additional information",
     order: 14,
-    queryType: "complex"
-  }
+    queryType: "complex",
+  },
 ];
 
 export const defaultQuestions: Question[] = [
@@ -111,7 +111,7 @@ export const defaultQuestions: Question[] = [
     section: "basic-info",
     order: 1,
     visible: true,
-    placeholder: "Enter your full name"
+    placeholder: "Enter your full name",
   },
   {
     id: "email",
@@ -121,7 +121,7 @@ export const defaultQuestions: Question[] = [
     section: "basic-info",
     order: 2,
     visible: true,
-    placeholder: "your.email@example.com"
+    placeholder: "your.email@example.com",
   },
 
   // Grants Team
@@ -138,8 +138,8 @@ export const defaultQuestions: Question[] = [
       { id: "international", label: "International" },
       { id: "arc-d", label: "ARC-D" },
       { id: "rds", label: "RDS" },
-      { id: "research-infrastructure", label: "Research Infrastructure" }
-    ]
+      { id: "research-infrastructure", label: "Research Infrastructure" },
+    ],
   },
 
   // Stage of Query
@@ -154,8 +154,8 @@ export const defaultQuestions: Question[] = [
     options: [
       { id: "pre-award", label: "Pre-Award" },
       { id: "post-award", label: "Post-Award" },
-      { id: "other", label: "Other", hasOtherField: true }
-    ]
+      { id: "other", label: "Other", hasOtherField: true },
+    ],
   },
 
   // Query Type
@@ -169,8 +169,8 @@ export const defaultQuestions: Question[] = [
     visible: true,
     options: [
       { id: "simple", label: "Simple" },
-      { id: "complex", label: "Complex" }
-    ]
+      { id: "complex", label: "Complex" },
+    ],
   },
 
   // Simple Query - Grants Scheme
@@ -184,7 +184,7 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["simple"]
+      showWhen: ["simple"],
     },
     options: [
       { id: "nhmrc", label: "NHMRC" },
@@ -192,8 +192,8 @@ export const defaultQuestions: Question[] = [
       { id: "arc", label: "ARC" },
       { id: "ecr", label: "ECR" },
       { id: "nih", label: "NIH" },
-      { id: "other", label: "Other", hasOtherField: true }
-    ]
+      { id: "other", label: "Other", hasOtherField: true },
+    ],
   },
 
   // Simple Query - MRI Involvement
@@ -207,13 +207,13 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["simple"]
+      showWhen: ["simple"],
     },
     options: [
       { id: "yes", label: "Yes" },
       { id: "no", label: "No" },
-      { id: "other", label: "Other", hasOtherField: true }
-    ]
+      { id: "other", label: "Other", hasOtherField: true },
+    ],
   },
 
   // Simple Query - Type of Query
@@ -227,15 +227,15 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["simple"]
+      showWhen: ["simple"],
     },
     options: [
       { id: "contractual", label: "Review of a contractual clause" },
       { id: "support-negotiations", label: "Support with negotiations" },
       { id: "advice-agreement", label: "Advice on appropriate agreement" },
       { id: "compliance-advice", label: "Advice on compliance with grant obligations" },
-      { id: "other", label: "Other", hasOtherField: true }
-    ]
+      { id: "other", label: "Other", hasOtherField: true },
+    ],
   },
 
   // Simple Query - Request Explanation
@@ -249,9 +249,9 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["simple"]
+      showWhen: ["simple"],
     },
-    placeholder: "Please explain your request in detail..."
+    placeholder: "Please explain your request in detail...",
   },
 
   // Simple Query - Clause Type (appears when contractual is selected)
@@ -265,7 +265,7 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "simple-type-of-query",
-      showWhen: ["contractual"]
+      showWhen: ["contractual"],
     },
     options: [
       { id: "background-ip", label: "Background IP" },
@@ -276,15 +276,16 @@ export const defaultQuestions: Question[] = [
       { id: "insurance", label: "Insurance" },
       { id: "publication", label: "Publication" },
       { id: "moral-rights", label: "Moral Rights" },
-      { id: "other", label: "Other", hasOtherField: true }
-    ]
+      { id: "other", label: "Other", hasOtherField: true },
+    ],
   },
 
   // Simple Query - Guide Check (appears when clause type is selected)
   {
     id: "simple-guide-check",
     title: "Have you checked the guide?",
-    description: "Please refer to the EAAC Grants Training Guide (PDF): /EAAC%20Grants%20Training%20Guide%28May2024%29.pdf",
+    description:
+      "Please refer to the EAAC Grants Training Guide (PDF): /EAAC%20Grants%20Training%20Guide%28May2024%29.pdf",
     type: "radio-group",
     required: true,
     section: "simple-explanation",
@@ -292,12 +293,21 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "simple-clause-type",
-      showWhen: ["background-ip", "project-ip", "liability", "indemnity", "warranty", "insurance", "publication", "moral-rights"]
+      showWhen: [
+        "background-ip",
+        "project-ip",
+        "liability",
+        "indemnity",
+        "warranty",
+        "insurance",
+        "publication",
+        "moral-rights",
+      ],
     },
     options: [
       { id: "yes", label: "Yes - I have checked the guide" },
-      { id: "no", label: "No - Please direct me to the guide" }
-    ]
+      { id: "no", label: "No - Please direct me to the guide" },
+    ],
   },
 
   // Simple Query - Urgency
@@ -311,12 +321,12 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["simple"]
+      showWhen: ["simple"],
     },
     options: [
       { id: "yes", label: "Yes" },
-      { id: "no", label: "No" }
-    ]
+      { id: "no", label: "No" },
+    ],
   },
 
   // Simple Query - Urgency Date
@@ -330,8 +340,8 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "simple-urgency",
-      showWhen: ["yes"]
-    }
+      showWhen: ["yes"],
+    },
   },
 
   // Complex Query - Grants Scheme
@@ -345,7 +355,7 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
     options: [
       { id: "nhmrc", label: "NHMRC" },
@@ -353,8 +363,8 @@ export const defaultQuestions: Question[] = [
       { id: "arc", label: "ARC" },
       { id: "ecr", label: "ECR" },
       { id: "nih", label: "NIH" },
-      { id: "other", label: "Other", hasOtherField: true }
-    ]
+      { id: "other", label: "Other", hasOtherField: true },
+    ],
   },
 
   // Complex Query - MRI Involvement
@@ -368,13 +378,13 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
     options: [
       { id: "yes", label: "Yes" },
       { id: "no", label: "No" },
-      { id: "other", label: "Other", hasOtherField: true }
-    ]
+      { id: "other", label: "Other", hasOtherField: true },
+    ],
   },
 
   // Complex Query - Project Details
@@ -388,9 +398,9 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
-    placeholder: "Enter Chief Investigator name"
+    placeholder: "Enter Chief Investigator name",
   },
   {
     id: "complex-faculty-department",
@@ -402,9 +412,9 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
-    placeholder: "Enter faculty and department"
+    placeholder: "Enter faculty and department",
   },
   {
     id: "complex-project-title",
@@ -416,9 +426,9 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
-    placeholder: "Enter project title"
+    placeholder: "Enter project title",
   },
   {
     id: "complex-uom-lead",
@@ -430,12 +440,12 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
     options: [
       { id: "lead", label: "Lead" },
-      { id: "non-lead", label: "Non-Lead" }
-    ]
+      { id: "non-lead", label: "Non-Lead" },
+    ],
   },
 
   // Complex Query - Other Parties
@@ -449,12 +459,12 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
     options: [
       { id: "yes", label: "Yes" },
-      { id: "no", label: "No" }
-    ]
+      { id: "no", label: "No" },
+    ],
   },
 
   // Project Partners - Party 1 Name
@@ -468,9 +478,9 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "complex-other-parties",
-      showWhen: ["yes"]
+      showWhen: ["yes"],
     },
-    placeholder: "Enter name of other party"
+    placeholder: "Enter name of other party",
   },
 
   // Project Partners - Party 1 Role
@@ -484,7 +494,7 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "complex-other-parties",
-      showWhen: ["yes"]
+      showWhen: ["yes"],
     },
     options: [
       { id: "funder", label: "Funder" },
@@ -492,8 +502,8 @@ export const defaultQuestions: Question[] = [
       { id: "collaborator", label: "Collaborator" },
       { id: "incoming-party", label: "Incoming party" },
       { id: "outgoing-party", label: "Outgoing party" },
-      { id: "other", label: "Other", hasOtherField: true }
-    ]
+      { id: "other", label: "Other", hasOtherField: true },
+    ],
   },
 
   // Project Partners - Additional Parties Check
@@ -507,12 +517,12 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "complex-other-parties",
-      showWhen: ["yes"]
+      showWhen: ["yes"],
     },
     options: [
       { id: "yes", label: "Yes" },
-      { id: "no", label: "No" }
-    ]
+      { id: "no", label: "No" },
+    ],
   },
 
   // Project Partners - Party 2 Name
@@ -526,9 +536,9 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "complex-additional-parties",
-      showWhen: ["yes"]
+      showWhen: ["yes"],
     },
-    placeholder: "Enter name of other party"
+    placeholder: "Enter name of other party",
   },
 
   // Project Partners - Party 2 Role
@@ -542,7 +552,7 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "complex-additional-parties",
-      showWhen: ["yes"]
+      showWhen: ["yes"],
     },
     options: [
       { id: "funder", label: "Funder" },
@@ -550,8 +560,8 @@ export const defaultQuestions: Question[] = [
       { id: "collaborator", label: "Collaborator" },
       { id: "incoming-party", label: "Incoming party" },
       { id: "outgoing-party", label: "Outgoing party" },
-      { id: "other", label: "Other", hasOtherField: true }
-    ]
+      { id: "other", label: "Other", hasOtherField: true },
+    ],
   },
 
   // Project Partners - Additional Parties Check 2
@@ -565,12 +575,12 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "complex-additional-parties",
-      showWhen: ["yes"]
+      showWhen: ["yes"],
     },
     options: [
       { id: "yes", label: "Yes" },
-      { id: "no", label: "No" }
-    ]
+      { id: "no", label: "No" },
+    ],
   },
 
   // Project Partners - Party 3 Name
@@ -584,9 +594,9 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "complex-additional-parties-2",
-      showWhen: ["yes"]
+      showWhen: ["yes"],
     },
-    placeholder: "Enter name of other party"
+    placeholder: "Enter name of other party",
   },
 
   // Project Partners - Party 3 Role
@@ -600,7 +610,7 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "complex-additional-parties-2",
-      showWhen: ["yes"]
+      showWhen: ["yes"],
     },
     options: [
       { id: "funder", label: "Funder" },
@@ -608,8 +618,8 @@ export const defaultQuestions: Question[] = [
       { id: "collaborator", label: "Collaborator" },
       { id: "incoming-party", label: "Incoming party" },
       { id: "outgoing-party", label: "Outgoing party" },
-      { id: "other", label: "Other", hasOtherField: true }
-    ]
+      { id: "other", label: "Other", hasOtherField: true },
+    ],
   },
 
   // Complex Query - Agreement Types
@@ -623,7 +633,7 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
     options: [
       { id: "multi-institutional", label: "Multi-institutional agreement" },
@@ -636,8 +646,8 @@ export const defaultQuestions: Question[] = [
       { id: "subcontract", label: "Subcontract agreement" },
       { id: "variation", label: "Variation agreement" },
       { id: "funding", label: "Funding agreement" },
-      { id: "other", label: "Other", hasOtherField: true }
-    ]
+      { id: "other", label: "Other", hasOtherField: true },
+    ],
   },
 
   // Complex Query - Support Fields
@@ -651,9 +661,9 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
-    placeholder: "Enter HPECM reference"
+    placeholder: "Enter HPECM reference",
   },
   {
     id: "complex-other-agreements",
@@ -665,9 +675,9 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
-    placeholder: "Enter details of other related agreements"
+    placeholder: "Enter details of other related agreements",
   },
   {
     id: "complex-how-can-we-help",
@@ -679,9 +689,9 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
-    placeholder: "Enter details about how we can help"
+    placeholder: "Enter details about how we can help",
   },
   {
     id: "complex-other-notes",
@@ -693,14 +703,15 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
-    placeholder: "Enter any additional notes"
+    placeholder: "Enter any additional notes",
   },
   {
     id: "complex-documents-attached",
     title: "Attach all relevant documents",
-    description: "Please attach the online drive link of agreement (such as Google Drive or OneDrive) for review, funding agreement, relevant correspondence, related agreements",
+    description:
+      "Please attach the online drive link of agreement (such as Google Drive or OneDrive) for review, funding agreement, relevant correspondence, related agreements",
     type: "textarea",
     required: true,
     section: "complex-support",
@@ -708,7 +719,7 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
   },
   {
@@ -722,9 +733,9 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
-    placeholder: "Please list the documents you have attached or confirm attachment"
+    placeholder: "Please list the documents you have attached or confirm attachment",
   },
   {
     id: "complex-urgency",
@@ -736,12 +747,12 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "query-type",
-      showWhen: ["complex"]
+      showWhen: ["complex"],
     },
     options: [
       { id: "yes", label: "Yes" },
-      { id: "no", label: "No" }
-    ]
+      { id: "no", label: "No" },
+    ],
   },
   {
     id: "complex-urgency-date",
@@ -753,7 +764,7 @@ export const defaultQuestions: Question[] = [
     visible: true,
     conditional: {
       dependsOn: "complex-urgency",
-      showWhen: ["yes"]
-    }
-  }
+      showWhen: ["yes"],
+    },
+  },
 ];

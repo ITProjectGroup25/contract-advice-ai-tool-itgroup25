@@ -27,15 +27,15 @@ const page = async ({ params }: PageParams) => {
   }
 
   const sql = postgres(connectionString);
-  
+
   let formTemplate;
-  
+
   try {
     // Get form data
     const singleFormResult = await sql`
       SELECT * FROM form WHERE id = ${formId} LIMIT 1
     `;
-    
+
     const singleForm = singleFormResult[0];
 
     if (!singleForm) {
@@ -47,15 +47,15 @@ const page = async ({ params }: PageParams) => {
     const formDataResult = await sql`
       SELECT * FROM form_details WHERE form_id = ${formId} LIMIT 1
     `;
-    
+
     const formData = formDataResult[0];
-    
+
     await sql.end();
 
     const formFields = formData?.form_fields
-      ? (typeof formData.form_fields === 'string' 
-          ? formData.form_fields 
-          : JSON.stringify(formData.form_fields))
+      ? typeof formData.form_fields === "string"
+        ? formData.form_fields
+        : JSON.stringify(formData.form_fields)
       : "[]";
 
     formTemplate = {

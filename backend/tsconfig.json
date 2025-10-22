@@ -5,32 +5,15 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es2020",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "paths": {
-      "@drizzle/*": [
-        "./drizzle/*"
-      ],
-      "@backend": [
-        "./src/index"
-      ],
-      "@backend/*": [
-        "./src/*"
-      ],
-      "@shared": [
-        "../shared/src/index"
-      ],
-      "@shared/*": [
-        "../shared/src/*"
-      ]
+      "@drizzle/*": ["./drizzle/*"],
+      "@backend": ["./src/index"],
+      "@backend/*": ["./src/*"],
+      "@shared": ["../shared/src/index"],
+      "@shared/*": ["../shared/src/*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "drizzle/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src/**/*.ts", "drizzle/**/*.ts"],
+  "exclude": ["node_modules"]
 }

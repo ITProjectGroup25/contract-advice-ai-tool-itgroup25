@@ -1,6 +1,4 @@
-export function formDataToObject<T = Record<string, any>>(
-  formData: FormData
-): T {
+export function formDataToObject<T = Record<string, any>>(formData: FormData): T {
   const obj: Record<string, any> = {};
   formData.forEach((value, key) => {
     // Try to parse numbers

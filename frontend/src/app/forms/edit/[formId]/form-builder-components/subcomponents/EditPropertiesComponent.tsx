@@ -27,20 +27,12 @@ const textboxStyle = {
 };
 
 interface EditPropertiesComponentProps {
-  selectedControl?:
-    | undefined
-    | FormLayoutComponentChildrenType
-    | FormLayoutComponentContainerType;
+  selectedControl?: undefined | FormLayoutComponentChildrenType | FormLayoutComponentContainerType;
   selectControl?: (
-    layout:
-      | FormLayoutComponentChildrenType
-      | FormLayoutComponentContainerType
-      | undefined
+    layout: FormLayoutComponentChildrenType | FormLayoutComponentContainerType | undefined
   ) => void;
   editControlProperties: (updatedItem: FormLayoutComponentChildrenType) => void;
-  editContainerProperties: (
-    updatedItem: FormLayoutComponentContainerType
-  ) => void;
+  editContainerProperties: (updatedItem: FormLayoutComponentContainerType) => void;
   formLayoutComponents: FormLayoutComponentsType[];
   moveControlFromSide: (
     selectedControl: FormLayoutComponentChildrenType,
@@ -49,12 +41,7 @@ interface EditPropertiesComponentProps {
 }
 
 const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
-  const {
-    selectedControl,
-    selectControl,
-    editControlProperties,
-    editContainerProperties,
-  } = props;
+  const { selectedControl, selectControl, editControlProperties, editContainerProperties } = props;
   const [updatedItem, setUpdatedItem] = useState<
     FormLayoutComponentChildrenType | FormLayoutComponentContainerType | {}
   >({});
@@ -64,11 +51,10 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
 
   const [isUpdatedItemRequired, setIsUpdatedItemRequired] = useState(false);
 
-  const [moveControlObj, setMoveControlObj] =
-    useState<FormLayoutComponentChildrenType | null>(null);
-  const [controlsInContainer, setControlsInContainer] = useState<
-    number | undefined
-  >(undefined);
+  const [moveControlObj, setMoveControlObj] = useState<FormLayoutComponentChildrenType | null>(
+    null
+  );
+  const [controlsInContainer, setControlsInContainer] = useState<number | undefined>(undefined);
 
   const { showModalStrip } = useModalStrip();
 
@@ -78,27 +64,21 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
         setUpdatedItem({
           ...selectedControl,
           items: JSON.parse(
-            JSON.stringify(
-              (selectedControl as FormLayoutComponentChildrenType).items
-            )
+            JSON.stringify((selectedControl as FormLayoutComponentChildrenType).items)
           ),
         });
       } else {
         setUpdatedItem({ ...selectedControl });
       }
       if (selectedControl.hasOwnProperty("required")) {
-        setIsUpdatedItemRequired(
-          (selectedControl as FormLayoutComponentChildrenType).required
-        );
+        setIsUpdatedItemRequired((selectedControl as FormLayoutComponentChildrenType).required);
       }
     }
     setMoveControlObj(null);
     setControlsInContainer(undefined);
   }, [selectedControl]);
 
-  const handleChange: React.ChangeEventHandler<
-    HTMLInputElement | HTMLTextAreaElement
-  > = (e) => {
+  const handleChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
     const { name, value } = e.target;
     setUpdatedItem((prevState) => ({
       ...prevState,
@@ -107,8 +87,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   };
 
   const addItemInList = (item: FormLayoutComponentChildrenItemsType) => {
-    const currentItems =
-      _.cloneDeep((updatedItem as FormLayoutComponentChildrenType).items) ?? [];
+    const currentItems = _.cloneDeep((updatedItem as FormLayoutComponentChildrenType).items) ?? [];
     const newItems = [...currentItems, item];
     setUpdatedItem((prevState) => ({
       ...prevState,
@@ -117,8 +96,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   };
 
   const deleteItemFromList = (item: FormLayoutComponentChildrenItemsType) => {
-    const existingItems =
-      _.cloneDeep((updatedItem as FormLayoutComponentChildrenType).items) ?? [];
+    const existingItems = _.cloneDeep((updatedItem as FormLayoutComponentChildrenType).items) ?? [];
     const filteredItems = existingItems.filter((existingItem) => existingItem.id !== item.id);
     setUpdatedItem((prevState) => ({
       ...prevState,
@@ -127,8 +105,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   };
 
   const editIteminList = (item: FormLayoutComponentChildrenItemsType) => {
-    const clonedItems =
-      _.cloneDeep((updatedItem as FormLayoutComponentChildrenType).items) ?? [];
+    const clonedItems = _.cloneDeep((updatedItem as FormLayoutComponentChildrenType).items) ?? [];
     const updatedItems = clonedItems.map((existingItem) =>
       existingItem.id === item.id
         ? { ...existingItem, value: item.value, label: item.label }
@@ -157,9 +134,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     editControlProperties(updatedItem as FormLayoutComponentChildrenType);
   };
 
-  const onContainerFormSubmit: React.FormEventHandler<HTMLFormElement> = (
-    event
-  ) => {
+  const onContainerFormSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     editContainerProperties(updatedItem as FormLayoutComponentContainerType);
   };
@@ -171,14 +146,9 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     const { name, value } = e.target;
 
     if (name === "containerId") {
-      const container = props.formLayoutComponents.filter(
-        (con) => con.container.id === value
-      )[0];
+      const container = props.formLayoutComponents.filter((con) => con.container.id === value)[0];
       let stepsInContainer = container.children.length;
-      if (
-        (selectedControl as FormLayoutComponentChildrenType).containerId ===
-        value
-      ) {
+      if ((selectedControl as FormLayoutComponentChildrenType).containerId === value) {
         stepsInContainer -= 1;
       }
 
@@ -203,9 +173,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
     return null;
   };
 
-  const onMoveControlFormSubmit: React.FormEventHandler<HTMLFormElement> = (
-    e
-  ) => {
+  const onMoveControlFormSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
     if (!(moveControlObj as FormLayoutComponentChildrenType).containerId) {
@@ -225,13 +193,8 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
           {containerUpdatedItem.itemType === FormItemTypes.CONTAINER ? (
             <>
               <div className="main-form">
-                <form
-                  onSubmit={onContainerFormSubmit}
-                  style={{ minWidth: "100%" }}
-                >
-                  <div className="main-form-title">
-                    Edit Container Properties
-                  </div>
+                <form onSubmit={onContainerFormSubmit} style={{ minWidth: "100%" }}>
+                  <div className="main-form-title">Edit Container Properties</div>
                   <div>
                     <TextField
                       label="Container Heading"
@@ -294,10 +257,8 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
               </FormControl>
             </div>
           </>: null} */}
-                  {childUpdatedItem.controlName ===
-                    FormControlNames.INPUTTEXTFIELD ||
-                  childUpdatedItem.controlName ===
-                    FormControlNames.INPUTMULTILINE ||
+                  {childUpdatedItem.controlName === FormControlNames.INPUTTEXTFIELD ||
+                  childUpdatedItem.controlName === FormControlNames.INPUTMULTILINE ||
                   childUpdatedItem.controlName === FormControlNames.CHECKBOX ? (
                     <>
                       <div>
@@ -335,12 +296,9 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                       label="Required"
                     />
                   </div>
-                  {childUpdatedItem.controlName ===
-                    FormControlNames.RADIOGROUP ||
-                  childUpdatedItem.controlName ===
-                    FormControlNames.SELECTDROPDOWN ||
-                  childUpdatedItem.controlName ===
-                    FormControlNames.CHECKLIST ? (
+                  {childUpdatedItem.controlName === FormControlNames.RADIOGROUP ||
+                  childUpdatedItem.controlName === FormControlNames.SELECTDROPDOWN ||
+                  childUpdatedItem.controlName === FormControlNames.CHECKLIST ? (
                     <>
                       <h6>List Items</h6>
                       <ManageItemsListComponent
@@ -370,10 +328,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
               </div>
               <div className="m-t-20"></div>
               <div className="main-form">
-                <form
-                  onSubmit={onMoveControlFormSubmit}
-                  style={{ minWidth: "100%" }}
-                >
+                <form onSubmit={onMoveControlFormSubmit} style={{ minWidth: "100%" }}>
                   <div className="main-form-title">Move Control to Step</div>
                   <div>
                     <FormControl style={{ minWidth: "100%" }}>
@@ -389,10 +344,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                       >
                         {props.formLayoutComponents.map((item, ind) => {
                           return (
-                            <MenuItem
-                              key={item.container.id}
-                              value={item.container.id}
-                            >
+                            <MenuItem key={item.container.id} value={item.container.id}>
                               Step {ind + 1}
                             </MenuItem>
                           );
@@ -406,9 +358,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
                       <Select
                         name="position"
                         value={
-                          moveControlObj && moveControlObj.position
-                            ? moveControlObj.position
-                            : ""
+                          moveControlObj && moveControlObj.position ? moveControlObj.position : ""
                         }
                         onChange={handleMoveControlSelectChange}
                       >
@@ -439,10 +389,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
       ) : (
         <>
           <h4>Edit Properties</h4>
-          <div
-            role="alert"
-            className="m-t-30 alert alert-dark alert-dismissible"
-          >
+          <div role="alert" className="m-t-30 alert alert-dark alert-dismissible">
             <h4>Note!</h4>
             You need to select a container/control to edit properties.
           </div>
@@ -453,4 +400,3 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
 };
 
 export default EditPropertiesComponent;
-

@@ -1,10 +1,9 @@
 // lib/supabase/server.ts
-import 'server-only';
+import "server-only";
 
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 let _admin: SupabaseClient | null = null;
-
 
 export function getSupabaseAdmin(): SupabaseClient {
   if (_admin) return _admin;
@@ -12,8 +11,10 @@ export function getSupabaseAdmin(): SupabaseClient {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !serviceKey) {
-    throw new Error("Supabase admin env missing: NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY");
+    throw new Error(
+      "Supabase admin env missing: NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY"
+    );
   }
-  _admin = createClient(url, serviceKey, { auth: { persistSession: false }});
+  _admin = createClient(url, serviceKey, { auth: { persistSession: false } });
   return _admin;
 }

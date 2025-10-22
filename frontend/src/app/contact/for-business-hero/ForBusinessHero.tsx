@@ -30,14 +30,11 @@ const HeroSubtext = () => {
 const ForBusinessHero = () => {
   return (
     <section className="relative flex items-center justify-center bg-gray-900">
-      <div
-        style={{ width: "100vw" }}
-        className="absolute inset-0 z-[-10] bg-gray-900"
-      />
+      <div style={{ width: "100vw" }} className="absolute inset-0 z-[-10] bg-gray-900" />
       <div
         id="main"
         style={{ maxWidth: "1280px" }}
-        className="flex flex-col gap-8 px-5 pt-16 pb-24 bg-dark md:px-32 lg:flex-row lg:items-center lg:justify-center lg:py-48 lg:pt-8"
+        className="bg-dark flex flex-col gap-8 px-5 pb-24 pt-16 md:px-32 lg:flex-row lg:items-center lg:justify-center lg:py-48 lg:pt-8"
       >
         <div className="text-white lg:mt-8 lg:flex-[2_2_0%] lg:space-y-8 lg:pr-8">
           <h1 className="text-5xl font-bold">
@@ -47,9 +44,9 @@ const ForBusinessHero = () => {
           </h1>
           <HeroSubtext />
         </div>
-          <div className="lg:flex-[2_2_0%] min-w-0">
-            <ForBusinessSignUpForm />
-          </div>
+        <div className="min-w-0 lg:flex-[2_2_0%]">
+          <ForBusinessSignUpForm />
+        </div>
       </div>
     </section>
   );

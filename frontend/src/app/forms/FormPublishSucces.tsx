@@ -39,17 +39,17 @@ const FormPublishSucces = (props: Props) => {
         <DialogHeader>
           <DialogTitle>Your Form Has Been Published Successfully!</DialogTitle>
           <DialogDescription>
-            Your Form is now live and ready to be filled out by your users. You
-            can now share your form using the link below.
+            Your Form is now live and ready to be filled out by your users. You can now share your
+            form using the link below.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col">
           <p>Copy Link</p>
         </div>
-        <div className="flex justify-between items-center mt-2 gap-2 rounded-md">
-          <Link2Icon className="h-5 w-5 mr-2" />
+        <div className="mt-2 flex items-center justify-between gap-2 rounded-md">
+          <Link2Icon className="mr-2 h-5 w-5" />
           <input
-            className="w-full outline-none bg-transparent border-2 px-2 rounded-md border-gray-200"
+            className="w-full rounded-md border-2 border-gray-200 bg-transparent px-2 outline-none"
             type="text"
             placeholder="link"
             disabled

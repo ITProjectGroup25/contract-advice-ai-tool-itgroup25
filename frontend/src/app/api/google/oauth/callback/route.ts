@@ -1,11 +1,10 @@
-import 'server-only';
+import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
-
 export const runtime = "nodejs";
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * Environment variables:
@@ -18,13 +17,11 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: NextRequest) {
   try {
-
-    const { google } = await import('googleapis');
+    const { google } = await import("googleapis");
 
     const { searchParams } = new URL(req.url);
     const code = searchParams.get("code");
     const userId = searchParams.get("state");
-
 
     if (!code || !userId) {
       return NextResponse.json({ error: "Missing code or state(userId)" }, { status: 400 });
@@ -58,25 +55,23 @@ export async function GET(req: NextRequest) {
     // Persist with supabaseAdmin
     const supabaseAdmin = getSupabaseAdmin();
 
-    const { error } = await supabaseAdmin
-      .from("user_google_tokens")
-      .upsert(
-        {
-          user_id: userId,
-          access_token: tokens.access_token ?? "",
-          refresh_token: tokens.refresh_token ?? "",
-          expiry_date: expiryIso,
-          scope: tokens.scope ?? "",
-          token_type: tokens.token_type ?? "Bearer",
-        },
-        { onConflict: "user_id" }
-      );
+    const { error } = await supabaseAdmin.from("user_google_tokens").upsert(
+      {
+        user_id: userId,
+        access_token: tokens.access_token ?? "",
+        refresh_token: tokens.refresh_token ?? "",
+        expiry_date: expiryIso,
+        scope: tokens.scope ?? "",
+        token_type: tokens.token_type ?? "Bearer",
+      },
+      { onConflict: "user_id" }
+    );
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // redirect back to frontend page 
+    // redirect back to frontend page
     const back = new URL(`/settings/integrations?google=connected`, req.url);
     return NextResponse.redirect(back);
   } catch (e: any) {

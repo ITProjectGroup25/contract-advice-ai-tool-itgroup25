@@ -61,7 +61,10 @@ export function EmailConfiguration() {
         timestamp: new Date().toISOString(),
       };
 
-      const success = await emailService.sendConfirmationEmail(testData, emailService.getCurrentConfiguration());
+      const success = await emailService.sendConfirmationEmail(
+        testData,
+        emailService.getCurrentConfiguration()
+      );
       if (success) {
         toast.success("Test email sent successfully. Please check your inbox.");
       } else {
@@ -181,7 +184,8 @@ export function EmailConfiguration() {
         <AlertDescription>
           <div className="space-y-2">
             <p className="text-green-800 dark:text-green-200">
-              <strong>EmailJS Configuration Active:</strong> Email notifications are enabled for users and the grant team.
+              <strong>EmailJS Configuration Active:</strong> Email notifications are enabled for
+              users and the grant team.
             </p>
             <p className="text-sm text-green-700 dark:text-green-300">
               - Service ID: {configSummary.serviceId}
@@ -200,7 +204,7 @@ export function EmailConfiguration() {
           <CardDescription>Update your EmailJS service credentials.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="service-id">Service ID</Label>
               {isEditing ? (
@@ -212,7 +216,7 @@ export function EmailConfiguration() {
                   className="font-mono"
                 />
               ) : (
-                <div className="p-2 bg-muted rounded border text-sm font-mono">{serviceId}</div>
+                <div className="bg-muted rounded border p-2 font-mono text-sm">{serviceId}</div>
               )}
             </div>
 
@@ -227,7 +231,9 @@ export function EmailConfiguration() {
                   className="font-mono"
                 />
               ) : (
-                <div className="p-2 bg-muted rounded border text-sm font-mono">{configSummary.publicKey}</div>
+                <div className="bg-muted rounded border p-2 font-mono text-sm">
+                  {configSummary.publicKey}
+                </div>
               )}
             </div>
 
@@ -242,7 +248,7 @@ export function EmailConfiguration() {
                   className="font-mono"
                 />
               ) : (
-                <div className="p-2 bg-muted rounded border text-sm font-mono">{templateId}</div>
+                <div className="bg-muted rounded border p-2 font-mono text-sm">{templateId}</div>
               )}
             </div>
 
@@ -257,7 +263,9 @@ export function EmailConfiguration() {
                   placeholder="grants-team@example.com"
                 />
               ) : (
-                <div className="p-2 bg-muted rounded border text-sm font-mono">{grantTeamEmail}</div>
+                <div className="bg-muted rounded border p-2 font-mono text-sm">
+                  {grantTeamEmail}
+                </div>
               )}
             </div>
 
@@ -272,7 +280,9 @@ export function EmailConfiguration() {
                   className="font-mono"
                 />
               ) : (
-                <div className="p-2 bg-muted rounded border text-sm font-mono">{grantTeamTemplateId}</div>
+                <div className="bg-muted rounded border p-2 font-mono text-sm">
+                  {grantTeamTemplateId}
+                </div>
               )}
             </div>
           </div>
@@ -283,7 +293,7 @@ export function EmailConfiguration() {
                 Cancel
               </Button>
               <Button onClick={handleSaveConfiguration} disabled={isSaving}>
-                <Save className="h-4 w-4 mr-2" />
+                <Save className="mr-2 h-4 w-4" />
                 {isSaving ? "Saving..." : "Save Configuration"}
               </Button>
             </div>
@@ -298,10 +308,15 @@ export function EmailConfiguration() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               This unified template handles both complex queries and escalated simple queries.
             </p>
-            <Button variant="outline" size="sm" onClick={copyTemplate} className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={copyTemplate}
+              className="flex items-center gap-2"
+            >
               <Copy className="h-4 w-4" />
               Copy Template
             </Button>
@@ -329,7 +344,10 @@ export function EmailConfiguration() {
           </div>
           <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
             <AlertDescription>
-              Test emails use Service ID <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">{configSummary.serviceId}</code>
+              Test emails use Service ID{" "}
+              <code className="rounded bg-blue-100 px-1 dark:bg-blue-900">
+                {configSummary.serviceId}
+              </code>
               and the current template settings.
             </AlertDescription>
           </Alert>
@@ -341,9 +359,10 @@ export function EmailConfiguration() {
           <CardTitle>Service Status</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            EmailJS credentials are stored locally and can be updated at any time. Users receive confirmation emails after
-            submission and the grant team is notified for complex or escalated queries.
+          <p className="text-muted-foreground text-sm">
+            EmailJS credentials are stored locally and can be updated at any time. Users receive
+            confirmation emails after submission and the grant team is notified for complex or
+            escalated queries.
           </p>
         </CardContent>
       </Card>

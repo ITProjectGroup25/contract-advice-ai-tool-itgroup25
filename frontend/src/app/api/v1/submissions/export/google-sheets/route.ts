@@ -1,16 +1,15 @@
-import 'server-only';
+import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
 import { listSubmissions } from "@/lib/db/submissions";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import type { sheets_v4 } from 'googleapis';
-
+import type { sheets_v4 } from "googleapis";
 
 export const runtime = "nodejs";
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 async function getUserOAuthClient(userId: string) {
-  const { google } = await import('googleapis');
+  const { google } = await import("googleapis");
   // 1) Fetch this user's Google tokens from Supabase
   const supabaseAdmin = getSupabaseAdmin();
   const { data, error } = await supabaseAdmin
@@ -38,7 +37,8 @@ async function getUserOAuthClient(userId: string) {
   });
 
   // 2) If expired, refresh and write back to Supabase
-  const needRefresh = !data.access_token || Date.now() > new Date(data.expiry_date).getTime() - 60_000;
+  const needRefresh =
+    !data.access_token || Date.now() > new Date(data.expiry_date).getTime() - 60_000;
   if (needRefresh) {
     const { credentials } = await oauth2.refreshAccessToken();
 
@@ -57,19 +57,18 @@ async function getUserOAuthClient(userId: string) {
   return oauth2;
 }
 
-async function ensureSheets(
-  sheets: sheets_v4.Sheets,
-  spreadsheetId: string,
-  expand: boolean
-) {
+async function ensureSheets(sheets: sheets_v4.Sheets, spreadsheetId: string, expand: boolean) {
   const meta = await sheets.spreadsheets.get({ spreadsheetId });
-  const titles = new Set((meta.data.sheets ?? []).map(s => s.properties?.title));
+  const titles = new Set((meta.data.sheets ?? []).map((s) => s.properties?.title));
   const wanted = ["Submissions", ...(expand ? ["Answers", "Attachments"] : [])];
 
   const requests: any[] = [];
   // If there is a default sheet, rename it; otherwise create new sheets
   if (!titles.has("Submissions")) {
-    if (meta.data.sheets?.[0]?.properties?.sheetId != null && (meta.data.sheets?.length ?? 0) === 1) {
+    if (
+      meta.data.sheets?.[0]?.properties?.sheetId != null &&
+      (meta.data.sheets?.length ?? 0) === 1
+    ) {
       requests.push({
         updateSheetProperties: {
           properties: { sheetId: meta.data.sheets![0].properties!.sheetId!, title: "Submissions" },
@@ -124,8 +123,7 @@ async function writeSheet(
 
 export async function GET(req: NextRequest) {
   try {
-
-    const { google } = await import('googleapis');
+    const { google } = await import("googleapis");
 
     const sp = new URL(req.url).searchParams;
 
@@ -135,18 +133,26 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Missing userId" }, { status: 400 });
     }
 
-    const expand   = sp.get("expand") === "1";
-    const page     = Number(sp.get("page") ?? "1");
+    const expand = sp.get("expand") === "1";
+    const page = Number(sp.get("page") ?? "1");
     const pageSize = Number(sp.get("pageSize") ?? "1000");
-    const orderBy  = sp.get("orderBy") ?? "created_at";
-    const asc      = (sp.get("asc") ?? "false") === "true";
-    const status   = sp.get("status") as any;
-    const formId   = sp.get("formId") ? Number(sp.get("formId")) : undefined;
+    const orderBy = sp.get("orderBy") ?? "created_at";
+    const asc = (sp.get("asc") ?? "false") === "true";
+    const status = sp.get("status") as any;
+    const formId = sp.get("formId") ? Number(sp.get("formId")) : undefined;
     const dateFrom = sp.get("dateFrom") ?? undefined;
-    const dateTo   = sp.get("dateTo") ?? undefined;
+    const dateTo = sp.get("dateTo") ?? undefined;
 
     const { data } = await listSubmissions({
-      page, pageSize, orderBy, asc, status, formId, dateFrom, dateTo, expand,
+      page,
+      pageSize,
+      orderBy,
+      asc,
+      status,
+      formId,
+      dateFrom,
+      dateTo,
+      expand,
     });
     const rows = (data as any[]) ?? [];
 
@@ -175,10 +181,16 @@ export async function GET(req: NextRequest) {
 
     // Submissions
     const subHeader = [
-      "Submission ID","Form ID","Form Title",
-      "User ID","User Email","Status","Created At","Updated At"
+      "Submission ID",
+      "Form ID",
+      "Form Title",
+      "User ID",
+      "User Email",
+      "Status",
+      "Created At",
+      "Updated At",
     ];
-    const subValues = rows.map((s) => ([
+    const subValues = rows.map((s) => [
       s.id ?? "",
       s.form_id ?? s.form?.id ?? "",
       s.form?.title ?? "",
@@ -187,11 +199,18 @@ export async function GET(req: NextRequest) {
       s.status ?? "",
       s.created_at ?? "",
       s.updated_at ?? "",
-    ]));
+    ]);
     await writeSheet(sheets, spreadsheetId!, "Submissions", subHeader, subValues);
 
     if (expand) {
-      const ansHeader = ["Submission ID","Answer ID","Question ID","Value","Multi Values (JSON)","Created At"];
+      const ansHeader = [
+        "Submission ID",
+        "Answer ID",
+        "Question ID",
+        "Value",
+        "Multi Values (JSON)",
+        "Created At",
+      ];
       const ansValues: any[] = [];
       rows.forEach((s) => {
         (s.answers ?? []).forEach((a: any) => {
@@ -207,7 +226,14 @@ export async function GET(req: NextRequest) {
       });
       await writeSheet(sheets, spreadsheetId!, "Answers", ansHeader, ansValues);
 
-      const attHeader = ["Submission ID","Attachment ID","File Key","File Name","File Size","Created At"];
+      const attHeader = [
+        "Submission ID",
+        "Attachment ID",
+        "File Key",
+        "File Name",
+        "File Size",
+        "Created At",
+      ];
       const attValues: any[] = [];
       rows.forEach((s) => {
         (s.attachments ?? []).forEach((f: any) => {
@@ -234,7 +260,11 @@ export async function GET(req: NextRequest) {
   } catch (err: any) {
     const gErr = err?.response?.data?.error;
     return NextResponse.json(
-      { ok: false, error: gErr?.message || err?.message || "Sheets export failed", details: gErr || undefined },
+      {
+        ok: false,
+        error: gErr?.message || err?.message || "Sheets export failed",
+        details: gErr || undefined,
+      },
       { status: err?.response?.status || 500 }
     );
   }
