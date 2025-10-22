@@ -28,7 +28,6 @@ test('user_stories.json metadata is aligned with catalogue expectations', () => 
     );
   });
 
-  // 检查故事ID的唯一性
   const storyIds = stories.map(story => story.story_id);
   const uniqueIds = new Set(storyIds);
   assert.strictEqual(
