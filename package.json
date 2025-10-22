@@ -11,7 +11,9 @@
     "build": "npm run build --workspace frontend",
     "start": "npm run start --workspace frontend",
     "lint": "npm run lint --workspace frontend",
-    "typecheck": "npm run typecheck --workspace shared && npm run typecheck --workspace backend && npm run typecheck --workspace frontend"
+    "typecheck": "npm run typecheck --workspace shared && npm run typecheck --workspace backend && npm run typecheck --workspace frontend",
+    "test": "bun test",
+    "test:watch": "bun test --watch"
   },
   "engines": {
     "node": ">=18.17.0"
@@ -19,19 +21,21 @@
   "overrides": {
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "next": "14.0.4",
-    "next-auth": {
-      "next": "14.0.4"
-    }
+    "next": "14.0.4"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.58.0",
     "googleapis": "^161.0.0",
     "next": "14.0.4",
+    "next-auth": "^4.24.11",
     "react": "18.2.0",
+    "react-chatbotify": "^2.4.0",
     "react-dom": "18.2.0",
     "server-only": "^0.0.1",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^20.0.5"
   }
 }

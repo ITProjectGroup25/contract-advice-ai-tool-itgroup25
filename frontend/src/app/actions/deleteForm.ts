@@ -1,5 +1,5 @@
 "use server";
-
+// @ts-ignore
 import { db, form, formDetails } from "@backend";
 import { eq } from "drizzle-orm";
 

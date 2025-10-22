@@ -20,7 +20,12 @@ type FormPickerProps = {
   setRows: (rows: SubmissionRow[]) => void;
 };
 
-const FormsPicker = ({ options, setData, setCols, setRows }: FormPickerProps) => {
+const FormsPicker = ({
+  options,
+  setData,
+  setCols,
+  setRows,
+}: FormPickerProps) => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -38,34 +43,38 @@ const FormsPicker = ({ options, setData, setCols, setRows }: FormPickerProps) =>
     [searchParams]
   );
 
-  const getSubmissions = async (_formId: number): Promise<SubmissionTable | null> => {
+  const getSubmissions = async (
+    _formId: number
+  ): Promise<SubmissionTable | null> => {
     // TODO: Integrate with real form submissions endpoint once available.
     return null;
   };
 
-  const fetchData = async (selectedFormId: number) => {
-    try {
-      const response = await getSubmissions(selectedFormId);
-      if (response) {
-        setCols(response.columns);
-        setRows(response.data);
-        setData(response);
-      } else {
+  const fetchData = useCallback(
+    async (selectedFormId: number) => {
+      try {
+        const response = await getSubmissions(selectedFormId);
+        if (response) {
+          setCols(response.columns);
+          setRows(response.data);
+          setData(response);
+        } else {
+          setCols([]);
+          setRows([]);
+          setData(null);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
         setCols([]);
         setRows([]);
         setData(null);
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setCols([]);
-      setRows([]);
-      setData(null);
-    }
-  };
-
+    },
+    [getSubmissions, setCols, setRows, setData]
+  );
   useEffect(() => {
     fetchData(Number(formId));
-  }, [formId]);
+  }, [formId, fetchData]);
 
   return (
     <div className="flex gap-2 items-center">

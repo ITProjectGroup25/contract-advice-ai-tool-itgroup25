@@ -8,11 +8,10 @@ The software also allows administrators to modify each question simultaneously, 
 
 # Tools and technologies used
 
-Both frontend and backend of this software is written in __JavaScript__ and __TypeScript__.
-__EmailJS__ is used to implement email notification.
-__Supabase__ is used for the online database.
-__Vercel__ is used to deploy the web app.
-
+Both frontend and backend of this software is written in **JavaScript** and **TypeScript**.
+**EmailJS** is used to implement email notification.
+**Supabase** is used for the online database.
+**Vercel** is used to deploy the web app.
 
 ## Repository layout
 
@@ -37,21 +36,28 @@ These files contain sensitive information and should not be committed to GitHub.
 
 - Root level:
   - `.env`
+
 ```bash
 DATABASE_URL=your-supabase-connection-string
 NEXTAUTH_SECRET=change-me
 NEXTAUTH_URL=http://localhost:3000
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+SUPABASE_URL=https://your-supabase-project-url.supabase.co
 
 ```
 
 - /frontend level:
   - `.env.local`
+
 ```bash
 DATABASE_URL=your-supabase-connection-string
 NEXTAUTH_SECRET=change-me
 NEXTAUTH_URL=http://localhost:3000
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+SUPABASE_URL=https://your-supabase-project-url.supabase.co
+
 
 ```
 
@@ -76,7 +82,8 @@ npm run db:push --workspace backend
 
 
 ```
-This synchronises the __Drizzle schema__ with your local Postgres.
+
+This synchronises the **Drizzle schema** with your local Postgres.
 
 ### 4. Start the app
 
@@ -89,7 +96,9 @@ npm run dev
 The app will be available at: [http://localhost:3000](http://localhost:3000)
 
 ### 😎 Quick startup Code
+
 For Windows PowerShell (first line bypasses execution policy):
+
 ```bash
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 npm install
@@ -98,7 +107,9 @@ npm run dev
 
 
 ```
+
 # Helpful links
+
 Private [Development workflow](https://itgroup25.atlassian.net/wiki/spaces/ITgroup25/folder/25919489)
 Private [Design Artefacts](https://itgroup25.atlassian.net/wiki/spaces/ITgroup25/folder/11862053)
 
@@ -109,9 +120,9 @@ Private [Design Artefacts](https://itgroup25.atlassian.net/wiki/spaces/ITgroup25
 
 With this layout the frontend and backend teams can iterate without stepping on each other, while shared contracts stay in one place.
 
-
 # release note
+
 ### 0.1.0 Alpha release
+
 release date:2025.9.28
 A basic website framework and most of the features described
-

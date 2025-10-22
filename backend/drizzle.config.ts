@@ -1,6 +1,6 @@
 import { config as loadEnv } from "dotenv";
-import { resolve } from "path";
 import type { Config } from "drizzle-kit";
+import { resolve } from "path";
 
 loadEnv({ path: resolve(__dirname, "../.env"), override: true });
 loadEnv({ path: resolve(__dirname, ".env"), override: true });
@@ -8,9 +8,10 @@ loadEnv({ path: resolve(__dirname, ".env"), override: true });
 export default {
   schema: "./src/db/schema.ts",
   out: "./drizzle",
-  driver: "pg",
+  dialect: "postgresql", // Add this line
   dbCredentials: {
-    connectionString:
+    // Change connectionString to url
+    url:
       process.env.DATABASE_URL ||
       "postgres://postgres:postgres@localhost:5432/postgres",
   },

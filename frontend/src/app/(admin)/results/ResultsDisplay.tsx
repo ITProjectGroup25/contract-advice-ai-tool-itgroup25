@@ -1,3 +1,4 @@
+// @ts-ignore
 import { db, form, formResults } from "@backend";
 import { eq } from "drizzle-orm";
 

@@ -1,6 +1,6 @@
+import { sqlClient } from "@backend";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { sqlClient } from "@backend";
 
 const createSubmissionSchema = z.object({
   formData: z.record(z.any()),
@@ -50,13 +50,22 @@ async function ensureTable() {
 
 export async function POST(req: Request) {
   try {
+    console.log("H");
+
     await ensureTable();
+
+    console.log("Test");
+
     const payload = createSubmissionSchema.parse(await req.json());
+
+    console.log({ payload });
+
     const submissionUid = generateSubmissionUid();
     const status = payload.status ?? "submitted";
     const timestamp = new Date().toISOString();
 
     const formDataJson = JSON.stringify(payload.formData ?? {});
+
     const rows = await sqlClient.unsafe<GrantSubmissionRow[]>(
       `
         INSERT INTO grant_support_submissions (
@@ -154,7 +163,9 @@ export async function GET(req: Request) {
 
     const filtered = rows.filter((row) => {
       const matchStatus = statusFilter ? row.status === statusFilter : true;
-      const matchType = queryTypeFilter ? row.query_type === queryTypeFilter : true;
+      const matchType = queryTypeFilter
+        ? row.query_type === queryTypeFilter
+        : true;
       return matchStatus && matchType;
     });
 
