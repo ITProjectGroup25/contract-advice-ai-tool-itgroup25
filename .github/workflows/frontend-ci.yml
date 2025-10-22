@@ -31,11 +31,14 @@ jobs:
       - name: Install workspaces
         run: npm install
 
+      - name: Check code formatting with Prettier
+        run: npm run format:check
+
       - name: Lint frontend workspace
         run: npm run lint --workspace frontend
 
-      - name: Typecheck frontend workspace
-        run: npm run typecheck --workspace frontend
+      - name: Typecheck all workspaces
+        run: npm run typecheck
 
       - name: Build frontend workspace
         run: npm run build --workspace frontend
