@@ -1,0 +1,40 @@
+name: User Stories Tests
+
+on:
+  push:
+    branches: ['**']  # Trigger on all branches
+  pull_request:
+    branches: ['**']  # Trigger on all PRs
+
+jobs:
+  user-stories-validation:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run user stories tests
+        run: |
+          cd tests
+          node userStories.test.mjs
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "🧪 User Stories Test Summary"
+          echo "=============================="
+          if [ $? -eq 0 ]; then
+            echo "✅ All user stories tests passed successfully!"
+          else
+            echo "❌ Some user stories tests failed. Please check the output above."
+          fi
