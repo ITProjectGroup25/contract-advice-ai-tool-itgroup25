@@ -1,0 +1,134 @@
+{
+  "title": "User Stories Diagram - ITgroup25",
+  "description": "用户故事图表，包含各个Epic下的用户故事详情",
+  "total_stories": 15,
+  "epics": {
+    "1": "Information Collection Form",
+    "2": "Simple Query Handling",
+    "3": "Complex Referral Handling",
+    "4": "Data Reporting & Analysis",
+    "5": "Question Edit"
+  },
+  "user_stories": [
+    {
+      "story_id": "1.1",
+      "epic": "Information Collection Form",
+      "role": "Requestor",
+      "i_want": "Submission only go through when all fields are filled in and at least one tick box is selected for each question",
+      "so_that": "It only goes through if I have provided all the required information and left no fields empty",
+      "priority": "5"
+    },
+    {
+      "story_id": "1.2",
+      "epic": "Information Collection Form",
+      "role": "Requestor",
+      "i_want": "To be able to submit all the information the form wants me to",
+      "so_that": "I can formally submit my query to RIC staff",
+      "priority": "5"
+    },
+    {
+      "story_id": "1.3",
+      "epic": "Information Collection Form",
+      "role": "Requestor",
+      "i_want": "To be able to choose between a Simple or Complex referral",
+      "so_that": "I can advise the RIC staff on the complexity of my question",
+      "priority": "5"
+    },
+    {
+      "story_id": "1.4",
+      "epic": "Information Collection Form",
+      "role": "Requestor",
+      "i_want": "Additional fields to be displayed when either Complex or Simple referral is chosen",
+      "so_that": "Additional information specific to the query type can be collected",
+      "priority": "4"
+    },
+    {
+      "story_id": "1.5",
+      "epic": "Information Collection Form",
+      "role": "Requestor",
+      "i_want": "Different pop-ups will appear for Simple Query and Complex Referral",
+      "so_that": "So that the form guides me with relevant fields/questions",
+      "priority": "4"
+    },
+    {
+      "story_id": "1.6",
+      "epic": "Information Collection Form",
+      "role": "Requestor/Administrator",
+      "i_want": "Submitted queries to generate an email for both requestor and administrator",
+      "so_that": "I as the requestor receive confirmation of submission to know that the submission was successful, and I as the administrator receive the submission to answer back",
+      "priority": "3"
+    },
+    {
+      "story_id": "1.7",
+      "epic": "Information Collection Form",
+      "role": "Administrator",
+      "i_want": "Each query to have a unique ID",
+      "so_that": "I can quickly track and manage follow-ups",
+      "priority": "2"
+    },
+    {
+      "story_id": "2.1",
+      "epic": "Simple Query Handling",
+      "role": "Requestor",
+      "i_want": "That after a simple query submission, a pop-up will appear containing a chatbot with pre-prepared responses and links",
+      "so_that": "It can resolve commonly asked questions such as process walkthroughs, explanations, and helpful resources without requiring the resources of RIC staff",
+      "priority": "3"
+    },
+    {
+      "story_id": "2.2",
+      "epic": "Simple Query Handling",
+      "role": "Requestor/Administrator",
+      "i_want": "That after a simple query submission, there will be a service feedback section",
+      "so_that": "Requestor can notice admin the request need further replies",
+      "priority": "2"
+    },
+    {
+      "story_id": "3.1",
+      "epic": "Complex Referral Handling",
+      "role": "Requestor",
+      "i_want": "Complex referrals to require uploaded documents",
+      "so_that": "Administrators can better understand and analyze complex referral issues",
+      "priority": "3"
+    },
+    {
+      "story_id": "4.1",
+      "epic": "Data Reporting & Analysis",
+      "role": "Administrator",
+      "i_want": "Submitted requests, documents, and follow-ups to be stored in the system database",
+      "so_that": "Requests can be viewed and categorized for better background awareness",
+      "priority": "3"
+    },
+    {
+      "story_id": "4.2",
+      "epic": "Data Reporting & Analysis",
+      "role": "Administrator",
+      "i_want": "The system to support data export to Excel/Google Sheets",
+      "so_that": "I, as an administrator without technical background can access data easily",
+      "priority": "3"
+    },
+    {
+      "story_id": "4.3",
+      "epic": "Data Reporting & Analysis",
+      "role": "Administrator",
+      "i_want": "The reporting sheet to be filterable by date range",
+      "so_that": "I, as an administrator can select questions by time period",
+      "priority": "2"
+    },
+    {
+      "story_id": "4.4",
+      "epic": "Data Reporting & Analysis",
+      "role": "Administrator",
+      "i_want": "The reporting sheet to allow filtering by query type",
+      "so_that": "I, as an administrator can analyze specific groups of questions",
+      "priority": "2"
+    },
+    {
+      "story_id": "5.1",
+      "epic": "Question Edit",
+      "role": "Administrator",
+      "i_want": "To be able to edit the options and fields of the form",
+      "so_that": "There is no need to rebuild the entire form when new options are required",
+      "priority": "1"
+    }
+  ]
+}
