@@ -51,7 +51,7 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
 
   const router = useRouter();
 
-  const { showPreview, openPreviewDrawer, closePreviewDrawer } = useFormPreview();
+  const { showPreview, openPreviewDrawer: _openPreviewDrawer, closePreviewDrawer } = useFormPreview();
 
   const { classes } = useStyles();
 

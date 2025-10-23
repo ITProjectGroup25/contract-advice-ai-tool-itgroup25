@@ -17,7 +17,7 @@ interface useFormBuilderProps {
 }
 
 const useFormBuilder = (props: useFormBuilderProps) => {
-  const [selectedTemplate, setSelectedTemplate] = useState<null | TemplateType>(props.template);
+  const [selectedTemplate, _setSelectedTemplate] = useState<null | TemplateType>(props.template);
   const [formLayoutComponents, setFormLayoutComponents] = useState<FormLayoutComponentsType[]>(
     props.template.formLayoutComponents
   );
@@ -25,8 +25,8 @@ const useFormBuilder = (props: useFormBuilderProps) => {
     undefined | FormLayoutComponentContainerType | FormLayoutComponentChildrenType
   >(undefined);
 
-  const dispatch = useAppDispatch();
-  const { showModalStrip } = useModalStrip();
+  const _dispatch = useAppDispatch();
+  const { showModalStrip: _showModalStrip } = useModalStrip();
 
   // Handles a Container or a Component added on the form builder
   const handleItemAdded = (
@@ -137,11 +137,11 @@ const useFormBuilder = (props: useFormBuilderProps) => {
       JSON.stringify(formLayoutComponents)
     );
 
-    const currentItemContainer = componentsCopy.filter((con, ind) => {
+    const currentItemContainer = componentsCopy.filter((con, _ind) => {
       return con.container.id === item.containerId;
     })[0];
 
-    const moveItemToContainer = componentsCopy.filter((con, ind) => {
+    const moveItemToContainer = componentsCopy.filter((con, _ind) => {
       return con.container.id === containerId;
     })[0];
 
@@ -181,7 +181,7 @@ const useFormBuilder = (props: useFormBuilderProps) => {
 
     if (dragIndex !== undefined && item.id) {
       if (item.containerId === containerId) {
-        const formContainer = componentsCopy.filter((con, ind) => {
+        const formContainer = componentsCopy.filter((con, _ind) => {
           return con.container.id === containerId;
         })[0];
         const deletedItem = formContainer.children.splice(

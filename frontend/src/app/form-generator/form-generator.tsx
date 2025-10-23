@@ -19,8 +19,6 @@ import { Input } from "@/components/ui/input";
 
 import { createNewForm } from "../actions/createNewForm";
 
-type Props = {};
-
 const initialState: {
   message: string;
   data?: any;
@@ -37,10 +35,10 @@ export function SubmitButton() {
   );
 }
 
-const FormGenerator = (props: Props) => {
+const FormGenerator = () => {
   const [state, formAction] = useFormState(createNewForm, initialState);
   const [open, setOpen] = useState(false);
-  const session = useSession();
+  const _session = useSession();
 
   useEffect(() => {
     console.log("State", state);

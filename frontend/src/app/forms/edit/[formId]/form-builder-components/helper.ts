@@ -1,1 +1,1 @@
-export const shapeConverter = (shape: any) => {};
+export const shapeConverter = (_shape: any) => {};
