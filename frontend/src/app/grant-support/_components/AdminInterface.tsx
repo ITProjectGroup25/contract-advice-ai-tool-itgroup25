@@ -1,17 +1,6 @@
 "use client";
 
-import {
-  Settings,
-  Plus,
-  Edit,
-  Trash2,
-  Save,
-  X,
-  ArrowLeft,
-  Eye,
-  EyeOff,
-  Copy,
-} from "lucide-react";
+import { Settings, Plus, Edit, Trash2, Save, X, ArrowLeft, Eye, EyeOff, Copy } from "lucide-react";
 import { useState } from "react";
 
 import { DatabaseManagement } from "./DatabaseManagement";
