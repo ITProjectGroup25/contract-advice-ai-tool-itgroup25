@@ -35,8 +35,6 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
-
-
 export function DatabaseManagement() {
   const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
   const [stats, setStats] = useState({

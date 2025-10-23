@@ -14,8 +14,6 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 
-
-
 export function EmailConfiguration() {
   const [testEmail, setTestEmail] = useState("");
   const [isTesting, setIsTesting] = useState(false);

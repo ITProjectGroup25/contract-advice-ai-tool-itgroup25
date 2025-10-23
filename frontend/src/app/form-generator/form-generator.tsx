@@ -17,9 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
-
 import { createNewForm } from "../actions/createNewForm";
-
 
 type Props = {};
 

@@ -20,7 +20,6 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 
-
 export function ThemeChange() {
   const storedThemeString = localStorage.getItem("ai-form-builder-theme");
   const selectedTheme = storedThemeString ? JSON.parse(storedThemeString) : slateTheme;

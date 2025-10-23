@@ -14,7 +14,6 @@ import { SuccessPage } from "./SuccessPage";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
 
-
 type AppState = "form" | "simple-response" | "success" | "admin" | "chatbot";
 
 export default function App() {
