@@ -829,7 +829,7 @@ Template Variables Used:
   }
 
   // Check if EmailJS is properly configured
-  isConfigured(config?: EmailConfig): boolean {
+  isConfigured(_config?: EmailConfig): boolean {
     // Always return true since we're using confirmed valid configuration
     // User has provided correct credentials and requested no validation
     return true;

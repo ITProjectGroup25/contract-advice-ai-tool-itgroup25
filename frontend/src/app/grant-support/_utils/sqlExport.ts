@@ -158,7 +158,7 @@ export async function exportFormSubmissionAsSQL(
   formData: FormData,
   questions: Question[],
   queryType: "simple" | "complex",
-  filename?: string
+  _filename?: string
 ): Promise<string> {
   const submissionId = `submission_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   const sqlContent = generateSQLFromFormData(formData, questions, submissionId);

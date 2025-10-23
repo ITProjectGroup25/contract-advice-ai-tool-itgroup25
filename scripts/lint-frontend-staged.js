@@ -35,7 +35,7 @@ if (npmExecPath) {
       "frontend",
       "--",
       "eslint",
-      "--max-warnings=999",
+      "--max-warnings=50",
       "--fix",
       ...files,
     ],
