@@ -111,7 +111,7 @@ export function DynamicFormRenderer({
   }, [formValues, visibleQuestions, setValue]);
 
   const isSectionVisible = (section: FormSection) => {
-    const queryType = getQueryType();
+    const _queryType = getQueryType();
 
     // Check section conditional logic
     if (section.conditional) {
@@ -230,7 +230,7 @@ export function DynamicFormRenderer({
     if (!isQuestionVisible(question)) return null;
 
     const fieldName = question.id;
-    const currentValue = formValues[fieldName];
+    const _currentValue = formValues[fieldName];
 
     const getValidationRules = () => {
       const rules: any = {};
@@ -379,7 +379,7 @@ export function DynamicFormRenderer({
                         checked={
                           Array.isArray(field.value) ? field.value.includes(option.value) : false
                         }
-                        onCheckedChange={(checked) => {
+                        onCheckedChange={(_checked) => {
                           const currentValues = Array.isArray(field.value) ? field.value : [];
                           handleCheckboxChange(question.id, option.value, currentValues);
                         }}

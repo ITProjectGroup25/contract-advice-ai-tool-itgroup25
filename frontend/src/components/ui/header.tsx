@@ -9,9 +9,7 @@ import { Button } from "./button";
 import SignOutButton from "./sign-out-button";
 import { ThemeChange } from "./ThemeChange";
 
-type Props = {};
-
-const Header = async (props: Props) => {
+const Header = async () => {
   const session: Session | null = await getServerSession(authOptions as any);
 
   return (

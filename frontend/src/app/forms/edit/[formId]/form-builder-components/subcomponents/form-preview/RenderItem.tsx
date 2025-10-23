@@ -19,7 +19,7 @@ import { FC } from "react";
 import { FormLayoutComponentChildrenType } from "../../types/FormTemplateTypes";
 import { FormControlNames } from "../../utils/formBuilderUtils";
 
-const dateFormat = "yyyy, MMM dd";
+const _dateFormat = "DD/MM/YYYY";
 
 interface RenderItemProps {
   item: FormLayoutComponentChildrenType;
@@ -96,7 +96,7 @@ const RenderItem: FC<RenderItemProps> = (props) => {
               variant="outlined"
               value={item.items && item.items[0].value}
             >
-              {item.items?.map((i, ind) => (
+              {item.items?.map((i, _ind) => (
                 <MenuItem key={i.value} value={i.value}>
                   {i.label}
                 </MenuItem>
@@ -188,7 +188,7 @@ const RenderItem: FC<RenderItemProps> = (props) => {
       return (
         <>
           <FormGroup>
-            {item.items?.map((i, ind) => (
+            {item.items?.map((i, _ind) => (
               <FormControlLabel
                 key={i.value}
                 control={<Checkbox />}

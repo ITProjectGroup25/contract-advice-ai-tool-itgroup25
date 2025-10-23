@@ -58,7 +58,7 @@ const StepperFormPreview: FC<StepperFormPreviewProps> = (props) => {
                     <p>{component.container.subHeading}</p>
                   </div>
 
-                  {component.children.map((child, ind) => (
+                  {component.children.map((child, _ind) => (
                     <div key={child.id} className="my-4">
                       <h5>{child.labelName + (child.required ? " *" : "")}</h5>
                       {child.description !== "" ? (

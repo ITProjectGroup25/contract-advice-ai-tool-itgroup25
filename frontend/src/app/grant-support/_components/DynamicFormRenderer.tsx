@@ -242,7 +242,7 @@ export function DynamicFormRenderer({
     if (!isQuestionVisible(question)) return null;
 
     const fieldName = question.id;
-    const currentValue = formValues[fieldName];
+    const _currentValue = formValues[fieldName];
 
     const getValidationRules = () => {
       const rules: any = {};
