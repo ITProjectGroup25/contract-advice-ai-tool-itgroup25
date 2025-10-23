@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import { useAppDispatch } from "../redux/hooks";
 import {
   FormLayoutComponentChildrenType,
@@ -8,6 +9,7 @@ import {
 } from "../types/FormTemplateTypes";
 import { generateID } from "../utils/common";
 import { FormItemTypes } from "../utils/formBuilderUtils";
+
 import useModalStrip from "./useModalStrip";
 
 interface useFormBuilderProps {
@@ -99,7 +101,7 @@ const useFormBuilder = (props: useFormBuilderProps) => {
   const editControlProperties = (item: FormLayoutComponentChildrenType) => {
     const newState = formLayoutComponents.slice();
     const formContainerId = newState.findIndex((comp) => comp.container.id === item.containerId);
-    let formContainer = { ...newState[formContainerId] };
+    const formContainer = { ...newState[formContainerId] };
     formContainer.children.forEach((cont, ind) => {
       if (cont.id === item.id) {
         const newChildren = formContainer.children.slice();
@@ -131,7 +133,7 @@ const useFormBuilder = (props: useFormBuilderProps) => {
     item: FormLayoutComponentChildrenType,
     { containerId, position }: FormLayoutComponentChildrenType
   ) => {
-    let componentsCopy: FormLayoutComponentsType[] = JSON.parse(
+    const componentsCopy: FormLayoutComponentsType[] = JSON.parse(
       JSON.stringify(formLayoutComponents)
     );
 
@@ -173,7 +175,7 @@ const useFormBuilder = (props: useFormBuilderProps) => {
     if (item === undefined) {
       return;
     }
-    let componentsCopy: FormLayoutComponentsType[] = JSON.parse(
+    const componentsCopy: FormLayoutComponentsType[] = JSON.parse(
       JSON.stringify(formLayoutComponents)
     );
 

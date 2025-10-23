@@ -2,9 +2,9 @@ name: Supabase CI
 
 on:
   push:
-    branches: ['**']  # Trigger on all branches
+    branches: ["**"] # Trigger on all branches
   pull_request:
-    branches: ['**']  # Trigger on all PRs
+    branches: ["**"] # Trigger on all PRs
 
 env:
   SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
@@ -71,10 +71,10 @@ jobs:
   deploy:
     needs: validate
     if: (
-          (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/IPGCRT-79/ci-cd'))
-        ) || (
-          (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'IPGCRT-79/ci-cd')
-        )
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/IPGCRT-79/ci-cd'))
+      ) || (
+      (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'IPGCRT-79/ci-cd')
+      )
     runs-on: ubuntu-latest
 
     steps:

@@ -9,6 +9,13 @@
     "prettier"
   ],
   "plugins": ["@typescript-eslint", "import", "jsx-a11y", "unused-imports"],
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "project": ["./tsconfig.json"]
+      }
+    }
+  },
   "rules": {
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-types": "warn",
@@ -19,6 +26,7 @@
         "varsIgnorePattern": "^_"
       }
     ],
+    "import/default": "off",
     "import/order": [
       "warn",
       {
@@ -37,6 +45,11 @@
       {
         "ignore": ["^server-only$"]
       }
-    ]
+    ],
+    "jsx-a11y/anchor-has-content": "warn",
+    "jsx-a11y/click-events-have-key-events": "warn",
+    "jsx-a11y/label-has-associated-control": "warn",
+    "jsx-a11y/no-autofocus": "warn",
+    "jsx-a11y/no-static-element-interactions": "warn"
   }
 }

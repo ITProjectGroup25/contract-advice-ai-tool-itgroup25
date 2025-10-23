@@ -54,7 +54,8 @@ next-env.d.ts
 **/tsconfig.tsbuildinfo
 
 # development folders
-/dev/
+/dev/*
+!/dev/开发记录/
 /development/
 /temp/
 /tmp/

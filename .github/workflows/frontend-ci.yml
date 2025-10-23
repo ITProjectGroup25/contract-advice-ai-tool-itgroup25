@@ -2,9 +2,9 @@ name: Frontend CI
 
 on:
   push:
-    branches: ['**']  # Trigger on all branches
+    branches: ["**"] # Trigger on all branches
   pull_request:
-    branches: ['**']  # Trigger on all PRs
+    branches: ["**"] # Trigger on all PRs
 
 jobs:
   lint-test-build:
@@ -46,10 +46,10 @@ jobs:
   deploy-vercel:
     needs: lint-test-build
     if: (
-          (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/IPGCRT-79/ci-cd'))
-        ) || (
-          (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'IPGCRT-79/ci-cd')
-        )
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/IPGCRT-79/ci-cd'))
+      ) || (
+      (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'IPGCRT-79/ci-cd')
+      )
     runs-on: ubuntu-latest
 
     steps:

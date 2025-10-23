@@ -43,7 +43,7 @@
       "prettier --write"
     ],
     "frontend/**/*.{ts,tsx,js,jsx}": [
-      "npm run lint --workspace frontend -- --fix || true"
+      "node scripts/lint-frontend-staged.js"
     ]
   }
 }

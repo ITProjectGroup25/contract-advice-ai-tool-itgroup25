@@ -1,6 +1,3 @@
-import { deleteForm } from "@/app/actions/deleteForm";
-import { publishForm } from "@/app/actions/publishForm";
-import { SAMPLE_GRANT_FORM_URL } from "@/app/contact/community-showcase";
 import { Publish, RemoveRedEye } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { useRouter } from "next/navigation";
@@ -8,9 +5,14 @@ import { FunctionComponent, useState, useTransition } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { makeStyles } from "tss-react/mui";
-import LeftSidebar from "./LeftSidebar";
+
+import { deleteForm } from "@/app/actions/deleteForm";
+import { publishForm } from "@/app/actions/publishForm";
+import { SAMPLE_GRANT_FORM_URL } from "@/app/contact/community-showcase";
+
 import useFormBuilder from "./hooks/useFormBuilder";
 import useFormPreview from "./hooks/useFormPreview";
+import LeftSidebar from "./LeftSidebar";
 import DropContainerComponent from "./subcomponents/DropContainerComponent";
 import EditPropertiesComponent from "./subcomponents/EditPropertiesComponent";
 import FormPreview from "./subcomponents/FormPreview";
@@ -95,9 +97,13 @@ const FormBuilder: FunctionComponent<FormBuilderProps> = (props) => {
   const [isDeleting, startIsDeletingTransition] = useTransition();
 
   const handleDelete = () => {
-    startIsDeletingTransition(() => {
-      deleteForm({ id: selectedTemplate?.id! });
+    const templateId = selectedTemplate?.id;
+    if (!templateId) {
+      return;
+    }
 
+    startIsDeletingTransition(() => {
+      deleteForm({ id: templateId });
       window.location.href = "/view-forms-redirect";
     });
   };

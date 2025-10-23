@@ -17,6 +17,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import type { Identifier } from "dnd-core";
 import React, { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
+
 import { FormLayoutComponentChildrenType } from "../types/FormTemplateTypes";
 import { FormControlNames, FormItemTypes } from "../utils/formBuilderUtils";
 
@@ -223,7 +224,7 @@ function ControlViewComponent(props: ControlViewComponentProps) {
 
   let colBackgroundcolor = nonSelectedColor;
   let color = "";
-  let wrapperStyle = {
+  const wrapperStyle = {
     border: "1px solid " + nonSelectedColor,
     borderRadius: "9px",
     marginBottom: "20px",
