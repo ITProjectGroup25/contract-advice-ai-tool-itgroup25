@@ -1,10 +1,16 @@
 "use client";
 
+import { Question, FormSection } from "@shared";
+import { Settings, Plus, Edit, Trash2, Save, X, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -12,14 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Settings, Plus, Edit, Trash2, Save, X, ArrowLeft, Eye, EyeOff, Move } from "lucide-react";
-import { Question, FormSection } from "@shared";
-import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
+
 
 interface AdminInterfaceProps {
   onBack: () => void;

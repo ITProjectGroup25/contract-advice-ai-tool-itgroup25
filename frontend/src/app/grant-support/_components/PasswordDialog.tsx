@@ -1,12 +1,13 @@
 "use client";
 
+import { Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+
+import { Alert, AlertDescription } from "./ui/alert";
 import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Alert, AlertDescription } from "./ui/alert";
-import { Lock, Eye, EyeOff } from "lucide-react";
 
 interface PasswordDialogProps {
   open: boolean;

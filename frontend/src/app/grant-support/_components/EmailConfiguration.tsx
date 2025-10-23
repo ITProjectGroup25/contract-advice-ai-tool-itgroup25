@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
-import { Badge } from "./ui/badge";
-import { Alert, AlertDescription } from "./ui/alert";
-import { Label } from "./ui/label";
 import { Mail, CheckCircle, Copy, Settings, Save } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+
 import { emailService, emailTemplate } from "../_utils/emailService";
+
+import { Alert, AlertDescription } from "./ui/alert";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+
+
 
 export function EmailConfiguration() {
   const [testEmail, setTestEmail] = useState("");

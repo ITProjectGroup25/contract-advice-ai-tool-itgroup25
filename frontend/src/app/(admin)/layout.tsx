@@ -1,7 +1,8 @@
 import DashboardNav from "@/components/navigation/navbar";
+import SessionProvider from "@/components/providers/session-provider";
 import Header from "@/components/ui/header";
 import { SidebarNavItem } from "@/types/nav-types";
-import SessionProvider from "@/components/providers/session-provider";
+
 import FormGenerator from "../form-generator/form-generator";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

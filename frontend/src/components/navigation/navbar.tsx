@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SidebarNavItem } from "@/types/nav-types";
+import React from "react";
 
 import { cn } from "@/lib/utils";
+import { SidebarNavItem } from "@/types/nav-types";
+
 import { Icons } from "../icons";
 
 interface DashboardNavProps {

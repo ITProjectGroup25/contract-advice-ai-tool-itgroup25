@@ -1,4 +1,9 @@
+import { QuestionSelectModel, FieldOptionSelectModel } from "@shared";
 import { ChangeEvent } from "react";
+
+import { FormControl } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -7,12 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FormControl } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { QuestionSelectModel, FieldOptionSelectModel } from "@shared";
-import { Label } from "@/components/ui/label";
 
 type SupportedFieldType = "Input" | "Switch" | "Textarea" | "Select" | "RadioGroup";
 

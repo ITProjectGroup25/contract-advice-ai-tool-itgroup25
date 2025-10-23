@@ -1,6 +1,8 @@
 "use client";
 
+import { Link2Icon, CopyIcon } from "@radix-ui/react-icons";
 import React from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -10,7 +12,6 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { Link2Icon, CopyIcon } from "@radix-ui/react-icons";
 
 type Props = {
   formId: string;

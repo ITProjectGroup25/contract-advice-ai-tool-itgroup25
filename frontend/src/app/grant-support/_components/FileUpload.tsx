@@ -1,13 +1,14 @@
 "use client";
 
+import { Upload, X, FileText, AlertCircle } from "lucide-react";
 import type { ChangeEvent, DragEvent } from "react";
 import { useState, useRef } from "react";
-import { Button } from "./ui/button";
-import { Label } from "./ui/label";
-import { Card } from "./ui/card";
-import { Separator } from "./ui/separator";
-import { Upload, X, FileText, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
+import { Label } from "./ui/label";
+import { Separator } from "./ui/separator";
 
 interface FileData {
   name: string;

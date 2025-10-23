@@ -1,12 +1,13 @@
 import { authOptions } from "@backend";
-import { getServerSession } from "next-auth";
-import type { Session } from "next-auth";
 import { LayoutDashboard } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { ThemeChange } from "./ThemeChange";
+import type { Session } from "next-auth";
+import { getServerSession } from "next-auth";
+
 import { Button } from "./button";
 import SignOutButton from "./sign-out-button";
+import { ThemeChange } from "./ThemeChange";
 
 type Props = {};
 

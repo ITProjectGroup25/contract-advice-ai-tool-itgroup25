@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { listSubmissions } from "@/lib/db/submissions";
 
 export async function GET(req: Request) {

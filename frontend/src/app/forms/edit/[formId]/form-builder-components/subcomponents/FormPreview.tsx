@@ -1,7 +1,9 @@
 import { Drawer } from "@mui/material";
 import { Component } from "react";
-import StepperFormPreview from "./form-preview/StepperFormPreview";
+
 import { FormLayoutComponentsType } from "../types/FormTemplateTypes";
+
+import StepperFormPreview from "./form-preview/StepperFormPreview";
 
 interface FormPreviewProps {
   screenType: string;

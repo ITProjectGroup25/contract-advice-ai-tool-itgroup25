@@ -1,16 +1,19 @@
 "use client";
 
+import { Settings } from "lucide-react";
 import { useState, useEffect } from "react";
-import { ChatBot } from "./ChatBot";
-import { SuccessPage } from "./SuccessPage";
-import { SimpleQueryResponse } from "./SimpleQueryResponse";
+
+import { defaultQuestions, defaultSections } from "../_data/defaultQuestions";
+
 import { AdminInterface, Question, FormSection } from "./AdminInterface";
+import { ChatBot } from "./ChatBot";
 import { DynamicFormRenderer } from "./DynamicFormRenderer";
 import { PasswordDialog } from "./PasswordDialog";
+import { SimpleQueryResponse } from "./SimpleQueryResponse";
+import { SuccessPage } from "./SuccessPage";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
-import { Settings } from "lucide-react";
-import { defaultQuestions, defaultSections } from "../_data/defaultQuestions";
+
 
 type AppState = "form" | "simple-response" | "success" | "admin" | "chatbot";
 

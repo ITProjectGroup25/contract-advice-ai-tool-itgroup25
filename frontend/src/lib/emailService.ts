@@ -1,5 +1,5 @@
 // import emailjs from '@emailjs/browser';
-import { FormData, EmailData, GrantTeamEmailData } from "@shared";
+import { EmailData, GrantTeamEmailData } from "@shared";
 
 // EmailJS configuration - these should be environment variables in production
 const EMAILJS_CONFIG = {
@@ -102,8 +102,8 @@ class EmailService {
   }
 
   async sendCustomEmail(
-    templateParams: Record<string, any>,
-    templateId?: string
+    _templateParams: Record<string, any>,
+    _templateId?: string
   ): Promise<boolean> {
     if (!this.initialized) {
       console.warn("⚠️ EmailJS not initialized");

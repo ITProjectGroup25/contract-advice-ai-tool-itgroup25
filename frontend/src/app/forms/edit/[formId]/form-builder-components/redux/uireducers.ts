@@ -1,6 +1,7 @@
 import { combineReducers } from "@reduxjs/toolkit";
-import progressReducer from "./uireducers/progress";
+
 import modalstripReducer from "./uireducers/modalstrip";
+import progressReducer from "./uireducers/progress";
 
 export default combineReducers({
   progress: progressReducer,

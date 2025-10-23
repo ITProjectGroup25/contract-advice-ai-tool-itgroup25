@@ -1,4 +1,5 @@
 import { FunctionComponent } from "react";
+
 import { useAppSelector } from "./redux/hooks";
 
 interface ModalStripProps {}

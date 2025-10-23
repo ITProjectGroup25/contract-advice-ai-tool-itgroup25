@@ -1,8 +1,9 @@
-import { generateID } from "./common";
 import type {
   FormLayoutComponentChildrenType,
   FormLayoutComponentContainerType,
 } from "../types/FormTemplateTypes";
+
+import { generateID } from "./common";
 
 export const FormControlNames = {
   STEPCONTAINER: "step-container",

@@ -1,10 +1,17 @@
 "use client";
 
+import { Question, FormSection, FormData } from "@shared";
+import { FileText, Users, Clock, HelpCircle, Search, Settings } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -12,14 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { FileText, Users, Clock, HelpCircle, Search, Settings } from "lucide-react";
-import { useState, useEffect } from "react";
-import { Question, FormSection, FormData } from "@shared";
+import { Textarea } from "@/components/ui/textarea";
 import { emailService, EmailData, GrantTeamEmailData } from "@/lib/emailService";
 
 interface DynamicFormRendererProps {
@@ -44,7 +44,7 @@ export function DynamicFormRenderer({
     formState: { errors, isSubmitting },
   } = useForm<FormData>();
 
-  const [otherFields, setOtherFields] = useState<{ [key: string]: boolean }>({});
+  const [_otherFields, _setOtherFields] = useState<{ [key: string]: boolean }>({});
   const formValues = watch();
 
   const visibleQuestions = questions.filter((q) => q.visible);

@@ -1,10 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { MessageCircle, User, Bot, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+
+import { Button } from "./ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Input } from "./ui/input";
+
 
 interface ChatBotProps {
   onBack: () => void;

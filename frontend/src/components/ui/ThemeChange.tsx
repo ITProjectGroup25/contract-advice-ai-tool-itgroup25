@@ -1,21 +1,8 @@
 "use client";
 
-import {
-  Menubar,
-  MenubarCheckboxItem,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarRadioGroup,
-  MenubarRadioItem,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
+import { Palette } from "lucide-react";
 import { useEffect, useState } from "react";
+
 import {
   slateTheme,
   violetTheme,
@@ -24,7 +11,15 @@ import {
   orangeTheme,
   neutralTheme,
 } from "@/actions/theme";
-import { Palette } from "lucide-react";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarMenu,
+  MenubarRadioGroup,
+  MenubarRadioItem,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+
 
 export function ThemeChange() {
   const storedThemeString = localStorage.getItem("ai-form-builder-theme");

@@ -1,9 +1,10 @@
 import "server-only";
 
+import type { sheets_v4 } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
+
 import { listSubmissions } from "@/lib/db/submissions";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import type { sheets_v4 } from "googleapis";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

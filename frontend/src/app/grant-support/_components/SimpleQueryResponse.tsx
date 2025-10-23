@@ -1,13 +1,15 @@
 "use client";
 
+import { Bot, ArrowLeft, ThumbsUp, CheckCircle, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Bot, ArrowLeft, ThumbsUp, CheckCircle, AlertCircle } from "lucide-react";
-import { localDB } from "../_utils/localDatabase";
-import { emailService, GrantTeamEmailData } from "../_utils/emailService";
+
 import exampleImage from "../_assets/automated-response.png";
+import { emailService, GrantTeamEmailData } from "../_utils/emailService";
+import { localDB } from "../_utils/localDatabase";
+
+import { Button } from "./ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 interface SimpleQueryResponseProps {
   onBack: () => void;

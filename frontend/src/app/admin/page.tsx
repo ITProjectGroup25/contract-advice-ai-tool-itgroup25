@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { AdminInterface } from "@/components/dynamic-form/AdminInterface";
 import { defaultQuestions, defaultSections, Question, FormSection } from "@shared";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
 import { toast } from "sonner";
+
+import { AdminInterface } from "@/components/dynamic-form/AdminInterface";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

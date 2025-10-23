@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+
 import Logo from "./Logo.jpg"; // 按实际路径调整
 
 export default function FixedLogo() {

@@ -1,11 +1,12 @@
 import { FunctionComponent } from "react";
+
 import ControlDragComponent from "./subcomponents/ControlDragComponent";
-import { FormContainerList, FormControlList } from "./utils/formBuilderUtils";
 import {
   FormLayoutComponentChildrenType,
   FormLayoutComponentContainerType,
   FormLayoutComponentsType,
 } from "./types/FormTemplateTypes";
+import { FormContainerList, FormControlList } from "./utils/formBuilderUtils";
 
 interface LeftSidebarProps {
   handleItemAdded: (

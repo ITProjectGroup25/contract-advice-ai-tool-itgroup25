@@ -1,8 +1,9 @@
 import { Toaster } from "@/components/ui/sonner";
-import MainSiteFooter from "./Footer";
-import ForBusinessHeader from "./ForBusinessHeader";
+
 import CommunityShowcase from "./community-showcase";
+import MainSiteFooter from "./Footer";
 import ForBusinessHero from "./for-business-hero/ForBusinessHero";
+import ForBusinessHeader from "./ForBusinessHeader";
 
 const page = () => {
   return (
