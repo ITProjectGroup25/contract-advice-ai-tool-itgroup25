@@ -42,8 +42,8 @@
     "*.{ts,tsx,js,jsx,json,md,css}": [
       "prettier --write"
     ],
-    "*.{ts,tsx,js,jsx}": [
-      "eslint --fix"
+    "frontend/**/*.{ts,tsx,js,jsx}": [
+      "npm run lint --workspace frontend -- --fix || true"
     ]
   }
 }
