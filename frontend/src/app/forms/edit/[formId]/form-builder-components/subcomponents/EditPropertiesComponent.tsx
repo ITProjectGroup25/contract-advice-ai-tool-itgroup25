@@ -45,7 +45,7 @@ interface EditPropertiesComponentProps {
 const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   const { selectedControl, selectControl, editControlProperties, editContainerProperties } = props;
   const [updatedItem, setUpdatedItem] = useState<
-    FormLayoutComponentChildrenType | FormLayoutComponentContainerType | {}
+    FormLayoutComponentChildrenType | FormLayoutComponentContainerType | Record<string, any>
   >({});
 
   const childUpdatedItem = updatedItem as FormLayoutComponentChildrenType;
@@ -120,7 +120,7 @@ const EditPropertiesComponent: FC<EditPropertiesComponentProps> = (props) => {
   };
 
   const handleCheckChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const { name, value } = e.target;
+    const { name } = e.target;
     const key = e.currentTarget.checked;
     if (name === "required") {
       setIsUpdatedItemRequired(key);

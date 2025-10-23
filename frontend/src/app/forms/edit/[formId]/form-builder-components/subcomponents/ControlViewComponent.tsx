@@ -23,7 +23,7 @@ import { FormControlNames, FormItemTypes } from "../utils/formBuilderUtils";
 
 const selectedColor = "var(--primary)";
 const nonSelectedColor = "rgba(0,0,0,0.1)";
-const dateFormat = "yyyy, MMM dd";
+const _dateFormat = "yyyy, MMM dd";
 
 const renderItem = (item: FormLayoutComponentChildrenType) => {
   switch (item.controlName) {
@@ -97,7 +97,7 @@ const renderItem = (item: FormLayoutComponentChildrenType) => {
               disabled
               value={item.items && item.items[0].value}
             >
-              {item.items?.map((i, ind) => (
+              {item.items?.map((i, _ind) => (
                 <MenuItem key={i.value} value={i.value}>
                   {i.label}
                 </MenuItem>
@@ -189,7 +189,7 @@ const renderItem = (item: FormLayoutComponentChildrenType) => {
       return (
         <>
           <FormGroup>
-            {item.items?.map((i, ind) => (
+            {item.items?.map((i, _ind) => (
               <FormControlLabel
                 key={i.value}
                 control={<Checkbox />}
@@ -222,8 +222,8 @@ function ControlViewComponent(props: ControlViewComponentProps) {
   const { item, deleteControl, containerId, selectControl, selectedControl, index, moveControl } =
     props;
 
-  let colBackgroundcolor = nonSelectedColor;
-  let color = "";
+  let _colBackgroundcolor = nonSelectedColor;
+  let _color = "";
   const wrapperStyle = {
     border: "1px solid " + nonSelectedColor,
     borderRadius: "9px",
@@ -236,8 +236,8 @@ function ControlViewComponent(props: ControlViewComponentProps) {
   // Check if its the same type and id to change color.
   if (selectedControl && item.id === selectedControl.id && item.type === selectedControl.type) {
     wrapperStyle.border = "2px solid " + selectedColor;
-    colBackgroundcolor = selectedColor;
-    color = "white";
+    _colBackgroundcolor = selectedColor;
+    _color = "white";
   }
 
   const handleDeleteControl: React.MouseEventHandler<HTMLSpanElement> = (event) => {
@@ -248,7 +248,7 @@ function ControlViewComponent(props: ControlViewComponentProps) {
   // Drag & Sort Code for functionality
 
   const ref = useRef<HTMLDivElement>(null);
-  const [{ handlerId }, drop] = useDrop<
+  const [{ handlerId: _handlerId }, drop] = useDrop<
     FormLayoutComponentChildrenType,
     void,
     { handlerId: Identifier | null }
@@ -294,7 +294,7 @@ function ControlViewComponent(props: ControlViewComponentProps) {
     },
   });
 
-  const [{ isDragging }, drag, preview] = useDrag({
+  const [{ isDragging }, drag, _preview] = useDrag({
     type: FormItemTypes.CONTROL,
     item: () => {
       return { ...item, index };
