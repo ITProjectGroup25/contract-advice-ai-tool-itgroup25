@@ -45,7 +45,7 @@ export function DynamicFormRenderer({
     formState: { errors, isSubmitting },
   } = useForm<FormData>();
 
-  const [otherFields, setOtherFields] = useState<{ [key: string]: boolean }>({});
+  const [_otherFields, setOtherFields] = useState<{ [key: string]: boolean }>({});
   const formValues = watch();
 
   const visibleQuestions = questions.filter((q) => q.visible);
@@ -456,7 +456,7 @@ export function DynamicFormRenderer({
               name={fieldName}
               control={control}
               rules={getValidationRules()}
-              render={({ field: { value, onChange } }) => (
+              render={({ field: { value, onChange: _onChange } }) => (
                 <div className="space-y-3">
                   {question.options?.map((option) => (
                     <div key={option.id} className="space-y-2">

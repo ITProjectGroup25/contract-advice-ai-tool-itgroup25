@@ -2,9 +2,7 @@ import { FunctionComponent } from "react";
 
 import { useAppSelector } from "./redux/hooks";
 
-interface ModalStripProps {}
-
-const ModalStrip: FunctionComponent<ModalStripProps> = (props) => {
+const ModalStrip: FunctionComponent = () => {
   const { modalType, message } = useAppSelector((state) => state.uielements.modalstrip);
 
   return (

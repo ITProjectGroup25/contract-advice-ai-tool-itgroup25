@@ -36,8 +36,8 @@ export function AdminInterface({
   onQuestionsUpdate,
   onSectionsUpdate,
 }: AdminInterfaceProps) {
-  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-  const [editingSection, setEditingSection] = useState<FormSection | null>(null);
+  const [_editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const [_editingSection, setEditingSection] = useState<FormSection | null>(null);
   const [isCreatingQuestion, setIsCreatingQuestion] = useState(false);
   const [isCreatingSection, setIsCreatingSection] = useState(false);
   const [activeTab, setActiveTab] = useState("questions");

@@ -21,7 +21,7 @@ const LeftSidebar: FunctionComponent<LeftSidebarProps> = (props) => {
     <>
       <div className="container">
         <h5>Containers</h5>
-        {FormContainerList.map((container, ind) => {
+        {FormContainerList.map((container, _ind) => {
           return (
             <ControlDragComponent
               key={container.controlName}
@@ -35,7 +35,7 @@ const LeftSidebar: FunctionComponent<LeftSidebarProps> = (props) => {
         <h5>Text Elements</h5>
         <div className="row">
           {FormControlList.filter((control) => control.category === "text-elements").map(
-            (control, ind) => {
+            (control, _ind) => {
               return (
                 <div className="col-6" key={control.controlName}>
                   <ControlDragComponent
@@ -53,7 +53,7 @@ const LeftSidebar: FunctionComponent<LeftSidebarProps> = (props) => {
         <h5>Date Elements</h5>
         <div className="row">
           {FormControlList.filter((control) => control.category === "date-elements").map(
-            (control, ind) => {
+            (control, _ind) => {
               return (
                 <div className="col-6" key={control.controlName}>
                   <ControlDragComponent
@@ -71,7 +71,7 @@ const LeftSidebar: FunctionComponent<LeftSidebarProps> = (props) => {
         <h5>Other Elements</h5>
         <div className="row">
           {FormControlList.filter((control) => control.category === "other-elements").map(
-            (control, ind) => {
+            (control, _ind) => {
               return (
                 <div className="col-6" key={control.controlName}>
                   <ControlDragComponent
@@ -89,7 +89,7 @@ const LeftSidebar: FunctionComponent<LeftSidebarProps> = (props) => {
         <h5>Media Elements</h5>
         <div className="row">
           {FormControlList.filter((control) => control.category === "media-elements").map(
-            (control, ind) => {
+            (control, _ind) => {
               return (
                 <div className="col-6" key={control.controlName}>
                   <ControlDragComponent
