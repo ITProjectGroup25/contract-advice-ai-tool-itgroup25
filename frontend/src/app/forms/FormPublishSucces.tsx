@@ -1,7 +1,6 @@
 "use client";
 
 import { Link2Icon, CopyIcon } from "@radix-ui/react-icons";
-import React from "react";
 
 import {
   Dialog,
@@ -31,7 +30,7 @@ const FormPublishSucces = (props: Props) => {
           description: "Link Copied To Clipboard!",
         });
       })
-      .catch((error) => alert("Failed to copy!"));
+      .catch((_error) => alert("Failed to copy!"));
   };
 
   return (

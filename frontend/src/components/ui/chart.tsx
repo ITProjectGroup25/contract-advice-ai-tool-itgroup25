@@ -22,7 +22,7 @@ type ChartContextProps = {
   config: ChartConfig;
 };
 
-type TooltipPayloadItem = {
+type _TooltipPayloadItem = {
   color?: string;
   fill?: string;
   dataKey?: string | number;

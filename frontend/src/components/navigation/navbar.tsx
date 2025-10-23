@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
 
 import { cn } from "@/lib/utils";
 import { SidebarNavItem } from "@/types/nav-types";
@@ -12,8 +11,6 @@ import { Icons } from "../icons";
 interface DashboardNavProps {
   items: SidebarNavItem[];
 }
-
-type Props = {};
 
 const DashboardNav = ({ items }: DashboardNavProps) => {
   const path = usePathname();

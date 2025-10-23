@@ -10,9 +10,7 @@ import {
   ArrowLeft,
   Eye,
   EyeOff,
-  Move,
   Copy,
-  Database,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -20,7 +18,7 @@ import { DatabaseManagement } from "./DatabaseManagement";
 import { EmailConfiguration } from "./EmailConfiguration";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Checkbox } from "./ui/checkbox";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
