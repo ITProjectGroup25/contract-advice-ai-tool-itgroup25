@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { orgUnit, form, formSection, exportJob, person, question, validationRule, guidanceResource, guidanceSearchLog, submission, questionOption, branchRule, submissionStatusHistory, consentLog, answer, attachment, emailMessage, submissionDraft, submissionDraftAnswer, formDefaultRecipient, submissionDraftAnswerMulti, answerMultiValue, adminUser, adminUserRole, emailAttachmentMap, validationRuleParam } from "./schema";
+import { orgUnit, form, formSection, exportJob, person, question, validationRule, guidanceResource, guidanceSearchLog, submission, questionOption, branchRule, submissionStatusHistory, consentLog, answer, attachment, emailMessage, submissionDraft, submissionDraftAnswer, grantSupportFaqs, formDefaultRecipient, submissionDraftAnswerMulti, answerMultiValue, adminUser, adminUserRole, emailAttachmentMap, validationRuleParam } from "./schema";
 
 export const orgUnitRelations = relations(orgUnit, ({one, many}) => ({
 	orgUnit: one(orgUnit, {
@@ -27,6 +27,7 @@ export const formRelations = relations(form, ({many}) => ({
 	questions: many(question),
 	submissions: many(submission),
 	submissionDrafts: many(submissionDraft),
+	grantSupportFaqs: many(grantSupportFaqs),
 	formDefaultRecipients: many(formDefaultRecipient),
 }));
 
@@ -175,6 +176,13 @@ export const submissionDraftAnswerRelations = relations(submissionDraftAnswer, (
 		references: [question.id]
 	}),
 	submissionDraftAnswerMultis: many(submissionDraftAnswerMulti),
+}));
+
+export const grantSupportFaqsRelations = relations(grantSupportFaqs, ({one}) => ({
+	form: one(form, {
+		fields: [grantSupportFaqs.formId],
+		references: [form.id]
+	}),
 }));
 
 export const formDefaultRecipientRelations = relations(formDefaultRecipient, ({one}) => ({

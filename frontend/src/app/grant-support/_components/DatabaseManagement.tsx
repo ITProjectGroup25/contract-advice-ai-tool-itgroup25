@@ -19,8 +19,6 @@ import { ChangeEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { FormSubmission, localDB } from "../_utils/localDatabase";
 import { SubmissionDisplay } from "./SubmissionDisplay/SubmissionDisplay";
-import { GrantSupportSubmission } from "./getSubmissions/grantSupportSubmissionSchema";
-import { Camelize } from "./getSubmissions/snakeToCamel";
 import {
   AlertDialog,
   AlertDialogAction,

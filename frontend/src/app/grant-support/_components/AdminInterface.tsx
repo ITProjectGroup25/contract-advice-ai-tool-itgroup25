@@ -55,6 +55,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { FAQManagement } from "./FAQManagement";
 
 interface AdminInterfaceProps {
   onBack: () => void;
@@ -84,6 +85,8 @@ export function AdminInterface({
   formId,
   onSectionsUpdate,
 }: AdminInterfaceProps) {
+  console.log({ sections });
+
   const [editingFieldId, setEditingFieldId] = useState<string | number | null>(
     null
   );
@@ -1016,12 +1019,15 @@ export function AdminInterface({
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="fields" disabled={isPending}>
               Fields Management
             </TabsTrigger>
             <TabsTrigger value="sections" disabled={isPending}>
               Sections Management
+            </TabsTrigger>
+            <TabsTrigger value="faqs" disabled={isPending}>
+              FAQ Management
             </TabsTrigger>
             <TabsTrigger value="email" disabled={isPending}>
               Email Configuration
@@ -1295,6 +1301,10 @@ export function AdminInterface({
                 );
               })}
             </div>
+          </TabsContent>
+
+          <TabsContent value="faqs" className="space-y-6">
+            <FAQManagement sections={sections} formId={2} />
           </TabsContent>
 
           <TabsContent value="email" className="space-y-6">

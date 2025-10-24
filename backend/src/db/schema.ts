@@ -1,4 +1,4 @@
-import { pgTable, index, foreignKey, unique, bigint, varchar, boolean, integer, text, timestamp, jsonb, date, check, char, bigserial, uuid, vector, primaryKey, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, index, foreignKey, unique, bigint, varchar, boolean, integer, text, timestamp, jsonb, date, check, char, bigserial, serial, uuid, vector, primaryKey, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const aalLevel = pgEnum("aal_level", ['aal3', 'aal2', 'aal1'])
@@ -513,6 +513,25 @@ export const grantSupportSubmissions = pgTable("grant_support_submissions", {
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	unique("grant_support_submissions_submission_uid_key").on(table.submissionUid),
+]);
+
+export const grantSupportFaqs = pgTable("grant_support_faqs", {
+	id: serial().primaryKey().notNull(),
+	formId: integer("form_id").notNull(),
+	answer: text().notNull(),
+	selections: jsonb().notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),
+	name: text(),
+}, (table) => [
+	index("idx_grant_support_faqs_form_id").using("btree", table.formId.asc().nullsLast().op("int4_ops")),
+	index("idx_grant_support_faqs_selections").using("gin", table.selections.asc().nullsLast().op("jsonb_ops")),
+	foreignKey({
+			columns: [table.formId],
+			foreignColumns: [form.id],
+			name: "fk_grant_support_faqs_form"
+		}).onDelete("cascade"),
+	unique("grant_support_faqs_name_key").on(table.name),
 ]);
 
 export const userGoogleTokens = pgTable("user_google_tokens", {
