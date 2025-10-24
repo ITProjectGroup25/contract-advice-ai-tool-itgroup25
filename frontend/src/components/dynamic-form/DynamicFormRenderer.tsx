@@ -62,12 +62,12 @@ export function DynamicFormRenderer({
   const visibleQuestions = questions.filter((q) => q.visible);
   const sortedSections = [...sections].sort((a, b) => a.order - b.order);
 
-  const getQueryType = () => {
+  const getQueryType = useCallback(() => {
     const queryTypeQuestion = questions.find((q) => q.id === "query-type");
     if (!queryTypeQuestion) return "";
     const value = formValues[queryTypeQuestion.id];
     return Array.isArray(value) ? value[0] || "" : value || "";
-  };
+  }, [formValues, questions]);
 
   // Check question visibility with circular dependency protection
   const isQuestionVisible = useCallback(

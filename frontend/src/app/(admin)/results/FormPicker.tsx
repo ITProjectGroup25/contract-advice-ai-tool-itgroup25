@@ -43,12 +43,14 @@ const FormsPicker = ({
     [searchParams]
   );
 
-  const getSubmissions = async (
-    _formId: number
-  ): Promise<SubmissionTable | null> => {
-    // TODO: Integrate with real form submissions endpoint once available.
-    return null;
-  };
+  // ✅ Wrap getSubmissions in useCallback to stabilize reference
+  const getSubmissions = useCallback(
+    async (_formId: number): Promise<SubmissionTable | null> => {
+      // TODO: Integrate with real form submissions endpoint once available.
+      return null;
+    },
+    [] // no dependencies
+  );
 
   const fetchData = useCallback(
     async (selectedFormId: number) => {
@@ -72,6 +74,7 @@ const FormsPicker = ({
     },
     [getSubmissions, setCols, setRows, setData]
   );
+
   useEffect(() => {
     fetchData(Number(formId));
   }, [formId, fetchData]);

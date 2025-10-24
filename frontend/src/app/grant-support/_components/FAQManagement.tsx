@@ -62,31 +62,6 @@ interface ChatbotResponse {
 export function FAQManagement({ sections, formId }: FAQManagementProps) {
   console.log("FAQManagement rendering", { sections, formId });
 
-  // Early return if no sections provided
-  if (!sections || !Array.isArray(sections)) {
-    return (
-      <div className="space-y-6">
-        <Card className="border-destructive">
-          <CardContent className="p-8 text-center text-destructive">
-            <p>Error: No sections provided</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (!formId) {
-    return (
-      <div className="space-y-6">
-        <Card className="border-destructive">
-          <CardContent className="p-8 text-center text-destructive">
-            <p>Error: No formId provided</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   const queryClient = useQueryClient();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -388,7 +363,9 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
             <CardContent className="p-8 text-center text-muted-foreground">
               <p>No chatbot responses configured yet.</p>
               <p className="text-sm mt-1">
-                Click "New Response" to create your first one.
+                <p className="text-sm mt-1">
+                  {`Click "New Response" to create your first one.`}
+                </p>
               </p>
             </CardContent>
           </Card>
