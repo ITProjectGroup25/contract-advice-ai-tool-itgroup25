@@ -169,7 +169,12 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
       sections?: SelectedFormSectionsType;
       name?: string; // Added name parameter
     }) => {
-      const result = await updateFaq(data);
+      const result = await updateFaq({
+        faqId: data.faqId,
+        answer: data.answer,
+        selections: data.sections,
+        name: data.name,
+      });
       if (result.message === "error") {
         throw new Error(result.error || "Failed to update FAQ");
       }
