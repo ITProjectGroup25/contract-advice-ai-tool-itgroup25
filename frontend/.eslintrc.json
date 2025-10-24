@@ -18,9 +18,9 @@
   },
   "rules": {
     "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/ban-types": "warn",
+    "@typescript-eslint/ban-types": "error",
     "@typescript-eslint/no-unused-vars": [
-      "warn",
+      "error",
       {
         "argsIgnorePattern": "^_",
         "varsIgnorePattern": "^_"
@@ -28,7 +28,7 @@
     ],
     "import/default": "off",
     "import/order": [
-      "warn",
+      "error",
       {
         "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
         "newlines-between": "always",
@@ -39,17 +39,17 @@
       }
     ],
     "no-console": "off",
-    "react-hooks/exhaustive-deps": "warn",
+    "react-hooks/exhaustive-deps": "error",
     "import/no-unresolved": [
       "error",
       {
         "ignore": ["^server-only$"]
       }
     ],
-    "jsx-a11y/anchor-has-content": "warn",
-    "jsx-a11y/click-events-have-key-events": "warn",
-    "jsx-a11y/label-has-associated-control": "warn",
-    "jsx-a11y/no-autofocus": "warn",
-    "jsx-a11y/no-static-element-interactions": "warn"
+    "jsx-a11y/anchor-has-content": "error",
+    "jsx-a11y/click-events-have-key-events": "error",
+    "jsx-a11y/label-has-associated-control": "error",
+    "jsx-a11y/no-autofocus": "error",
+    "jsx-a11y/no-static-element-interactions": "error"
   }
 }

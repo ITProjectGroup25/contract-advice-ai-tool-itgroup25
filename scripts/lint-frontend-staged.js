@@ -35,7 +35,7 @@ if (npmExecPath) {
       "frontend",
       "--",
       "eslint",
-      "--max-warnings=50",
+      "--max-warnings=0",
       "--fix",
       ...files,
     ],
@@ -48,7 +48,7 @@ if (npmExecPath) {
   const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
   result = spawnSync(
     npmCommand,
-    ["exec", "--workspace", "frontend", "--", "eslint", "--max-warnings=999", "--fix", ...files],
+    ["exec", "--workspace", "frontend", "--", "eslint", "--max-warnings=0", "--fix", ...files],
     {
       stdio: "inherit",
       shell: true,
