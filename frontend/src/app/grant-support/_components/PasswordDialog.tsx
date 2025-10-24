@@ -27,8 +27,6 @@ export function PasswordDialog({ open, onClose, onSuccess }: PasswordDialogProps
     e.preventDefault();
     setIsVerifying(true);
     setError("");
-
-    // Simulate a small delay for security
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     if (password === ADMIN_PASSWORD) {
@@ -74,7 +72,6 @@ export function PasswordDialog({ open, onClose, onSuccess }: PasswordDialogProps
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter admin password"
                 className="pr-10"
-                autoFocus
                 disabled={isVerifying}
               />
               <Button
@@ -84,6 +81,7 @@ export function PasswordDialog({ open, onClose, onSuccess }: PasswordDialogProps
                 className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isVerifying}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>

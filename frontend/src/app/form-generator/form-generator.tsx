@@ -51,7 +51,7 @@ const FormGenerator = () => {
       toast.error(state.message || "Failed to create form. Please try again.");
     }
     console.log(state?.data);
-  }, [state?.message]);
+  }, [state]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

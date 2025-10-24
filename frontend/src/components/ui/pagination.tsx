@@ -35,7 +35,21 @@ type PaginationLinkProps = {
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
   React.ComponentProps<"a">;
 
-function PaginationLink({ className, isActive, size = "icon", ...props }: PaginationLinkProps) {
+function PaginationLink({
+  className,
+  isActive,
+  size = "icon",
+  children,
+  ...props
+}: PaginationLinkProps) {
+  const content =
+    children ??
+    (props["aria-label"] ? (
+      <span className="sr-only">{props["aria-label"]}</span>
+    ) : (
+      <span className="sr-only">Page</span>
+    ));
+
   return (
     <a
       aria-current={isActive ? "page" : undefined}
@@ -49,7 +63,9 @@ function PaginationLink({ className, isActive, size = "icon", ...props }: Pagina
         className
       )}
       {...props}
-    />
+    >
+      {content}
+    </a>
   );
 }
 
@@ -61,7 +77,7 @@ function PaginationPrevious({ className, ...props }: React.ComponentProps<typeof
       className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
       {...props}
     >
-      <ChevronLeftIcon />
+      <ChevronLeftIcon aria-hidden="true" />
       <span className="hidden sm:block">Previous</span>
     </PaginationLink>
   );
@@ -76,7 +92,7 @@ function PaginationNext({ className, ...props }: React.ComponentProps<typeof Pag
       {...props}
     >
       <span className="hidden sm:block">Next</span>
-      <ChevronRightIcon />
+      <ChevronRightIcon aria-hidden="true" />
     </PaginationLink>
   );
 }
@@ -89,7 +105,7 @@ function PaginationEllipsis({ className, ...props }: React.ComponentProps<"span"
       className={cn("flex size-9 items-center justify-center", className)}
       {...props}
     >
-      <MoreHorizontalIcon className="size-4" />
+      <MoreHorizontalIcon className="size-4" aria-hidden="true" />
       <span className="sr-only">More pages</span>
     </span>
   );

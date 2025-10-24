@@ -2,7 +2,7 @@
 
 import { Upload, X, FileText, AlertCircle } from "lucide-react";
 import type { ChangeEvent, DragEvent } from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, KeyboardEvent } from "react";
 import { toast } from "sonner";
 
 import { Button } from "./ui/button";
@@ -14,7 +14,7 @@ interface FileData {
   name: string;
   size: number;
   type: string;
-  data: string; // base64 encoded
+  data: string;
 }
 
 interface FileUploadProps {
@@ -25,7 +25,7 @@ interface FileUploadProps {
   value?: FileData[];
   onChange: (files: FileData[]) => void;
   accept?: string;
-  maxSize?: number; // in MB
+  maxSize?: number;
   maxFiles?: number;
 }
 
@@ -52,8 +52,8 @@ export function FileUpload({
     return `${parseFloat((bytes / k ** unitIndex).toFixed(2))} ${units[unitIndex]}`;
   };
 
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
+  const convertFileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
@@ -66,7 +66,6 @@ export function FileUpload({
       };
       reader.onerror = () => reject(reader.error);
     });
-  };
 
   const validateFile = (file: File) => {
     const maxSizeInBytes = maxSize * 1024 * 1024;
@@ -82,18 +81,12 @@ export function FileUpload({
       toast.error(`Maximum ${maxFiles} files allowed.`);
       return;
     }
-
     setIsUploading(true);
     const newFiles: FileData[] = [];
-
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-
-        if (!validateFile(file)) {
-          continue;
-        }
-
+        if (!validateFile(file)) continue;
         const fileExists = value.some(
           (existing) => existing.name === file.name && existing.size === file.size
         );
@@ -101,7 +94,6 @@ export function FileUpload({
           toast.error(`File "${file.name}" is already uploaded.`);
           continue;
         }
-
         try {
           const base64Data = await convertFileToBase64(file);
           newFiles.push({
@@ -110,12 +102,10 @@ export function FileUpload({
             type: file.type,
             data: base64Data,
           });
-        } catch (error) {
-          console.error("Error converting file to base64:", error);
+        } catch {
           toast.error(`Failed to process file "${file.name}".`);
         }
       }
-
       if (newFiles.length > 0) {
         onChange([...value, ...newFiles]);
         toast.success(`${newFiles.length} file(s) uploaded successfully.`);
@@ -127,19 +117,14 @@ export function FileUpload({
 
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files && files.length > 0) {
-      void processFiles(files);
-    }
+    if (files && files.length > 0) void processFiles(files);
   };
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(false);
-
     const files = event.dataTransfer.files;
-    if (files && files.length > 0) {
-      void processFiles(files);
-    }
+    if (files && files.length > 0) void processFiles(files);
   };
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
@@ -162,6 +147,13 @@ export function FileUpload({
     fileInputRef.current?.click();
   };
 
+  const handleDropzoneKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      openFileDialog();
+    }
+  };
+
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>
@@ -180,6 +172,11 @@ export function FileUpload({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onClick={openFileDialog}
+        onKeyDown={handleDropzoneKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-label="File upload area"
+        aria-busy={isUploading}
       >
         <div className="flex flex-col items-center space-y-2">
           <Upload className="text-muted-foreground h-8 w-8" />
@@ -195,6 +192,7 @@ export function FileUpload({
       </div>
 
       <input
+        id={id}
         ref={fileInputRef}
         type="file"
         multiple
@@ -230,6 +228,7 @@ export function FileUpload({
                     size="sm"
                     onClick={() => removeFile(index)}
                     className="ml-2 flex-shrink-0"
+                    aria-label={`Remove ${file.name}`}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -241,7 +240,7 @@ export function FileUpload({
       )}
 
       {required && value.length === 0 && (
-        <div className="text-destructive flex items-center space-x-1 text-sm">
+        <div className="text-destructive flex items-center space-x-1 text-sm" role="alert">
           <AlertCircle className="h-4 w-4" />
           <span>At least one file is required.</span>
         </div>

@@ -1,4 +1,4 @@
-import { Drawer } from "@mui/material";
+import { Drawer, IconButton } from "@mui/material";
 import { Component } from "react";
 
 import { FormLayoutComponentsType } from "../types/FormTemplateTypes";
@@ -34,7 +34,7 @@ class FormPreview extends Component<FormPreviewProps, FormPreviewStates> {
 
     return (
       <>
-        <Drawer open={showPreview} anchor="right">
+        <Drawer open={showPreview} anchor="right" onClose={this.handleCloseClick}>
           <div
             style={{
               minWidth: "30vw",
@@ -45,11 +45,13 @@ class FormPreview extends Component<FormPreviewProps, FormPreviewStates> {
             <div className="container">
               <div className="p-20">
                 <div className="d-flex align-items-center">
-                  <i
-                    className="fas fa-chevron-right"
-                    style={{ marginRight: "10px", cursor: "pointer" }}
-                    onClick={() => this.handleCloseClick()}
-                  ></i>
+                  <IconButton
+                    aria-label="Close preview"
+                    onClick={this.handleCloseClick}
+                    style={{ marginRight: "10px" }}
+                  >
+                    <i className="fas fa-chevron-right" aria-hidden="true"></i>
+                  </IconButton>
                   <h4>Preview</h4>
                 </div>
                 <StepperFormPreview

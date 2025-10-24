@@ -54,6 +54,7 @@ const RenderItem: FC<RenderItemProps> = (props) => {
           />
         </>
       );
+
     case FormControlNames.CHECKBOX:
       return (
         <>
@@ -71,7 +72,6 @@ const RenderItem: FC<RenderItemProps> = (props) => {
       return (
         <>
           <FormControl>
-            {/* <FormLabel>{item.labelName + (item.required?" *":"")}</FormLabel> */}
             <RadioGroup name={item.controlName + item.id} row>
               {item.items?.map((i) => (
                 <FormControlLabel
@@ -90,13 +90,8 @@ const RenderItem: FC<RenderItemProps> = (props) => {
       return (
         <>
           <FormControl style={{ minWidth: "100%" }}>
-            {/* <InputLabel>{item.labelName + (item.required?" *":"")}</InputLabel> */}
-            <Select
-              // style={{minWidth: '100%'}}
-              variant="outlined"
-              value={item.items && item.items[0].value}
-            >
-              {item.items?.map((i, _ind) => (
+            <Select variant="outlined" value={item.items && item.items[0].value}>
+              {item.items?.map((i) => (
                 <MenuItem key={i.value} value={i.value}>
                   {i.label}
                 </MenuItem>
@@ -128,8 +123,12 @@ const RenderItem: FC<RenderItemProps> = (props) => {
       return (
         <>
           <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
-          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
-            <i className="fas fa-cloud-upload-alt"></i>
+          <label
+            className="control-input-trigger-buttons"
+            htmlFor={item.controlName + item.id}
+            aria-label={item.placeholder || "Upload file"}
+          >
+            <i className="fas fa-cloud-upload-alt" aria-hidden="true"></i>
           </label>
         </>
       );
@@ -138,8 +137,12 @@ const RenderItem: FC<RenderItemProps> = (props) => {
       return (
         <>
           <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
-          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
-            <i className="far fa-image"></i>
+          <label
+            className="control-input-trigger-buttons"
+            htmlFor={item.controlName + item.id}
+            aria-label={item.placeholder || "Upload image"}
+          >
+            <i className="far fa-image" aria-hidden="true"></i>
           </label>
         </>
       );
@@ -148,18 +151,12 @@ const RenderItem: FC<RenderItemProps> = (props) => {
       return (
         <>
           <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
-          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
-            <i className="fas fa-qrcode"></i>
-          </label>
-        </>
-      );
-
-    case FormControlNames.SCANCODE:
-      return (
-        <>
-          <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
-          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
-            <i className="fas fa-qrcode"></i>
+          <label
+            className="control-input-trigger-buttons"
+            htmlFor={item.controlName + item.id}
+            aria-label={item.placeholder || "Scan code"}
+          >
+            <i className="fas fa-qrcode" aria-hidden="true"></i>
           </label>
         </>
       );
@@ -167,13 +164,14 @@ const RenderItem: FC<RenderItemProps> = (props) => {
     case FormControlNames.SIGNATURE:
       return (
         <>
-          <label
+          <button
+            type="button"
             className="control-input-trigger-buttons"
             style={{ width: "270px" }}
-            htmlFor={item.controlName + item.id}
+            aria-label={item.placeholder || "Open signature pad"}
           >
             <span className="sign-label">Sign Here</span>
-          </label>
+          </button>
         </>
       );
 
@@ -188,7 +186,7 @@ const RenderItem: FC<RenderItemProps> = (props) => {
       return (
         <>
           <FormGroup>
-            {item.items?.map((i, _ind) => (
+            {item.items?.map((i) => (
               <FormControlLabel
                 key={i.value}
                 control={<Checkbox />}

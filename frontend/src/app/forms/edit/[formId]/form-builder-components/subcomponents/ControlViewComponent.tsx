@@ -91,12 +91,7 @@ const renderItem = (item: FormLayoutComponentChildrenType) => {
         <>
           <FormControl style={{ minWidth: "100%" }}>
             {/* <InputLabel>{item.labelName + (item.required?" *":"")}</InputLabel> */}
-            <Select
-              // style={{minWidth: '100%'}}
-              variant="outlined"
-              disabled
-              value={item.items && item.items[0].value}
-            >
+            <Select variant="outlined" disabled value={item.items && item.items[0].value}>
               {item.items?.map((i, _ind) => (
                 <MenuItem key={i.value} value={i.value}>
                   {i.label}
@@ -129,8 +124,12 @@ const renderItem = (item: FormLayoutComponentChildrenType) => {
       return (
         <>
           <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
-          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
-            <i className="fas fa-cloud-upload-alt"></i>
+          <label
+            className="control-input-trigger-buttons"
+            htmlFor={item.controlName + item.id}
+            aria-label={item.placeholder || "Upload file"}
+          >
+            <i className="fas fa-cloud-upload-alt" aria-hidden="true"></i>
           </label>
         </>
       );
@@ -139,8 +138,12 @@ const renderItem = (item: FormLayoutComponentChildrenType) => {
       return (
         <>
           <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
-          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
-            <i className="far fa-image"></i>
+          <label
+            className="control-input-trigger-buttons"
+            htmlFor={item.controlName + item.id}
+            aria-label={item.placeholder || "Upload image"}
+          >
+            <i className="far fa-image" aria-hidden="true"></i>
           </label>
         </>
       );
@@ -149,32 +152,29 @@ const renderItem = (item: FormLayoutComponentChildrenType) => {
       return (
         <>
           <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
-          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
-            <i className="fas fa-qrcode"></i>
-          </label>
-        </>
-      );
-
-    case FormControlNames.SCANCODE:
-      return (
-        <>
-          <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
-          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
-            <i className="fas fa-qrcode"></i>
+          <label
+            className="control-input-trigger-buttons"
+            htmlFor={item.controlName + item.id}
+            aria-label={item.placeholder || "Scan code"}
+          >
+            <i className="fas fa-qrcode" aria-hidden="true"></i>
           </label>
         </>
       );
 
     case FormControlNames.SIGNATURE:
+      // 原先是 <label htmlFor=...> 但没有对应 input，会触发 a11y 警告。这里用 button 作为占位交互元素。
       return (
         <>
-          <label
+          <button
+            type="button"
             className="control-input-trigger-buttons"
             style={{ width: "270px" }}
-            htmlFor={item.controlName + item.id}
+            aria-label={item.placeholder || "Open signature pad"}
+            // onClick={...}  // 以后接入签名面板时在这里处理
           >
             <span className="sign-label">Sign Here</span>
-          </label>
+          </button>
         </>
       );
 
@@ -224,7 +224,7 @@ function ControlViewComponent(props: ControlViewComponentProps) {
 
   let _colBackgroundcolor = nonSelectedColor;
   let _color = "";
-  const wrapperStyle = {
+  const wrapperStyle: React.CSSProperties = {
     border: "1px solid " + nonSelectedColor,
     borderRadius: "9px",
     marginBottom: "20px",
@@ -233,16 +233,26 @@ function ControlViewComponent(props: ControlViewComponentProps) {
     boxShadow: "0 9px 90px #efefef",
   };
 
+  const isSelected =
+    selectedControl && item.id === selectedControl.id && item.type === selectedControl.type;
+
   // Check if its the same type and id to change color.
-  if (selectedControl && item.id === selectedControl.id && item.type === selectedControl.type) {
+  if (isSelected) {
     wrapperStyle.border = "2px solid " + selectedColor;
     _colBackgroundcolor = selectedColor;
     _color = "white";
   }
 
-  const handleDeleteControl: React.MouseEventHandler<HTMLSpanElement> = (event) => {
+  const handleDeleteControl: React.MouseEventHandler<HTMLButtonElement> = (event) => {
     deleteControl(item.id, containerId);
     if (event.stopPropagation) event.stopPropagation();
+  };
+
+  const handleKeyDownSelect: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      selectControl(item);
+    }
   };
 
   // Drag & Sort Code for functionality
@@ -265,30 +275,19 @@ function ControlViewComponent(props: ControlViewComponentProps) {
       }
       const dragIndex = item.index;
       const hoverIndex = index;
-      // Don't replace items with themselves
       if (dragIndex === hoverIndex) {
         return;
       }
-      // Determine rectangle on screen
       const hoverBoundingRect = ref.current?.getBoundingClientRect();
-      // Get vertical middle
       const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-      // Determine mouse position
       const clientOffset = monitor.getClientOffset();
-      // Get pixels to the top
       const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-      // Only perform the move when the mouse has crossed half of the items height
-      // When dragging downwards, only move when the cursor is below 50%
-      // When dragging upwards, only move when the cursor is above 50%
-      // Dragging downwards
       if (dragIndex && dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
         return;
       }
-      // Dragging upwards
       if (dragIndex && dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
         return;
       }
-      // Time to actually perform the action
       moveControl(item, dragIndex as number, hoverIndex, containerId);
       item.index = hoverIndex;
     },
@@ -313,19 +312,28 @@ function ControlViewComponent(props: ControlViewComponentProps) {
         ref={ref}
         className="row w-100 align-items-stretch justify-content-end"
         onClick={() => selectControl(item)}
+        onKeyDown={handleKeyDownSelect}
+        role="button"
+        tabIndex={0}
+        aria-pressed={!!isSelected}
         style={{ ...wrapperStyle, opacity }}
       >
         <div className="col-12 p-20">
           <div className="d-flex align-items-center justify-content-between">
             <h5>{item.labelName + (item.required ? " *" : "")}</h5>
             <div className="control-actions">
-              <span style={{ cursor: "grab" }}>
-                <i className="fa fa-ellipsis-v"></i>
-                <i className="fa fa-ellipsis-v"></i>
+              <span style={{ cursor: "grab" }} aria-hidden="true">
+                <i className="fa fa-ellipsis-v" aria-hidden="true"></i>
+                <i className="fa fa-ellipsis-v" aria-hidden="true"></i>
               </span>
-              <span onClick={handleDeleteControl}>
-                <i className="fa fa-trash"></i>
-              </span>
+              <button
+                type="button"
+                onClick={handleDeleteControl}
+                className="unstyled-button"
+                aria-label="Delete control"
+              >
+                <i className="fa fa-trash" aria-hidden="true"></i>
+              </button>
             </div>
           </div>
           {item.description !== "" ? (
@@ -337,20 +345,6 @@ function ControlViewComponent(props: ControlViewComponentProps) {
           ) : null}
           <div className="mt-3">{renderItem(item)}</div>
         </div>
-        {/* <div className='col-1 p-10' style={{cursor: 'grab', backgroundColor: colBackgroundcolor, color}}>
-        <div className='m-l-10 m-t-10'><i className='fa fa-ellipsis-v'></i><i className='fa fa-ellipsis-v'></i></div>
-      </div>
-      <div className='col-11 p-10' style={{position: 'relative'}}>
-        <div>
-          {renderItem(item)}
-        </div>
-        <div className='control-actions' style={{backgroundColor:colBackgroundcolor, color}}>
-          <span onClick={()=>selectControl(item)}><i className='fa fa-pen'></i></span>
-          <span><i className='fa fa-arrow-up'></i></span>
-          <span><i className='fa fa-arrow-down'></i></span>
-          <span onClick={()=>deleteControl(item.id,containerId)}><i className='fa fa-trash'></i></span>
-        </div>
-      </div> */}
       </div>
     </>
   );

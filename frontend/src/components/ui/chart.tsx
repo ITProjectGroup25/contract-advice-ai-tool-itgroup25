@@ -5,7 +5,6 @@ import * as RechartsPrimitive from "recharts";
 
 import { cn } from "./utils";
 
-// Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
 
 export type ChartConfig = {
@@ -59,11 +58,9 @@ const ChartContext = React.createContext<ChartContextProps | null>(null);
 
 function useChart() {
   const context = React.useContext(ChartContext);
-
   if (!context) {
     throw new Error("useChart must be used within a <ChartContainer />");
   }
-
   return context;
 }
 
@@ -100,11 +97,9 @@ function ChartContainer({
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(([, config]) => config.theme || config.color);
-
   if (!colorConfig.length) {
     return null;
   }
-
   return (
     <style
       dangerouslySetInnerHTML={{
@@ -147,13 +142,15 @@ function ChartTooltipContent({
 }: ChartTooltipContentProps) {
   const { config } = useChart();
 
-  const tooltipPayload = Array.isArray(payload) ? (payload as any[]) : [];
+  const tooltipPayload = React.useMemo(
+    () => (Array.isArray(payload) ? (payload as any[]) : []),
+    [payload]
+  );
 
   const tooltipLabel = React.useMemo(() => {
     if (hideLabel || tooltipPayload.length === 0) {
       return null;
     }
-
     const [item] = tooltipPayload;
     const key = `${labelKey || item?.dataKey || item?.name || "value"}`;
     const itemConfig = getPayloadConfigFromPayload(config, item, key);
@@ -169,13 +166,11 @@ function ChartTooltipContent({
         </div>
       );
     }
-
     if (!value) {
       return null;
     }
-
     return <div className={cn("font-medium", labelClassName)}>{value}</div>;
-  }, [label, labelFormatter, payload, hideLabel, labelClassName, config, labelKey]);
+  }, [label, labelFormatter, tooltipPayload, hideLabel, labelClassName, config, labelKey]);
 
   if (!active || tooltipPayload.length === 0) {
     return null;
@@ -316,7 +311,6 @@ function ChartLegendContent({
   );
 }
 
-// Helper to extract item config from a payload.
 function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key: string) {
   if (typeof payload !== "object" || payload === null) {
     return undefined;

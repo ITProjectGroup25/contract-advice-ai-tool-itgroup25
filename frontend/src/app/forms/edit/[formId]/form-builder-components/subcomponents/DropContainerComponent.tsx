@@ -2,15 +2,14 @@ import { Button } from "@mui/material";
 import React, { FunctionComponent, useCallback } from "react";
 import { useDrop } from "react-dnd";
 
-import { FormContainerList, FormItemTypes } from "../utils/formBuilderUtils";
-
-import ControlViewComponent from "./ControlViewComponent";
-
-import "./styles.scss";
 import {
   FormLayoutComponentChildrenType,
   FormLayoutComponentContainerType,
 } from "../types/FormTemplateTypes";
+import { FormContainerList, FormItemTypes } from "../utils/formBuilderUtils";
+
+import ControlViewComponent from "./ControlViewComponent";
+import "./styles.scss";
 
 interface DropContainerComponentProps {
   accept: string;
@@ -73,32 +72,36 @@ const DropContainerComponent: FunctionComponent<DropContainerComponentProps> = (
     accept && accept === FormItemTypes.CONTROL ? "rgba(0,0,0,0)" : "rgba(0,0,0,0.1)";
   let borderColor = "rgba(0,0,0,0.1)";
   const borderBase = "1px solid";
-  let border;
+  let border: string | undefined;
   if (isActive) {
     backgroundColor = "rgba(46,212,182,0.4)";
   } else if (canDrop) {
     backgroundColor = "rgba(255,178,15,0.7)";
   }
-
   if (accept === FormItemTypes.CONTROL) {
     border = `${borderBase} ${borderColor}`;
   }
-
-  // Change border Color
   if (
     selectedControl &&
     selectedControl.itemType === layout?.itemType &&
-    selectedControl.id === layout.id
+    selectedControl.id === layout?.id
   ) {
     borderColor = "rgb(255, 193, 7)";
     border = `${borderBase} ${borderColor}`;
   }
 
-  const handleDeleteContainer: React.MouseEventHandler<HTMLSpanElement> = (event) => {
-    if (deleteContainer) {
-      deleteContainer(layout?.id as string);
+  const handleDeleteContainer: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+    if (deleteContainer && layout?.id) {
+      deleteContainer(layout.id as string);
     }
-    if (event.stopPropagation) event.stopPropagation();
+    event.stopPropagation?.();
+  };
+
+  const handleHeaderKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (selectControl) selectControl(layout);
+    }
   };
 
   return (
@@ -120,7 +123,7 @@ const DropContainerComponent: FunctionComponent<DropContainerComponentProps> = (
             }}
           >
             <span style={{ marginRight: "9px" }}>
-              <i className="fa fa-plus"></i>
+              <i className="fa fa-plus" aria-hidden="true"></i>
             </span>
             <span>Add a workflow step</span>
           </Button>
@@ -135,25 +138,37 @@ const DropContainerComponent: FunctionComponent<DropContainerComponentProps> = (
                 selectControl(layout);
               }
             }}
+            onKeyDown={handleHeaderKeyDown}
+            role="button"
+            tabIndex={0}
             className="container-header d-flex justify-content-between mb-3 py-3"
             style={{
               borderBottom: "1px solid rgba(0,0,0,0.1)",
               cursor: "pointer",
+              outline: "none",
             }}
+            aria-label={`Select step ${(index as number) + 1}`}
           >
             <h5>Step {(index as number) + 1}</h5>
             <div className="container-actions" style={{ fontSize: "1.1rem" }}>
-              <span style={{ cursor: "grab" }}>
-                <i className="fa fa-ellipsis-v"></i>
-                <i className="fa fa-ellipsis-v"></i>
+              <span style={{ cursor: "grab" }} aria-hidden="true">
+                <i className="fa fa-ellipsis-v" aria-hidden="true"></i>
+                <i className="fa fa-ellipsis-v" aria-hidden="true"></i>
               </span>
-              <span onClick={handleDeleteContainer}>
-                <i className="fa fa-trash"></i>
-              </span>
+              <button
+                type="button"
+                onClick={handleDeleteContainer}
+                className="unstyled-button"
+                aria-label="Delete step"
+              >
+                <i className="fa fa-trash" aria-hidden="true"></i>
+              </button>
             </div>
           </div>
+
           <h4>{(layout as FormLayoutComponentContainerType)?.heading}</h4>
           <p>{(layout as FormLayoutComponentContainerType)?.subHeading}</p>
+
           <div
             className="d-flex flex-column justify-content-center align-items-center"
             style={{ minHeight: "20vh", position: "relative" }}
@@ -161,7 +176,7 @@ const DropContainerComponent: FunctionComponent<DropContainerComponentProps> = (
             {childrenComponents?.length === 0 ? (
               <div>
                 <span style={{ marginRight: "9px" }}>
-                  <i className="fa fa-plus"></i>
+                  <i className="fa fa-plus" aria-hidden="true"></i>
                 </span>
                 <span>Drop Field</span>
               </div>

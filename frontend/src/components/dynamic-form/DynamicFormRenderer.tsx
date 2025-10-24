@@ -2,7 +2,7 @@
 
 import { Question, FormSection, FormData } from "@shared";
 import { FileText, Users, Clock, HelpCircle, Search, Settings } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -50,57 +50,47 @@ export function DynamicFormRenderer({
   const visibleQuestions = questions.filter((q) => q.visible);
   const sortedSections = [...sections].sort((a, b) => a.order - b.order);
 
-  const getQueryType = () => {
+  const getQueryType = useCallback(() => {
     const queryTypeQuestion = questions.find((q) => q.id === "query-type");
     if (!queryTypeQuestion) return "";
     const value = formValues[queryTypeQuestion.id];
     return Array.isArray(value) ? value[0] || "" : value || "";
-  };
+  }, [questions, formValues]);
 
-  // Check question visibility with circular dependency protection
-  const isQuestionVisible = (
-    question: Question,
-    checkingStack: Set<string> = new Set()
-  ): boolean => {
-    // Prevent infinite recursion
-    if (checkingStack.has(question.id)) {
-      return false;
-    }
-
-    // Check query type visibility
-    const queryType = getQueryType();
-    if (question.conditional?.dependsOn === "query-type" && question.conditional.showWhen) {
-      return question.conditional.showWhen.includes(queryType);
-    }
-
-    // Check other conditional dependencies
-    if (question.conditional && question.conditional.dependsOn) {
-      const dependentValue = formValues[question.conditional.dependsOn];
-
-      // First check if the question we depend on is itself visible
-      const dependentQuestion = questions.find((q) => q.id === question.conditional?.dependsOn);
-      if (dependentQuestion) {
-        checkingStack.add(question.id);
-        const isParentVisible = isQuestionVisible(dependentQuestion, checkingStack);
-        checkingStack.delete(question.id);
-
-        if (!isParentVisible) {
-          return false;
+  const isQuestionVisible = useCallback(
+    (question: Question, checkingStack: Set<string> = new Set()): boolean => {
+      if (checkingStack.has(question.id)) {
+        return false;
+      }
+      const queryType = getQueryType();
+      if (question.conditional?.dependsOn === "query-type" && question.conditional.showWhen) {
+        return question.conditional.showWhen.includes(queryType);
+      }
+      if (question.conditional && question.conditional.dependsOn) {
+        const dependentValue = formValues[question.conditional.dependsOn];
+        const dependentQuestion = questions.find((q) => q.id === question.conditional?.dependsOn);
+        if (dependentQuestion) {
+          checkingStack.add(question.id);
+          const isParentVisible = isQuestionVisible(dependentQuestion, checkingStack);
+          checkingStack.delete(question.id);
+          if (!isParentVisible) {
+            return false;
+          }
+        }
+        if (question.conditional?.showWhen) {
+          if (Array.isArray(dependentValue)) {
+            return question.conditional.showWhen.some((val: string) =>
+              dependentValue.includes(val)
+            );
+          }
+          return question.conditional.showWhen.includes(dependentValue);
         }
       }
+      return true;
+    },
+    [getQueryType, formValues, questions]
+  );
 
-      if (question.conditional?.showWhen) {
-        if (Array.isArray(dependentValue)) {
-          return question.conditional.showWhen.some((val: string) => dependentValue.includes(val));
-        }
-        return question.conditional.showWhen.includes(dependentValue);
-      }
-    }
-
-    return true;
-  };
-
-  // Clear values for invisible questions
   useEffect(() => {
     const invisibleQuestions = visibleQuestions.filter((q) => !isQuestionVisible(q));
     invisibleQuestions.forEach((q) => {
@@ -108,12 +98,10 @@ export function DynamicFormRenderer({
         setValue(q.id, undefined);
       }
     });
-  }, [formValues, visibleQuestions, setValue]);
+  }, [formValues, visibleQuestions, setValue, isQuestionVisible]);
 
   const isSectionVisible = (section: FormSection) => {
     const _queryType = getQueryType();
-
-    // Check section conditional logic
     if (section.conditional) {
       const dependentValue = formValues[section.conditional.dependsOn];
       if (Array.isArray(dependentValue)) {
@@ -121,7 +109,6 @@ export function DynamicFormRenderer({
       }
       return section.conditional.showWhen.includes(dependentValue);
     }
-
     return true;
   };
 
@@ -138,12 +125,8 @@ export function DynamicFormRenderer({
 
   const onSubmit = async (data: FormData) => {
     try {
-      console.log("Form submitted:", data);
-
       const queryType = getQueryType() as "simple" | "complex";
       const submissionId = `submission_${Date.now()}`;
-
-      // Send confirmation email to user
       const userEmail = data.email as string;
       const userName = data.name as string;
 
@@ -157,18 +140,13 @@ export function DynamicFormRenderer({
           queryType,
           timestamp: new Date().toISOString(),
         };
-
         try {
-          console.log("📧 FORM: Sending USER CONFIRMATION email to:", userEmail);
           const emailSent = await emailService.sendConfirmationEmail(emailData);
-          if (emailSent) {
-            console.log("✅ FORM: User confirmation email sent successfully to:", userEmail);
-          } else {
-            console.warn("⚠️ FORM: Failed to send user confirmation email");
+          if (!emailSent) {
+            console.warn("Failed to send user confirmation email");
           }
         } catch (emailError) {
-          console.error("❌ FORM: User confirmation email service error:", emailError);
-          // Don't fail the form submission if email fails
+          console.error("User confirmation email service error:", emailError);
         }
       }
 
@@ -178,10 +156,9 @@ export function DynamicFormRenderer({
           onSimpleQuerySuccess?.(submissionId);
         }, 1000);
       } else if (queryType === "complex") {
-        // Send notification email to grant team for complex queries
         if (userEmail && userName && emailService.isConfigured()) {
           const grantTeamEmailData: GrantTeamEmailData = {
-            to: "grants@example.com", // This should be configured
+            to: "grants@example.com",
             subject: "New Complex Contract Advice Request",
             submissionId,
             queryType: "complex",
@@ -192,27 +169,15 @@ export function DynamicFormRenderer({
             grantTeam: Array.isArray(data["grants-team"]) ? data["grants-team"] : [],
             urgency: data["is-urgent"] === "yes",
           };
-
           try {
-            console.log(
-              "📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:",
-              submissionId
-            );
             const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
-            if (grantEmailSent) {
-              console.log(
-                "✅ FORM: Grant team notification sent successfully for complex query:",
-                submissionId
-              );
-            } else {
-              console.warn("⚠️ FORM: Failed to send grant team notification");
+            if (!grantEmailSent) {
+              console.warn("Failed to send grant team notification");
             }
           } catch (grantEmailError) {
-            console.error("❌ FORM: Grant team notification error:", grantEmailError);
-            // Don't fail the form submission if grant team email fails
+            console.error("Grant team notification error:", grantEmailError);
           }
         }
-
         toast.success("Complex request submitted successfully! Check your email for confirmation.");
         setTimeout(() => {
           onComplexQuerySuccess?.();
@@ -242,14 +207,12 @@ export function DynamicFormRenderer({
           rules.required = `${question.label} is required`;
         }
       }
-
       if (question.type === "email") {
         rules.pattern = {
           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
           message: "Invalid email address",
         };
       }
-
       if (question.validation) {
         if (question.validation.minLength) {
           rules.minLength = {
@@ -270,7 +233,6 @@ export function DynamicFormRenderer({
           };
         }
       }
-
       return rules;
     };
 
@@ -499,14 +461,12 @@ export function DynamicFormRenderer({
                   {section.description && (
                     <p className="mb-6 text-sm text-gray-600">{section.description}</p>
                   )}
-
                   <div className="space-y-4">{sectionQuestions.map(renderQuestion)}</div>
                 </CardContent>
               </Card>
             );
           })}
 
-          {/* Submit Button */}
           <div className="flex justify-end">
             <Button
               type="submit"
