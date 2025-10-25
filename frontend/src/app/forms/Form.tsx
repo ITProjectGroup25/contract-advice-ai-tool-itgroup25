@@ -9,16 +9,8 @@ import {
   FormLabel,
   FormField as ShadcdnFormField,
 } from "@/components/ui/form";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  FormWithQuestions,
-  QuestionSelectModel,
-} from "@shared";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { FormWithQuestions, QuestionSelectModel } from "@shared";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -113,12 +105,12 @@ const Form = ({ form: formData, editMode = false }: Props) => {
   };
 
   return (
-    <div className="text-center min-w-[320px] md:min-w-[540px] max-w-[620px] border px-8 py-4 rounded-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border-gray-100">
+    <div className="min-w-[320px] max-w-[620px] rounded-md border border-gray-100 bg-gray-400 bg-opacity-10 bg-clip-padding px-8 py-4 text-center backdrop-blur-md backdrop-filter md:min-w-[540px]">
       <div className="hidden">
         <ThemeChange />
       </div>
       <div className="flex items-center justify-center gap-2">
-        <h1 className="text-3xl font-semibold py-3 text-red">{name}</h1>
+        <h1 className="text-red py-3 text-3xl font-semibold">{name}</h1>
 
         {editMode && (
           <TooltipProvider>
@@ -150,7 +142,7 @@ const Form = ({ form: formData, editMode = false }: Props) => {
       <FormComponent {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="grid w-full max-w-3xl items-center gap-6 my-4 text-left"
+          className="my-4 grid w-full max-w-3xl items-center gap-6 text-left"
         >
           {questions.map((question: QuestionSelectModel, index: number) => (
             <ShadcdnFormField
@@ -159,17 +151,13 @@ const Form = ({ form: formData, editMode = false }: Props) => {
               key={`${question.text}_${question.id}`}
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex justify-around items-center">
-                    <FormLabel className="text-base mt-3 mr-3 flex-1">
+                  <div className="flex items-center justify-around">
+                    <FormLabel className="mr-3 mt-3 flex-1 text-base">
                       {index + 1}. {question.text}
                     </FormLabel>
                   </div>
                   <FormControl>
-                    <FormField
-                      element={question}
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <FormField element={question} value={field.value} onChange={field.onChange} />
                   </FormControl>
                 </FormItem>
               )}

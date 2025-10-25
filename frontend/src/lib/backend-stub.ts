@@ -24,5 +24,5 @@ export const auth = () => Promise.resolve(null);
 export const signOut = () => Promise.resolve();
 
 // Mock API handlers
-export const GET = async () => new Response('{}');
-export const POST = async () => new Response('{}');
+export const GET = async () => new Response("{}");
+export const POST = async () => new Response("{}");

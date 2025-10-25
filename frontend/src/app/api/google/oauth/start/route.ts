@@ -1,9 +1,9 @@
-import 'server-only';
+import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const sp = new URL(req.url).searchParams;
@@ -19,14 +19,14 @@ export async function GET(req: NextRequest) {
   );
   const scopes = [
     "https://www.googleapis.com/auth/drive.file",
-    "https://www.googleapis.com/auth/spreadsheets"
+    "https://www.googleapis.com/auth/spreadsheets",
   ];
 
   const url = oauth2.generateAuthUrl({
-    access_type: "offline",    // Request a refresh token
-    prompt: "consent",         // Force consent to obtain refresh_token (first time or when scopes change)
+    access_type: "offline", // Request a refresh token
+    prompt: "consent", // Force consent to obtain refresh_token (first time or when scopes change)
     scope: scopes,
-    state: userId,             // Echoed back on callback to identify which in-app user this is
+    state: userId, // Echoed back on callback to identify which in-app user this is
   });
   return NextResponse.redirect(url);
 }

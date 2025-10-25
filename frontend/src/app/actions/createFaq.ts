@@ -63,9 +63,7 @@ export async function createFaq({
     }
 
     if (!selections || !Array.isArray(selections) || selections.length === 0) {
-      console.error(
-        "Validation failed: Sections must be a valid non-empty array"
-      );
+      console.error("Validation failed: Sections must be a valid non-empty array");
       return {
         message: "error",
         error: "Sections must be a valid non-empty array",
@@ -78,18 +76,14 @@ export async function createFaq({
     );
 
     if (!hasSelections) {
-      console.error(
-        "Validation failed: At least one field selection is required"
-      );
+      console.error("Validation failed: At least one field selection is required");
       return {
         message: "error",
         error: "At least one field selection is required",
       };
     }
 
-    console.log(
-      "All validations passed, attempting to insert into database..."
-    );
+    console.log("All validations passed, attempting to insert into database...");
 
     // Insert the new FAQ
     const insertData = {
@@ -127,10 +121,7 @@ export async function createFaq({
     };
   } catch (error) {
     console.error("Create FAQ error:", error);
-    console.error(
-      "Error stack:",
-      error instanceof Error ? error.stack : "No stack trace"
-    );
+    console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace");
     return {
       message: "error",
       error: error instanceof Error ? error.message : "Unknown error",

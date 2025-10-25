@@ -10,10 +10,7 @@ interface SubmissionDisplayProps {
   value?: string;
 }
 
-export function SubmissionDisplay({
-  submission,
-  value = "data",
-}: SubmissionDisplayProps) {
+export function SubmissionDisplay({ submission, value = "data" }: SubmissionDisplayProps) {
   const formData = submission.formData;
   console.log({ formData });
 

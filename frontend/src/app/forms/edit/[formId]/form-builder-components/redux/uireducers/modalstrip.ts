@@ -1,7 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-
-interface ModalStripProp{
+interface ModalStripProp {
   modalType: string | null;
   message: string | null;
 }
@@ -9,20 +8,20 @@ interface ModalStripProp{
 const initialState: ModalStripProp = {
   modalType: null,
   message: null,
-}
+};
 
 const slice = createSlice({
   name: "modalStripReducer",
   initialState: initialState,
   reducers: {
-    openModal: (state,action:PayloadAction<ModalStripProp>)=>{
+    openModal: (state, action: PayloadAction<ModalStripProp>) => {
       state.modalType = action.payload.modalType;
       state.message = action.payload.message;
     },
-    closeModal: (state)=>{
+    closeModal: (state) => {
       state.modalType = null;
       state.message = null;
-    }
+    },
   },
 });
 

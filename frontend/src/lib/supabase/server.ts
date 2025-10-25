@@ -1,5 +1,5 @@
-import 'server-only';
-import { createClient } from '@supabase/supabase-js';
+import "server-only";
+import { createClient } from "@supabase/supabase-js";
 
 // Create Supabase admin client with service role key for backend operations
 export function getSupabaseAdmin() {
@@ -8,7 +8,7 @@ export function getSupabaseAdmin() {
 
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error(
-      'Missing Supabase environment variables: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required'
+      "Missing Supabase environment variables: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required"
     );
   }
 

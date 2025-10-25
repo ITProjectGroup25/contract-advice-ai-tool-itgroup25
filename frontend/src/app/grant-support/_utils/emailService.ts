@@ -1,8 +1,4 @@
-import {
-  fetchEmailConfig,
-  saveEmailConfig,
-  EmailConfig as ApiEmailConfig,
-} from "./api";
+import { fetchEmailConfig, saveEmailConfig, EmailConfig as ApiEmailConfig } from "./api";
 
 export interface EmailData {
   userEmail: string;

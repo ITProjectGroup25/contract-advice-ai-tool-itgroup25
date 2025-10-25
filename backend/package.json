@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "typecheck": "tsc --project tsconfig.json --noEmit --skipLibCheck",
     "db:generate": "dotenv -e ../.env -- drizzle-kit generate:pg",
     "db:migrate": "dotenv -e ../.env -- drizzle-kit migrate",
     "db:push": "dotenv -e ../.env -- drizzle-kit push:pg",

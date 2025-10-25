@@ -6,24 +6,20 @@ import {
 } from "./types";
 
 // Extended schema for a selected option item
-export const SelectedFormSectionChildrenItemsSchema =
-  FormSectionChildrenItemsSchema.extend({
-    selected: z.boolean().default(false),
-  });
+export const SelectedFormSectionChildrenItemsSchema = FormSectionChildrenItemsSchema.extend({
+  selected: z.boolean().default(false),
+});
 export type SelectedFormSectionChildrenItemsType = z.infer<
   typeof SelectedFormSectionChildrenItemsSchema
 >;
 
 // Extended schema for form field children with selected option tracking
-export const SelectedFormSectionChildrenSchema =
-  FormSectionChildrenSchema.extend({
-    items: z.array(SelectedFormSectionChildrenItemsSchema).optional(),
-    selectedOptionId: z.string().or(z.number()).optional(), // The option that was selected
-    selectedOptionLabel: z.string().optional(), // The label of the selected option
-  });
-export type SelectedFormSectionChildrenType = z.infer<
-  typeof SelectedFormSectionChildrenSchema
->;
+export const SelectedFormSectionChildrenSchema = FormSectionChildrenSchema.extend({
+  items: z.array(SelectedFormSectionChildrenItemsSchema).optional(),
+  selectedOptionId: z.string().or(z.number()).optional(), // The option that was selected
+  selectedOptionLabel: z.string().optional(), // The label of the selected option
+});
+export type SelectedFormSectionChildrenType = z.infer<typeof SelectedFormSectionChildrenSchema>;
 
 // Extended schema for form section
 export const SelectedFormSectionSchema = z.object({
@@ -34,9 +30,7 @@ export type SelectedFormSectionType = z.infer<typeof SelectedFormSectionSchema>;
 
 // Array of selected sections (this is what goes in the JSONB column)
 export const SelectedFormSectionsSchema = z.array(SelectedFormSectionSchema);
-export type SelectedFormSectionsType = z.infer<
-  typeof SelectedFormSectionsSchema
->;
+export type SelectedFormSectionsType = z.infer<typeof SelectedFormSectionsSchema>;
 
 // Alternative: Simpler selection schema (just the selected fields)
 // This is a more compact representation that only stores selected fields
@@ -49,9 +43,7 @@ export const CompactFieldSelectionSchema = z.object({
   containerId: z.string().optional(),
   sectionHeading: z.string().optional(), // Which section this field belongs to
 });
-export type CompactFieldSelectionType = z.infer<
-  typeof CompactFieldSelectionSchema
->;
+export type CompactFieldSelectionType = z.infer<typeof CompactFieldSelectionSchema>;
 
 export const CompactSelectionsSchema = z.array(CompactFieldSelectionSchema);
 export type CompactSelectionsType = z.infer<typeof CompactSelectionsSchema>;
@@ -68,9 +60,7 @@ export function applySelections(
       // Filter children to only include fields with selections
       const selectedChildren = section.children
         .map((field: any) => {
-          const selection = selections.find(
-            (s) => s.fieldId === field.id.toString()
-          );
+          const selection = selections.find((s) => s.fieldId === field.id.toString());
 
           if (selection && field.items) {
             const selectedOption = field.items.find(
@@ -135,11 +125,7 @@ export function extractCompactSelections(
 // Helper function to count selections in sections
 export function countSelections(sections: SelectedFormSectionsType): number {
   return sections.reduce((count, section) => {
-    return (
-      count +
-      section.children.filter((field) => field.selectedOptionId !== undefined)
-        .length
-    );
+    return count + section.children.filter((field) => field.selectedOptionId !== undefined).length;
   }, 0);
 }
 
@@ -153,9 +139,7 @@ export function matchesPattern(
   // Check if all pattern items are present
   return pattern.every((patternItem) =>
     selectedFields.some(
-      (field) =>
-        field.fieldId === patternItem.fieldId &&
-        field.optionId === patternItem.optionId
+      (field) => field.fieldId === patternItem.fieldId && field.optionId === patternItem.optionId
     )
   );
 }

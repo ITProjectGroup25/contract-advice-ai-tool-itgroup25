@@ -36,10 +36,7 @@ export async function GET() {
       console.warn("Invalid stored email configuration payload, returning empty config", error);
     }
 
-    return NextResponse.json(
-      { configured: Boolean(config), config },
-      { status: 200 }
-    );
+    return NextResponse.json({ configured: Boolean(config), config }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
       {

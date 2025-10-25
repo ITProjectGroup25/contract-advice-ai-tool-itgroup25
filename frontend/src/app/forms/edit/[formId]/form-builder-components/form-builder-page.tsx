@@ -8,9 +8,7 @@ interface FormBuilderPageProps {
   formTemplate: TemplateType;
 }
 
-const FormBuilderPage: FunctionComponent<FormBuilderPageProps> = ({
-  formTemplate,
-}) => {
+const FormBuilderPage: FunctionComponent<FormBuilderPageProps> = ({ formTemplate }) => {
   return <FormBuilder template={formTemplate} />;
 };
 

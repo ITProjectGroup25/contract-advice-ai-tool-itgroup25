@@ -5,16 +5,7 @@ import { deleteFaq } from "@/app/actions/deleteFaq";
 import { getFaqs } from "@/app/actions/getFaqs";
 import { updateFaq } from "@/app/actions/updateFaq";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ArrowRight,
-  ChevronRight,
-  Edit,
-  Loader2,
-  Plus,
-  Save,
-  Trash2,
-  X,
-} from "lucide-react";
+import { ArrowRight, ChevronRight, Edit, Loader2, Plus, Save, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -65,8 +56,7 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
   const queryClient = useQueryClient();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingResponse, setEditingResponse] =
-    useState<ChatbotResponse | null>(null);
+  const [editingResponse, setEditingResponse] = useState<ChatbotResponse | null>(null);
 
   // New response being created/edited
   const [faqName, setFaqName] = useState(""); // Added FAQ name state
@@ -105,10 +95,7 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
       name?: string; // Added name parameter
     }) => {
       console.log("=== createMutation mutationFn called ===");
-      console.log(
-        "Data being sent to createFaq:",
-        JSON.stringify(data, null, 2)
-      );
+      console.log("Data being sent to createFaq:", JSON.stringify(data, null, 2));
 
       const result = await createFaq({
         formId: data.formId,
@@ -184,9 +171,7 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
   });
 
   // Get all fields from all sections
-  const allFields: FormSectionChildrenType[] = sections.flatMap(
-    (section) => section.children
-  );
+  const allFields: FormSectionChildrenType[] = sections.flatMap((section) => section.children);
 
   // Get fields that have options (radio-group, checklist)
   const fieldsWithOptions = allFields.filter(
@@ -213,9 +198,7 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
       setEditingResponse(response);
       setFaqName(response.name || ""); // Set FAQ name when editing
       setResponseText(response.answer);
-      const extractedSelections = extractSelectionsFromSections(
-        response.selections
-      );
+      const extractedSelections = extractSelectionsFromSections(response.selections);
       setSelections(extractedSelections);
     } else {
       setEditingResponse(null);
@@ -241,12 +224,8 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
   const handleAddSelection = () => {
     if (!selectedFieldId || !selectedOptionId) return;
 
-    const field = fieldsWithOptions.find(
-      (f) => f.id.toString() === selectedFieldId
-    );
-    const option = field?.items?.find(
-      (opt) => opt.id.toString() === selectedOptionId
-    );
+    const field = fieldsWithOptions.find((f) => f.id.toString() === selectedFieldId);
+    const option = field?.items?.find((opt) => opt.id.toString() === selectedOptionId);
 
     if (field && option) {
       // Find the section that contains this field
@@ -318,10 +297,8 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
       <div className="space-y-6">
         <Card>
           <CardContent className="p-8 text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
-            <p className="text-muted-foreground">
-              Loading chatbot responses...
-            </p>
+            <Loader2 className="mx-auto mb-2 h-8 w-8 animate-spin" />
+            <p className="text-muted-foreground">Loading chatbot responses...</p>
           </CardContent>
         </Card>
       </div>
@@ -332,7 +309,7 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
     return (
       <div className="space-y-6">
         <Card className="border-destructive">
-          <CardContent className="p-8 text-center text-destructive">
+          <CardContent className="text-destructive p-8 text-center">
             <p>Error loading FAQs: {(error as Error).message}</p>
           </CardContent>
         </Card>
@@ -351,7 +328,7 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
           </p>
         </div>
         <Button onClick={() => handleOpenDialog()} size="sm">
-          <Plus className="h-4 w-4 mr-1" />
+          <Plus className="mr-1 h-4 w-4" />
           New Response
         </Button>
       </div>
@@ -360,20 +337,16 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
       <div className="space-y-4">
         {!faqsData || faqsData.length === 0 ? (
           <Card>
-            <CardContent className="p-8 text-center text-muted-foreground">
+            <CardContent className="text-muted-foreground p-8 text-center">
               <p>No chatbot responses configured yet.</p>
-              <p className="text-sm mt-1">
-                <p className="text-sm mt-1">
-                  {`Click "New Response" to create your first one.`}
-                </p>
+              <p className="mt-1 text-sm">
+                <p className="mt-1 text-sm">{`Click "New Response" to create your first one.`}</p>
               </p>
             </CardContent>
           </Card>
         ) : (
           faqsData.map((response) => {
-            const selections = extractSelectionsFromSections(
-              response.selections
-            );
+            const selections = extractSelectionsFromSections(response.selections);
             return (
               <Card key={response.id}>
                 <CardContent className="p-4">
@@ -390,17 +363,12 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
 
                       {/* Pattern */}
                       <div>
-                        <h3 className="text-sm font-medium mb-2">Pattern:</h3>
+                        <h3 className="mb-2 text-sm font-medium">Pattern:</h3>
                         <div className="flex flex-wrap gap-2">
                           {selections.map((sel, idx) => (
-                            <div
-                              key={sel.fieldId}
-                              className="flex items-center gap-1"
-                            >
+                            <div key={sel.fieldId} className="flex items-center gap-1">
                               {idx > 0 && (
-                                <span className="text-xs text-muted-foreground px-1">
-                                  AND
-                                </span>
+                                <span className="text-muted-foreground px-1 text-xs">AND</span>
                               )}
                               <Badge variant="secondary" className="text-xs">
                                 {sel.fieldLabel} = {sel.optionLabel}
@@ -412,8 +380,8 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
 
                       {/* Response */}
                       <div>
-                        <h3 className="text-sm font-medium mb-1">Response:</h3>
-                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                        <h3 className="mb-1 text-sm font-medium">Response:</h3>
+                        <p className="text-muted-foreground whitespace-pre-wrap text-sm">
                           {response.answer}
                         </p>
                       </div>
@@ -421,22 +389,14 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
 
                     {/* Actions */}
                     <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleOpenDialog(response)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(response)}>
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          if (
-                            confirm(
-                              "Are you sure you want to delete this response?"
-                            )
-                          ) {
+                          if (confirm("Are you sure you want to delete this response?")) {
                             deleteMutation.mutate(response.id);
                           }
                         }}
@@ -455,23 +415,20 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-6xl sm:max-w-[1100px] max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="flex max-h-[90vh] max-w-6xl flex-col overflow-hidden sm:max-w-[1100px]">
           <DialogHeader>
-            <DialogTitle>
-              {editingResponse ? "Edit Response" : "Create New Response"}
-            </DialogTitle>
+            <DialogTitle>{editingResponse ? "Edit Response" : "Create New Response"}</DialogTitle>
             <DialogDescription>
-              Configure which form field combinations should trigger this
-              chatbot response
+              Configure which form field combinations should trigger this chatbot response
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid grid-cols-3 gap-4 flex-1 overflow-hidden">
+          <div className="grid flex-1 grid-cols-3 gap-4 overflow-hidden">
             {/* Left Column - Available Fields */}
             <div className="space-y-3">
               <div>
-                <h3 className="font-medium text-sm mb-1">Available Fields</h3>
-                <p className="text-xs text-muted-foreground">
+                <h3 className="mb-1 text-sm font-medium">Available Fields</h3>
+                <p className="text-muted-foreground text-xs">
                   Select fields with options to create patterns
                 </p>
               </div>
@@ -482,8 +439,7 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
                     const isAlreadySelected = selections.some(
                       (s) => s.fieldId === field.id.toString()
                     );
-                    const isCurrentlySelected =
-                      selectedFieldId === field.id.toString();
+                    const isCurrentlySelected = selectedFieldId === field.id.toString();
 
                     return (
                       <Card
@@ -492,8 +448,8 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
                           isCurrentlySelected
                             ? "border-primary bg-primary/5"
                             : isAlreadySelected
-                            ? "border-muted opacity-60"
-                            : "hover:border-primary/50"
+                              ? "border-muted opacity-60"
+                              : "hover:border-primary/50"
                         }`}
                         onClick={() => {
                           // Toggle: if already selected, deselect it; otherwise select it
@@ -506,11 +462,9 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
                           }
                         }}
                       >
-                        <CardContent className="p-3 space-y-2">
+                        <CardContent className="space-y-2 p-3">
                           <div className="flex items-center justify-between">
-                            <div className="font-medium text-sm">
-                              {field.labelName}
-                            </div>
+                            <div className="text-sm font-medium">{field.labelName}</div>
                             {isAlreadySelected && (
                               <Badge variant="secondary" className="text-xs">
                                 Selected
@@ -520,8 +474,8 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
 
                           {/* Show options for selected field */}
                           {isCurrentlySelected && field.items && (
-                            <div className="space-y-1 pt-2 border-t">
-                              <p className="text-xs text-muted-foreground mb-1">
+                            <div className="space-y-1 border-t pt-2">
+                              <p className="text-muted-foreground mb-1 text-xs">
                                 Select an option:
                               </p>
                               {field.items.map((option) => (
@@ -533,7 +487,7 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
                                       : "outline"
                                   }
                                   size="sm"
-                                  className="w-full justify-start text-xs h-7"
+                                  className="h-7 w-full justify-start text-xs"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedOptionId(option.id.toString());
@@ -559,7 +513,7 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
                   size="sm"
                   disabled={isSubmitting}
                 >
-                  <ArrowRight className="h-4 w-4 mr-1" />
+                  <ArrowRight className="mr-1 h-4 w-4" />
                   Add to Selections
                 </Button>
               )}
@@ -568,8 +522,8 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
             {/* Middle Column - Selections */}
             <div className="space-y-3">
               <div>
-                <h3 className="font-medium text-sm mb-1">Pattern Selections</h3>
-                <p className="text-xs text-muted-foreground">
+                <h3 className="mb-1 text-sm font-medium">Pattern Selections</h3>
+                <p className="text-muted-foreground text-xs">
                   Field-option combinations that trigger this response
                 </p>
               </div>
@@ -577,40 +531,30 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
               <Card className="h-[400px]">
                 <CardContent className="p-3">
                   {selections.length === 0 ? (
-                    <div className="h-full flex items-center justify-center text-center text-muted-foreground text-sm">
+                    <div className="text-muted-foreground flex h-full items-center justify-center text-center text-sm">
                       <div>
-                        <ChevronRight className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <ChevronRight className="mx-auto mb-2 h-8 w-8 opacity-50" />
                         <p>No selections yet</p>
-                        <p className="text-xs mt-1">
-                          Add field selections from the left
-                        </p>
+                        <p className="mt-1 text-xs">Add field selections from the left</p>
                       </div>
                     </div>
                   ) : (
                     <ScrollArea className="h-full">
                       <div className="space-y-2">
                         {selections.map((selection, index) => (
-                          <Card
-                            key={selection.fieldId}
-                            className="border-primary/50"
-                          >
+                          <Card key={selection.fieldId} className="border-primary/50">
                             <CardContent className="p-3">
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex-1 space-y-1">
                                   {index > 0 && (
-                                    <div className="text-xs font-semibold text-muted-foreground mb-1">
+                                    <div className="text-muted-foreground mb-1 text-xs font-semibold">
                                       AND
                                     </div>
                                   )}
-                                  <div className="text-sm font-medium">
-                                    {selection.fieldLabel}
-                                  </div>
-                                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <div className="text-sm font-medium">{selection.fieldLabel}</div>
+                                  <div className="text-muted-foreground flex items-center gap-1 text-xs">
                                     <span>=</span>
-                                    <Badge
-                                      variant="secondary"
-                                      className="text-xs"
-                                    >
+                                    <Badge variant="secondary" className="text-xs">
                                       {selection.optionLabel}
                                     </Badge>
                                   </div>
@@ -618,9 +562,7 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() =>
-                                    handleRemoveSelection(selection.fieldId)
-                                  }
+                                  onClick={() => handleRemoveSelection(selection.fieldId)}
                                   className="h-6 w-6 p-0"
                                   disabled={isSubmitting}
                                 >
@@ -640,8 +582,8 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
             {/* Right Column - Response Configuration */}
             <div className="space-y-3">
               <div>
-                <h3 className="font-medium text-sm mb-1">Chatbot Response</h3>
-                <p className="text-xs text-muted-foreground">
+                <h3 className="mb-1 text-sm font-medium">Chatbot Response</h3>
+                <p className="text-muted-foreground text-xs">
                   Configure the response for this pattern
                 </p>
               </div>
@@ -660,7 +602,7 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
                     className="text-sm"
                     disabled={isSubmitting}
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     Give this FAQ a descriptive name for easier identification
                   </p>
                 </div>
@@ -675,28 +617,21 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
                     onChange={(e) => setResponseText(e.target.value)}
                     placeholder="Enter the chatbot's response when this pattern is detected..."
                     rows={12}
-                    className="text-sm resize-none"
+                    className="resize-none text-sm"
                     disabled={isSubmitting}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    {responseText.length} characters
-                  </p>
+                  <p className="text-muted-foreground text-xs">{responseText.length} characters</p>
                 </div>
 
                 {selections.length > 0 && (
-                  <div className="p-3 bg-muted rounded-lg space-y-2">
+                  <div className="bg-muted space-y-2 rounded-lg p-3">
                     <p className="text-xs font-medium">Preview Pattern:</p>
-                    <div className="text-xs space-y-1">
+                    <div className="space-y-1 text-xs">
                       {selections.map((sel, idx) => (
                         <div key={sel.fieldId}>
-                          {idx > 0 && (
-                            <span className="text-muted-foreground">AND </span>
-                          )}
-                          <span className="font-medium">{sel.fieldLabel}</span>{" "}
-                          =
-                          <span className="ml-1 font-medium text-primary">
-                            {sel.optionLabel}
-                          </span>
+                          {idx > 0 && <span className="text-muted-foreground">AND </span>}
+                          <span className="font-medium">{sel.fieldLabel}</span> =
+                          <span className="text-primary ml-1 font-medium">{sel.optionLabel}</span>
                         </div>
                       ))}
                     </div>
@@ -709,23 +644,19 @@ export function FAQManagement({ sections, formId }: FAQManagementProps) {
           <Separator />
 
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={handleCloseDialog}
-              disabled={isSubmitting}
-            >
-              <X className="h-4 w-4 mr-1" />
+            <Button variant="outline" onClick={handleCloseDialog} disabled={isSubmitting}>
+              <X className="mr-1 h-4 w-4" />
               Cancel
             </Button>
             <Button onClick={handleSaveResponse} disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
                   {editingResponse ? "Updating..." : "Creating..."}
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-1" />
+                  <Save className="mr-1 h-4 w-4" />
                   {editingResponse ? "Update Response" : "Create Response"}
                 </>
               )}

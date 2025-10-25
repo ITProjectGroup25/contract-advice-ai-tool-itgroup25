@@ -50,16 +50,10 @@ const Page = () => {
 
   return (
     <div>
-      <h1 className="text-4xl font-normal px-4 m-5">My Forms</h1>
-      {isLoading ? (
-        <p className="px-4">Loading forms...</p>
-      ) : (
-        <FormList forms={forms} />
-      )}
+      <h1 className="m-5 px-4 text-4xl font-normal">My Forms</h1>
+      {isLoading ? <p className="px-4">Loading forms...</p> : <FormList forms={forms} />}
     </div>
   );
 };
 
 export default Page;
-
-

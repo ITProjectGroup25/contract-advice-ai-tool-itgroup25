@@ -15,6 +15,4 @@ export const GrantSupportSubmissionSchema = z.object({
   updated_at: z.string(),
 });
 
-export type GrantSupportSubmission = z.infer<
-  typeof GrantSupportSubmissionSchema
->;
+export type GrantSupportSubmission = z.infer<typeof GrantSupportSubmissionSchema>;

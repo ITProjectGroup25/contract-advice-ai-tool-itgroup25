@@ -6,25 +6,12 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
-import {
-  GrantSupportSubmissionResponse,
-  createGrantSupportSubmission,
-} from "../../_utils/api";
-import {
-  EmailData,
-  GrantTeamEmailData,
-  emailService,
-} from "../../_utils/emailService";
+import { GrantSupportSubmissionResponse, createGrantSupportSubmission } from "../../_utils/api";
+import { EmailData, GrantTeamEmailData, emailService } from "../../_utils/emailService";
 import FixedLogo from "../FixedLogo";
 import { FormSectionsType } from "../types";
 import { Button } from "../ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
 import renderField from "./renderField";
 
@@ -84,11 +71,9 @@ export function DynamicFormRenderer({
   }>({});
 
   // Initialize visible sections with only alwaysVisible sections
-  const [visibleSections, setVisibleSections] = useState<typeof sections>(
-    () => {
-      return sections.filter((section) => section.container.alwaysVisible);
-    }
-  );
+  const [visibleSections, setVisibleSections] = useState<typeof sections>(() => {
+    return sections.filter((section) => section.container.alwaysVisible);
+  });
 
   const formValues = watch();
 
@@ -114,9 +99,7 @@ export function DynamicFormRenderer({
       const currentFieldValue = formValues[controllingField.labelName];
 
       // Find the option that should trigger visibility
-      const triggerOption = controllingField.items?.find(
-        (item) => item.id === condition.optionId
-      );
+      const triggerOption = controllingField.items?.find((item) => item.id === condition.optionId);
 
       if (!triggerOption) return false;
 
@@ -133,17 +116,11 @@ export function DynamicFormRenderer({
 
   // Update visible sections whenever form values change
   useEffect(() => {
-    const newVisibleSections = sections.filter((section) =>
-      shouldSectionBeVisible(section)
-    );
+    const newVisibleSections = sections.filter((section) => shouldSectionBeVisible(section));
     setVisibleSections(newVisibleSections);
   }, [formValues, sections, shouldSectionBeVisible]);
 
-  const handleFieldChange = (
-    fieldId: string,
-    selectedValue: any,
-    field: any
-  ) => {
+  const handleFieldChange = (fieldId: string, selectedValue: any, field: any) => {
     setValue(fieldId, selectedValue);
 
     // The useEffect above will automatically handle section visibility
@@ -232,14 +209,15 @@ export function DynamicFormRenderer({
 
       console.log({ processedData });
 
-      const submissionResponse: GrantSupportSubmissionResponse =
-        await createGrantSupportSubmission({
+      const submissionResponse: GrantSupportSubmissionResponse = await createGrantSupportSubmission(
+        {
           formData: processedData,
           queryType,
           userEmail: (processedData["Your Email"] as string) || undefined,
           userName: (processedData["Your Name"] as string) || undefined,
           status: "submitted",
-        });
+        }
+      );
 
       const submissionId = submissionResponse.submissionUid;
 
@@ -257,31 +235,20 @@ export function DynamicFormRenderer({
         };
 
         try {
-          console.log(
-            "📧 FORM: Sending USER CONFIRMATION email to:",
-            userEmail
-          );
+          console.log("📧 FORM: Sending USER CONFIRMATION email to:", userEmail);
           const emailSent = await emailService.sendConfirmationEmail(emailData);
           if (emailSent) {
-            console.log(
-              "✅ FORM: User confirmation email sent successfully to:",
-              userEmail
-            );
+            console.log("✅ FORM: User confirmation email sent successfully to:", userEmail);
           } else {
             console.warn("⚠️ FORM: Failed to send user confirmation email");
           }
         } catch (emailError) {
-          console.error(
-            "❌ FORM: User confirmation email service error:",
-            emailError
-          );
+          console.error("❌ FORM: User confirmation email service error:", emailError);
         }
       }
 
       if (queryType === "simple") {
-        toast.success(
-          "Simple query submitted successfully! Check your email for confirmation."
-        );
+        toast.success("Simple query submitted successfully! Check your email for confirmation.");
         setTimeout(() => {
           onSimpleQuerySuccess?.(submissionId);
         }, 1000);
@@ -301,9 +268,7 @@ export function DynamicFormRenderer({
               "📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:",
               submissionId
             );
-            const grantEmailSent = await emailService.sendGrantTeamNotification(
-              grantTeamEmailData
-            );
+            const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
             if (grantEmailSent) {
               console.log(
                 "✅ FORM: Grant team notification sent successfully for complex query:",
@@ -313,10 +278,7 @@ export function DynamicFormRenderer({
               console.warn("⚠️ FORM: Failed to send grant team notification");
             }
           } catch (grantEmailError) {
-            console.error(
-              "❌ FORM: Grant team notification error:",
-              grantEmailError
-            );
+            console.error("❌ FORM: Grant team notification error:", grantEmailError);
           }
         }
 
@@ -365,12 +327,10 @@ export function DynamicFormRenderer({
     <>
       <FixedLogo />
 
-      <div className="max-w-4xl mx-auto p-6 space-y-8">
-        <div className="text-center space-y-2">
+      <div className="mx-auto max-w-4xl space-y-8 p-6">
+        <div className="space-y-2 text-center">
           <h1 className="text-5xl font-bold">{title}</h1>
-          <p className="text-l">
-            Please complete this form to submit your referral request
-          </p>
+          <p className="text-l">Please complete this form to submit your referral request</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -385,9 +345,7 @@ export function DynamicFormRenderer({
                     {section.container.heading}
                   </CardTitle>
                   {section.container.subHeading && (
-                    <CardDescription>
-                      {section.container.subHeading}
-                    </CardDescription>
+                    <CardDescription>{section.container.subHeading}</CardDescription>
                   )}
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -415,7 +373,7 @@ export function DynamicFormRenderer({
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-green-700 border border-white text-white hover:bg-green-600 px-4 py-2"
+              className="border border-white bg-green-700 px-4 py-2 text-white hover:bg-green-600"
             >
               {isSubmitting ? "Submitting..." : "Submit Referral Request"}
             </Button>

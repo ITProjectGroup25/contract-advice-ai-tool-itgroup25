@@ -29,4 +29,3 @@ export { handler as GET, handler as POST };
 
 // Export auth helper for server components (requires getServerSession)
 export { authOptions as auth };
-

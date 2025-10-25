@@ -1,7 +1,7 @@
 import moment from "moment";
 import { generateID } from "./common";
 
-const currentDateTime = moment().unix()*1000;
+const currentDateTime = moment().unix() * 1000;
 
 const DemoFormLayouts: any = [
   {

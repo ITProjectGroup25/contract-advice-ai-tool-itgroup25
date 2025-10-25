@@ -29,9 +29,7 @@ export const FormLayoutComponentChildrenSchema = z.object({
   dataType: z.string().optional(),
   position: z.number().optional(),
 });
-export type FormLayoutComponentChildrenType = z.infer<
-  typeof FormLayoutComponentChildrenSchema
->;
+export type FormLayoutComponentChildrenType = z.infer<typeof FormLayoutComponentChildrenSchema>;
 
 // Container type
 export const FormLayoutComponentContainerSchema = z.object({
@@ -44,18 +42,14 @@ export const FormLayoutComponentContainerSchema = z.object({
   id: z.string(),
   desktopWidth: z.number().optional(),
 });
-export type FormLayoutComponentContainerType = z.infer<
-  typeof FormLayoutComponentContainerSchema
->;
+export type FormLayoutComponentContainerType = z.infer<typeof FormLayoutComponentContainerSchema>;
 
 // Components type
 export const FormLayoutComponentsSchema = z.object({
   container: FormLayoutComponentContainerSchema,
   children: z.array(FormLayoutComponentChildrenSchema),
 });
-export type FormLayoutComponentsType = z.infer<
-  typeof FormLayoutComponentsSchema
->;
+export type FormLayoutComponentsType = z.infer<typeof FormLayoutComponentsSchema>;
 
 // History type
 export const FormLayoutHistorySchema = z.object({
@@ -77,4 +71,3 @@ export const TemplateSchema = z.object({
   creator: z.string().optional(),
 });
 export type TemplateType = z.infer<typeof TemplateSchema>;
-

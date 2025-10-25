@@ -1,25 +1,25 @@
 export interface FormSubmission {
   id: string;
   timestamp: string;
-  queryType: 'simple' | 'complex';
+  queryType: "simple" | "complex";
   formData: Record<string, any>;
-  status: 'submitted' | 'in-progress' | 'resolved';
+  status: "submitted" | "in-progress" | "resolved";
 }
 
 export class LocalDatabase {
-  private static readonly STORAGE_KEY = 'grants_form_submissions';
+  private static readonly STORAGE_KEY = "grants_form_submissions";
 
-  static saveSubmission(submission: Omit<FormSubmission, 'id' | 'timestamp'>): FormSubmission {
+  static saveSubmission(submission: Omit<FormSubmission, "id" | "timestamp">): FormSubmission {
     const submissions = this.getAllSubmissions();
     const newSubmission: FormSubmission = {
       ...submission,
       id: this.generateId(),
       timestamp: new Date().toISOString(),
     };
-    
+
     submissions.push(newSubmission);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(submissions));
-    
+
     return newSubmission;
   }
 
@@ -28,41 +28,41 @@ export class LocalDatabase {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error('Error reading from localStorage:', error);
+      console.error("Error reading from localStorage:", error);
       return [];
     }
   }
 
   static getSubmissionById(id: string): FormSubmission | null {
     const submissions = this.getAllSubmissions();
-    return submissions.find(s => s.id === id) || null;
+    return submissions.find((s) => s.id === id) || null;
   }
 
   static updateSubmission(id: string, updates: Partial<FormSubmission>): FormSubmission | null {
     const submissions = this.getAllSubmissions();
-    const index = submissions.findIndex(s => s.id === id);
-    
+    const index = submissions.findIndex((s) => s.id === id);
+
     if (index === -1) return null;
-    
+
     submissions[index] = { ...submissions[index], ...updates };
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(submissions));
-    
+
     return submissions[index];
   }
 
   static deleteSubmission(id: string): boolean {
     const submissions = this.getAllSubmissions();
-    const filteredSubmissions = submissions.filter(s => s.id !== id);
-    
+    const filteredSubmissions = submissions.filter((s) => s.id !== id);
+
     if (filteredSubmissions.length === submissions.length) return false;
-    
+
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filteredSubmissions));
     return true;
   }
 
   static exportToSQL(): string {
     const submissions = this.getAllSubmissions();
-    
+
     let sql = `-- Grants Form Submissions Export
 -- Generated on: ${new Date().toISOString()}
 
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS form_submissions (
 
 `;
 
-    submissions.forEach(submission => {
+    submissions.forEach((submission) => {
       const formDataJson = JSON.stringify(submission.formData).replace(/'/g, "''");
       sql += `INSERT INTO form_submissions (id, timestamp, query_type, form_data, status) VALUES (
   '${submission.id}',
@@ -94,24 +94,24 @@ CREATE TABLE IF NOT EXISTS form_submissions (
 
   static exportToCSV(): string {
     const submissions = this.getAllSubmissions();
-    
-    if (submissions.length === 0) return 'No submissions to export';
-    
-    const headers = ['ID', 'Timestamp', 'Query Type', 'Status', 'Form Data'];
-    const csvRows = [headers.join(',')];
-    
-    submissions.forEach(submission => {
+
+    if (submissions.length === 0) return "No submissions to export";
+
+    const headers = ["ID", "Timestamp", "Query Type", "Status", "Form Data"];
+    const csvRows = [headers.join(",")];
+
+    submissions.forEach((submission) => {
       const row = [
         submission.id,
         submission.timestamp,
         submission.queryType,
         submission.status,
-        `"${JSON.stringify(submission.formData).replace(/"/g, '""')}"`
+        `"${JSON.stringify(submission.formData).replace(/"/g, '""')}"`,
       ];
-      csvRows.push(row.join(','));
+      csvRows.push(row.join(","));
     });
-    
-    return csvRows.join('\n');
+
+    return csvRows.join("\n");
   }
 
   static clearAllData(): void {
@@ -119,6 +119,6 @@ CREATE TABLE IF NOT EXISTS form_submissions (
   }
 
   private static generateId(): string {
-    return 'sub_' + Date.now().toString(36) + Math.random().toString(36).substr(2);
+    return "sub_" + Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
 }

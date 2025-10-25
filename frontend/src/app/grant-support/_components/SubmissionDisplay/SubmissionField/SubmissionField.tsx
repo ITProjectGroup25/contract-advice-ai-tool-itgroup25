@@ -33,13 +33,11 @@ const renderValue = (value: FieldValue) => {
         href={parsedFile.fileUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+        className="inline-flex items-center gap-2 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
       >
-        <Download className="w-4 h-4" />
+        <Download className="h-4 w-4" />
         <span className="font-medium">{parsedFile.fileName}</span>
-        <span className="text-xs text-gray-500">
-          ({formatFileSize(parsedFile.fileSize)})
-        </span>
+        <span className="text-xs text-gray-500">({formatFileSize(parsedFile.fileSize)})</span>
       </a>
     );
   }
@@ -59,7 +57,7 @@ type Props = {
 const SubmissionField = ({ fieldKey, value }: Props) => {
   return (
     <div className="border-b pb-2">
-      <p className="text-sm font-medium text-muted-foreground">{fieldKey}</p>
+      <p className="text-muted-foreground text-sm font-medium">{fieldKey}</p>
       <p className="text-sm">{renderValue(value)}</p>
     </div>
   );

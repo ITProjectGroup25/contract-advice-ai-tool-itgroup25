@@ -1,4 +1,4 @@
-import 'server-only';
+import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -9,10 +9,7 @@ export async function GET(req: NextRequest) {
     const userId = url.searchParams.get("userId") ?? process.env.GOOGLE_TEST_UID;
 
     if (!userId) {
-      return NextResponse.json(
-        { connected: false, error: "Missing userId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ connected: false, error: "Missing userId" }, { status: 400 });
     }
 
     const supabaseAdmin = getSupabaseAdmin();

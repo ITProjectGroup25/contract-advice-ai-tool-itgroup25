@@ -64,12 +64,7 @@ const FormGenerator = (props: Props) => {
           <DialogTitle>Create New Form</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="grid gap-4 py-4">
-          <Input
-            id="formName"
-            name="formName"
-            required
-            placeholder="Form Name"
-          />
+          <Input id="formName" name="formName" required placeholder="Form Name" />
           <DialogFooter>
             <SubmitButton />
           </DialogFooter>

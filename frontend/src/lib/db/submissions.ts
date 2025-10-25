@@ -1,60 +1,61 @@
-// Stub implementation - this function is not currently used in production
-// To properly implement, ensure @backend workspace is accessible during build
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+const supabaseAdmin = getSupabaseAdmin();
 
-export interface ListSubmissionsParams {
-  page?: number;
-  pageSize?: number;
-  orderBy?: string;
-  asc?: boolean;
-  status?: string;
+export type ListParams = {
+  page?: number; // 1-based
+  pageSize?: number; // default 20
+  orderBy?: string; // "created_at" | "id" | ...
+  asc?: boolean; // default false
   formId?: number;
-  dateFrom?: string;
-  dateTo?: string;
+  status?: "Stored" | "EmailQueued" | "EmailSent" | "EmailFailed";
+  workflowType?: "Simple" | "Complex";
+  dateFrom?: string; // ISO date or datetime
+  dateTo?: string; // ISO date or datetime
   expand?: boolean;
-}
+};
 
-export interface SubmissionRecord {
-  id: number;
-  submissionUid: string;
-  formId: number | null;
-  workflowType: string;
-  status: string;
-  createdAt: string;
-  createdBy: string | null;
-  // Optional expanded fields
-  answers?: any[];
-  attachments?: any[];
-  formTitle?: string;
-}
+const EXPAND_SELECT = `
+  *,
+  form:form_id(*),
+  answers:answer(
+    *,
+    multi:answer_multi_value(*)
+  ),
+  attachments:attachment(*),
+  status_history:submission_status_history(*),
+  consents:consent_log(*),
+  emails:email_message(*)
+`;
 
-export interface ListSubmissionsResult {
-  /**
-   * The canonical submissions collection. Some callers from the real backend expect a `data`
-   * property, so we expose both to keep stubbed return values compatible.
-   */
-  submissions: SubmissionRecord[];
-  data: SubmissionRecord[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-  };
-}
+export async function listSubmissions(p: ListParams = {}) {
+  const {
+    page = 1,
+    pageSize = 20,
+    orderBy = "created_at",
+    asc = false,
+    status,
+    formId,
+    dateFrom,
+    dateTo,
+    expand = false,
+  } = p;
 
-export async function listSubmissions(
-  params: ListSubmissionsParams = {}
-): Promise<ListSubmissionsResult> {
-  // Stub implementation
-  // TODO: Implement proper database query when @backend is accessible
-  return {
-    submissions: [],
-    data: [],
-    pagination: {
-      page: params.page ?? 1,
-      pageSize: params.pageSize ?? 20,
-      total: 0,
-      totalPages: 0,
-    },
-  };
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const sel = expand ? EXPAND_SELECT : "*";
+
+  let q = supabaseAdmin.from("submission").select(sel, { count: "exact" });
+
+  if (status) q = q.eq("status", status);
+  if (formId) q = q.eq("form_id", formId);
+  if (dateFrom) q = q.gte("created_at", dateFrom);
+  if (dateTo) q = q.lte("created_at", dateTo);
+
+  q = q.order(orderBy, { ascending: asc }).range(from, to);
+
+  const { data, error, count } = await q;
+  if (error) throw Object.assign(new Error("SupabaseQueryError"), { cause: error, status: 500 });
+
+  return { data: data ?? [], page, pageSize, total: count ?? 0 };
 }

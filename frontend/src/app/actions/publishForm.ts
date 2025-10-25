@@ -36,7 +36,7 @@ export async function publishForm(
   }
 
   const sql = postgres(connectionString);
-  
+
   try {
     // Update form_details with the form layout
     const result = await sql`
@@ -45,11 +45,11 @@ export async function publishForm(
       WHERE form_id = ${data.id}
       RETURNING *
     `;
-    
+
     console.log("Form published successfully:", result);
-    
+
     await sql.end();
-    
+
     return {
       message: "success",
     };
@@ -57,8 +57,8 @@ export async function publishForm(
     console.error("Failed to publish form:", error);
     await sql.end({ timeout: 1 });
     return {
-      message: "Failed to publish form: " + (error instanceof Error ? error.message : "Unknown error"),
+      message:
+        "Failed to publish form: " + (error instanceof Error ? error.message : "Unknown error"),
     };
   }
 }
-

@@ -6,10 +6,7 @@ import { Button } from "./button";
 
 export default function SignOutButton() {
   return (
-    <Button
-      variant="ghost"
-      onClick={() => signOut()}
-    >
+    <Button variant="ghost" onClick={() => signOut()}>
       <LogOut className="md:hidden" />
       <span className="hidden md:block">Sign out</span>
     </Button>

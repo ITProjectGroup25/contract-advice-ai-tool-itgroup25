@@ -12,29 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Settings,
-  Plus,
-  Edit,
-  Trash2,
-  Save,
-  X,
-  ArrowLeft,
-  Eye,
-  EyeOff,
-  Move,
-} from "lucide-react";
+import { Settings, Plus, Edit, Trash2, Save, X, ArrowLeft, Eye, EyeOff, Move } from "lucide-react";
 import { Question, FormSection } from "@shared";
 import { toast } from "sonner";
 
@@ -54,9 +37,7 @@ export function AdminInterface({
   onSectionsUpdate,
 }: AdminInterfaceProps) {
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-  const [editingSection, setEditingSection] = useState<FormSection | null>(
-    null
-  );
+  const [editingSection, setEditingSection] = useState<FormSection | null>(null);
   const [isCreatingQuestion, setIsCreatingQuestion] = useState(false);
   const [isCreatingSection, setIsCreatingSection] = useState(false);
   const [activeTab, setActiveTab] = useState("questions");
@@ -170,9 +151,9 @@ export function AdminInterface({
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
+      <div className="mx-auto max-w-6xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
@@ -184,12 +165,8 @@ export function AdminInterface({
               Back to Form
             </Button>
             <div>
-              <h1 className="text-3xl font-semibold text-gray-900">
-                Administration Panel
-              </h1>
-              <p className="text-gray-600">
-                Manage form questions and sections
-              </p>
+              <h1 className="text-3xl font-semibold text-gray-900">Administration Panel</h1>
+              <p className="text-gray-600">Manage form questions and sections</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -197,11 +174,7 @@ export function AdminInterface({
           </div>
         </div>
 
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="space-y-6"
-        >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="questions">Questions</TabsTrigger>
             <TabsTrigger value="sections">Sections</TabsTrigger>
@@ -233,9 +206,7 @@ export function AdminInterface({
                       <Input
                         id="question-id"
                         value={newQuestion.id || ""}
-                        onChange={(e) =>
-                          setNewQuestion({ ...newQuestion, id: e.target.value })
-                        }
+                        onChange={(e) => setNewQuestion({ ...newQuestion, id: e.target.value })}
                         placeholder="e.g., user-name"
                       />
                     </div>
@@ -311,14 +282,11 @@ export function AdminInterface({
 
                   <div className="flex gap-2">
                     <Button onClick={handleCreateQuestion}>
-                      <Save className="h-4 w-4 mr-2" />
+                      <Save className="mr-2 h-4 w-4" />
                       Create Question
                     </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsCreatingQuestion(false)}
-                    >
-                      <X className="h-4 w-4 mr-2" />
+                    <Button variant="outline" onClick={() => setIsCreatingQuestion(false)}>
+                      <X className="mr-2 h-4 w-4" />
                       Cancel
                     </Button>
                   </div>
@@ -335,19 +303,15 @@ export function AdminInterface({
                       <div className="flex items-center gap-4">
                         <div>
                           <h3 className="font-medium">{question.label}</h3>
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="mt-1 flex items-center gap-2">
                             <Badge variant="secondary">{question.type}</Badge>
-                            <Badge
-                              variant={
-                                question.required ? "default" : "outline"
-                              }
-                            >
+                            <Badge variant={question.required ? "default" : "outline"}>
                               {question.required ? "Required" : "Optional"}
                             </Badge>
                             <span className="text-sm text-gray-500">
                               Section:{" "}
-                              {sections.find((s) => s.id === question.sectionId)
-                                ?.title || "Unknown"}
+                              {sections.find((s) => s.id === question.sectionId)?.title ||
+                                "Unknown"}
                             </span>
                           </div>
                         </div>
@@ -356,9 +320,7 @@ export function AdminInterface({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() =>
-                            handleToggleQuestionVisibility(question.id)
-                          }
+                          onClick={() => handleToggleQuestionVisibility(question.id)}
                         >
                           {question.visible ? (
                             <Eye className="h-4 w-4" />
@@ -413,9 +375,7 @@ export function AdminInterface({
                     <Input
                       id="section-id"
                       value={newSection.id || ""}
-                      onChange={(e) =>
-                        setNewSection({ ...newSection, id: e.target.value })
-                      }
+                      onChange={(e) => setNewSection({ ...newSection, id: e.target.value })}
                       placeholder="e.g., basic-info"
                     />
                   </div>
@@ -425,9 +385,7 @@ export function AdminInterface({
                     <Input
                       id="section-title"
                       value={newSection.title || ""}
-                      onChange={(e) =>
-                        setNewSection({ ...newSection, title: e.target.value })
-                      }
+                      onChange={(e) => setNewSection({ ...newSection, title: e.target.value })}
                       placeholder="Section title"
                     />
                   </div>
@@ -449,14 +407,11 @@ export function AdminInterface({
 
                   <div className="flex gap-2">
                     <Button onClick={handleCreateSection}>
-                      <Save className="h-4 w-4 mr-2" />
+                      <Save className="mr-2 h-4 w-4" />
                       Create Section
                     </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsCreatingSection(false)}
-                    >
-                      <X className="h-4 w-4 mr-2" />
+                    <Button variant="outline" onClick={() => setIsCreatingSection(false)}>
+                      <X className="mr-2 h-4 w-4" />
                       Cancel
                     </Button>
                   </div>
@@ -472,20 +427,11 @@ export function AdminInterface({
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-medium">{section.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {section.description}
-                        </p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="outline">
-                            Order: {section.order}
-                          </Badge>
+                        <p className="mt-1 text-sm text-gray-600">{section.description}</p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <Badge variant="outline">Order: {section.order}</Badge>
                           <span className="text-sm text-gray-500">
-                            {
-                              questions.filter(
-                                (q) => q.sectionId === section.id
-                              ).length
-                            }{" "}
-                            questions
+                            {questions.filter((q) => q.sectionId === section.id).length} questions
                           </span>
                         </div>
                       </div>
@@ -493,9 +439,7 @@ export function AdminInterface({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() =>
-                            handleToggleSectionVisibility(section.id)
-                          }
+                          onClick={() => handleToggleSectionVisibility(section.id)}
                         >
                           {section.visible ? (
                             <Eye className="h-4 w-4" />

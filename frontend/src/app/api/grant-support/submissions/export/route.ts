@@ -47,9 +47,7 @@ export async function GET() {
     `;
 
     const sqlContent = buildSqlExport(rows);
-    const filename = `grant_support_submissions_${new Date()
-      .toISOString()
-      .slice(0, 10)}.sql`;
+    const filename = `grant_support_submissions_${new Date().toISOString().slice(0, 10)}.sql`;
 
     return new NextResponse(sqlContent, {
       status: 200,
@@ -95,11 +93,15 @@ function buildSqlExport(rows: GrantSubmissionRow[]) {
     const userSatisfied =
       row.user_satisfied === null || row.user_satisfied === undefined
         ? "NULL"
-        : row.user_satisfied ? "TRUE" : "FALSE";
+        : row.user_satisfied
+          ? "TRUE"
+          : "FALSE";
     const needsHumanReview =
       row.needs_human_review === null || row.needs_human_review === undefined
         ? "NULL"
-        : row.needs_human_review ? "TRUE" : "FALSE";
+        : row.needs_human_review
+          ? "TRUE"
+          : "FALSE";
 
     sql += `INSERT INTO grant_support_submissions (\n`;
     sql += `  submission_uid, query_type, status, user_email, user_name,\n`;

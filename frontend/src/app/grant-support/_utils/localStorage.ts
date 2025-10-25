@@ -22,9 +22,7 @@ export class LocalDatabase {
     }
   }
 
-  static saveSubmission(
-    submission: Omit<FormSubmission, "id" | "timestamp">
-  ): FormSubmission {
+  static saveSubmission(submission: Omit<FormSubmission, "id" | "timestamp">): FormSubmission {
     const submissions = this.getAllSubmissions();
     const newSubmission: FormSubmission = {
       ...submission,
@@ -62,10 +60,7 @@ export class LocalDatabase {
     return submissions.find((s) => s.id === id) || null;
   }
 
-  static updateSubmission(
-    id: string,
-    updates: Partial<FormSubmission>
-  ): FormSubmission | null {
+  static updateSubmission(id: string, updates: Partial<FormSubmission>): FormSubmission | null {
     const submissions = this.getAllSubmissions();
     const index = submissions.findIndex((s) => s.id === id);
 

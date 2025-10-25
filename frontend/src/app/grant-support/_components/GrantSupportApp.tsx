@@ -26,12 +26,8 @@ export default function App({ form, formId }: Props) {
   const { formSections: sections } = form;
   const [currentState, setCurrentState] = useState<AppState>("form");
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
-  const [successPageType, setSuccessPageType] = useState<
-    "complex" | "simple-escalated"
-  >("complex");
-  const [currentSubmissionId, setCurrentSubmissionId] = useState<
-    string | undefined
-  >();
+  const [successPageType, setSuccessPageType] = useState<"complex" | "simple-escalated">("complex");
+  const [currentSubmissionId, setCurrentSubmissionId] = useState<string | undefined>();
 
   // Check EmailJS on app start
   useEffect(() => {
@@ -142,19 +138,15 @@ export default function App({ form, formId }: Props) {
   };
 
   return (
-    <div
-      className={`min-h-screen ${
-        currentState === "admin" ? "bg-white" : "bg-green-100"
-      }`}
-    >
+    <div className={`min-h-screen ${currentState === "admin" ? "bg-white" : "bg-green-100"}`}>
       {/* Admin Panel Access - Only show on form page */}
       {currentState === "form" && (
-        <div className="fixed top-4 right-4 z-50">
+        <div className="fixed right-4 top-4 z-50">
           <Button
             variant="outline"
             size="sm"
             onClick={handleGoToAdmin}
-            className="flex items-center gap-2 bg-green-700 border border-white text-white hover:bg-green-600"
+            className="flex items-center gap-2 border border-white bg-green-700 text-white hover:bg-green-600"
           >
             <Settings className="h-4 w-4" />
             Admin Panel

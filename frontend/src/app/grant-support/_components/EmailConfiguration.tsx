@@ -194,11 +194,13 @@ export function EmailConfiguration() {
             <p className="text-green-800 dark:text-green-200">
               <strong>Email Notifications:</strong> configuration values are stored in Supabase.
             </p>
-            <p className="text-sm text-green-700 dark:text-green-300 space-y-1">
+            <p className="space-y-1 text-sm text-green-700 dark:text-green-300">
               <span className="block">Service ID: {configSummary.serviceId || "—"}</span>
               <span className="block">User Template ID: {configSummary.templateId || "—"}</span>
               <span className="block">Grant Team Email: {configSummary.grantTeamEmail || "—"}</span>
-              <span className="block">Grant Team Template ID: {configSummary.grantTeamTemplateId || "—"}</span>
+              <span className="block">
+                Grant Team Template ID: {configSummary.grantTeamTemplateId || "—"}
+              </span>
             </p>
           </div>
         </AlertDescription>
@@ -210,19 +212,23 @@ export function EmailConfiguration() {
           <CardDescription>Update the EmailJS credentials used by the application.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="service-id">Service ID</Label>
               {isEditing ? (
                 <Input
                   id="service-id"
                   value={config.serviceId}
-                  onChange={(event) => setConfig((prev) => ({ ...prev, serviceId: event.target.value }))}
+                  onChange={(event) =>
+                    setConfig((prev) => ({ ...prev, serviceId: event.target.value }))
+                  }
                   placeholder="EmailJS service ID"
                   className="font-mono"
                 />
               ) : (
-                <div className="p-2 bg-muted rounded border text-sm font-mono">{configSummary.serviceId || "—"}</div>
+                <div className="bg-muted rounded border p-2 font-mono text-sm">
+                  {configSummary.serviceId || "—"}
+                </div>
               )}
             </div>
 
@@ -232,12 +238,14 @@ export function EmailConfiguration() {
                 <Input
                   id="public-key"
                   value={config.publicKey}
-                  onChange={(event) => setConfig((prev) => ({ ...prev, publicKey: event.target.value }))}
+                  onChange={(event) =>
+                    setConfig((prev) => ({ ...prev, publicKey: event.target.value }))
+                  }
                   placeholder="Public key"
                   className="font-mono"
                 />
               ) : (
-                <div className="p-2 bg-muted rounded border text-sm font-mono">
+                <div className="bg-muted rounded border p-2 font-mono text-sm">
                   {configSummary.publicKey ? `${configSummary.publicKey.slice(0, 6)}***` : "—"}
                 </div>
               )}
@@ -249,12 +257,16 @@ export function EmailConfiguration() {
                 <Input
                   id="template-id"
                   value={config.templateId}
-                  onChange={(event) => setConfig((prev) => ({ ...prev, templateId: event.target.value }))}
+                  onChange={(event) =>
+                    setConfig((prev) => ({ ...prev, templateId: event.target.value }))
+                  }
                   placeholder="EmailJS template ID"
                   className="font-mono"
                 />
               ) : (
-                <div className="p-2 bg-muted rounded border text-sm font-mono">{configSummary.templateId || "—"}</div>
+                <div className="bg-muted rounded border p-2 font-mono text-sm">
+                  {configSummary.templateId || "—"}
+                </div>
               )}
             </div>
 
@@ -265,11 +277,15 @@ export function EmailConfiguration() {
                   id="grant-team-email"
                   type="email"
                   value={config.grantTeamEmail}
-                  onChange={(event) => setConfig((prev) => ({ ...prev, grantTeamEmail: event.target.value }))}
+                  onChange={(event) =>
+                    setConfig((prev) => ({ ...prev, grantTeamEmail: event.target.value }))
+                  }
                   placeholder="grant-team@example.com"
                 />
               ) : (
-                <div className="p-2 bg-muted rounded border text-sm font-mono">{configSummary.grantTeamEmail || "—"}</div>
+                <div className="bg-muted rounded border p-2 font-mono text-sm">
+                  {configSummary.grantTeamEmail || "—"}
+                </div>
               )}
             </div>
 
@@ -286,7 +302,7 @@ export function EmailConfiguration() {
                   className="font-mono"
                 />
               ) : (
-                <div className="p-2 bg-muted rounded border text-sm font-mono">
+                <div className="bg-muted rounded border p-2 font-mono text-sm">
                   {configSummary.grantTeamTemplateId || "—"}
                 </div>
               )}
@@ -299,7 +315,7 @@ export function EmailConfiguration() {
                 Cancel
               </Button>
               <Button onClick={handleSave} disabled={isSaving}>
-                <Save className="h-4 w-4 mr-2" />
+                <Save className="mr-2 h-4 w-4" />
                 {isSaving ? "Saving..." : "Save Configuration"}
               </Button>
             </div>
@@ -314,13 +330,18 @@ export function EmailConfiguration() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               This template is a starting point; update it to match your EmailJS setup.
             </p>
-            <Button variant="outline" size="sm" onClick={() => {
-              void navigator.clipboard.writeText(emailTemplate);
-              toast.success("Template copied to clipboard");
-            }} className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                void navigator.clipboard.writeText(emailTemplate);
+                toast.success("Template copied to clipboard");
+              }}
+              className="flex items-center gap-2"
+            >
               <Copy className="h-4 w-4" />
               Copy Template
             </Button>
@@ -332,7 +353,9 @@ export function EmailConfiguration() {
       <Card>
         <CardHeader>
           <CardTitle>Test Email</CardTitle>
-          <CardDescription>Send a mock confirmation email using the saved configuration.</CardDescription>
+          <CardDescription>
+            Send a mock confirmation email using the saved configuration.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
@@ -348,7 +371,8 @@ export function EmailConfiguration() {
           </div>
           <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
             <AlertDescription>
-              Test emails log their output to the console. Integrate your preferred email provider to send actual mail.
+              Test emails log their output to the console. Integrate your preferred email provider
+              to send actual mail.
             </AlertDescription>
           </Alert>
         </CardContent>

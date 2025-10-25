@@ -11,8 +11,6 @@ export default {
   dialect: "postgresql", // Add this line
   dbCredentials: {
     // Change connectionString to url
-    url:
-      process.env.DATABASE_URL ||
-      "postgres://postgres:postgres@localhost:5432/postgres",
+    url: process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/postgres",
   },
 } satisfies Config;

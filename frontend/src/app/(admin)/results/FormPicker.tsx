@@ -20,12 +20,7 @@ type FormPickerProps = {
   setRows: (rows: SubmissionRow[]) => void;
 };
 
-const FormsPicker = ({
-  options,
-  setData,
-  setCols,
-  setRows,
-}: FormPickerProps) => {
+const FormsPicker = ({ options, setData, setCols, setRows }: FormPickerProps) => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -80,7 +75,7 @@ const FormsPicker = ({
   }, [formId, fetchData]);
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex items-center gap-2">
       <Label className="font-bold">Select a form</Label>
       <Select
         value={formId}

@@ -16,7 +16,12 @@ interface SimpleQueryResponseProps {
   submissionId?: string;
 }
 
-export function SimpleQueryResponse({ onBack, onSatisfied, onNeedHumanHelp, submissionId }: SimpleQueryResponseProps) {
+export function SimpleQueryResponse({
+  onBack,
+  onSatisfied,
+  onNeedHumanHelp,
+  submissionId,
+}: SimpleQueryResponseProps) {
   const [showFeedback, setShowFeedback] = useState(false);
 
   const handleSatisfied = async () => {
@@ -63,7 +68,8 @@ export function SimpleQueryResponse({ onBack, onSatisfied, onNeedHumanHelp, subm
                 formData: submission.formData,
               };
 
-              const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
+              const grantEmailSent =
+                await emailService.sendGrantTeamNotification(grantTeamEmailData);
               if (!grantEmailSent) {
                 console.warn("Grant team escalation email was not sent");
               }
@@ -82,13 +88,15 @@ export function SimpleQueryResponse({ onBack, onSatisfied, onNeedHumanHelp, subm
 
   if (showFeedback) {
     return (
-      <div className="max-w-4xl mx-auto p-6 space-y-6 flex items-center justify-center min-h-[60vh]">
-        <Card className="text-center p-8">
+      <div className="mx-auto flex min-h-[60vh] max-w-4xl items-center justify-center space-y-6 p-6">
+        <Card className="p-8 text-center">
           <CardContent className="space-y-4">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+            <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
             <h2 className="text-2xl">Thank you for your feedback!</h2>
-            <p className="text-muted-foreground">Great! We&apos;re glad we could help resolve your query.</p>
-            <p className="text-sm text-muted-foreground">Redirecting you back to the form...</p>
+            <p className="text-muted-foreground">
+              Great! We&apos;re glad we could help resolve your query.
+            </p>
+            <p className="text-muted-foreground text-sm">Redirecting you back to the form...</p>
           </CardContent>
         </Card>
       </div>
@@ -96,9 +104,14 @@ export function SimpleQueryResponse({ onBack, onSatisfied, onNeedHumanHelp, subm
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6 p-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" onClick={onBack} className="flex items-center gap-2 bg-green-700 border border-white text-white hover:bg-green-600 px-4 py-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onBack}
+          className="flex items-center gap-2 border border-white bg-green-700 px-4 py-2 text-white hover:bg-green-600"
+        >
           <ArrowLeft className="h-4 w-4" />
           Back to Form
         </Button>
@@ -111,14 +124,14 @@ export function SimpleQueryResponse({ onBack, onSatisfied, onNeedHumanHelp, subm
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
+            <Bot className="text-primary h-5 w-5" />
             Grants Assistant Response
           </CardTitle>
           <CardDescription>Automated guidance based on your query</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <div className="bg-muted p-4 rounded-lg">
+          <div className="bg-muted rounded-lg p-4">
             <div className="prose prose-sm max-w-none">
               <Image
                 src={exampleImage}
@@ -129,13 +142,17 @@ export function SimpleQueryResponse({ onBack, onSatisfied, onNeedHumanHelp, subm
           </div>
 
           <div className="border-t pt-6">
-            <h3 className="text-lg mb-4">Was this response helpful?</h3>
+            <h3 className="mb-4 text-lg">Was this response helpful?</h3>
             <p className="text-muted-foreground mb-6">
-              Please let us know if this automated response resolved your query or if you need further assistance from our grants team.
+              Please let us know if this automated response resolved your query or if you need
+              further assistance from our grants team.
             </p>
 
             <div className="flex gap-4">
-              <Button onClick={handleSatisfied} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
+              <Button
+                onClick={handleSatisfied}
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+              >
                 <ThumbsUp className="h-4 w-4" />
                 Yes, this helped!
               </Button>
@@ -145,15 +162,16 @@ export function SimpleQueryResponse({ onBack, onSatisfied, onNeedHumanHelp, subm
                 variant="outline"
                 className="flex items-center gap-2 border-orange-200 hover:bg-orange-50"
               >
-                <AlertCircle className="h-4 w-4 text-orange-600" />
-                I need human assistance
+                <AlertCircle className="h-4 w-4 text-orange-600" />I need human assistance
               </Button>
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> If you selected &quot;I need human assistance,&quot; your original form submission will be forwarded to our grants team for manual review. You&apos;ll receive a response within 1-2 business days.
+              <strong>Note:</strong> If you selected &quot;I need human assistance,&quot; your
+              original form submission will be forwarded to our grants team for manual review.
+              You&apos;ll receive a response within 1-2 business days.
             </p>
           </div>
         </CardContent>

@@ -43,7 +43,7 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-center">Administrator Login</CardTitle>
@@ -61,9 +61,7 @@ export default function AdminPage() {
             <Button onClick={handleLogin} className="w-full">
               Login
             </Button>
-            <p className="text-sm text-gray-600 text-center">
-              Demo password: admin123
-            </p>
+            <p className="text-center text-sm text-gray-600">Demo password: admin123</p>
           </CardContent>
         </Card>
       </div>

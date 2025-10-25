@@ -7,14 +7,13 @@ type CamelCase<S extends string> = S extends `${infer T}_${infer U}`
 export type Camelize<T> = T extends readonly (infer U)[]
   ? Camelize<U>[]
   : T extends object
-  ? {
-      [K in keyof T as K extends string ? CamelCase<K> : K]: Camelize<T[K]>;
-    }
-  : T;
+    ? {
+        [K in keyof T as K extends string ? CamelCase<K> : K]: Camelize<T[K]>;
+      }
+    : T;
 
 // Runtime function to convert snake_case string to camelCase
-const snakeToCamel = (str: string) =>
-  str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+const snakeToCamel = (str: string) => str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
 
 // Runtime function to recursively convert object keys
 function convertKeysToCamel<T>(obj: T): Camelize<T> {

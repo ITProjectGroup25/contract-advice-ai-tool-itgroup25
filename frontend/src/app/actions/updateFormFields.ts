@@ -28,10 +28,7 @@ type Args = {
   formSections: FormSectionsType;
 };
 
-export async function updateFormFields({
-  formId,
-  formSections,
-}: Args): Promise<Return> {
+export async function updateFormFields({ formId, formSections }: Args): Promise<Return> {
   try {
     if (!formId) {
       return {

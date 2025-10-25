@@ -146,14 +146,16 @@ class LocalDatabase {
     if (!this.stats) {
       await this.refreshCache();
     }
-    return this.stats ?? {
-      total: 0,
-      simple: 0,
-      complex: 0,
-      processed: 0,
-      escalated: 0,
-      satisfied: 0,
-    };
+    return (
+      this.stats ?? {
+        total: 0,
+        simple: 0,
+        complex: 0,
+        processed: 0,
+        escalated: 0,
+        satisfied: 0,
+      }
+    );
   }
 
   async exportAllToSQL(): Promise<string> {

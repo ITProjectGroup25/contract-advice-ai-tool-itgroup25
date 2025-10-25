@@ -55,9 +55,7 @@
         "admin_user_email_key": {
           "name": "admin_user_email_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       }
     },
@@ -84,12 +82,8 @@
           "name": "admin_user_role_admin_user_id_admin_user_id_fk",
           "tableFrom": "admin_user_role",
           "tableTo": "admin_user",
-          "columnsFrom": [
-            "admin_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["admin_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -97,10 +91,7 @@
       "compositePrimaryKeys": {
         "admin_user_role_pkey": {
           "name": "admin_user_role_pkey",
-          "columns": [
-            "admin_user_id",
-            "role_name"
-          ]
+          "columns": ["admin_user_id", "role_name"]
         }
       },
       "uniqueConstraints": {}
@@ -144,9 +135,7 @@
       "indexes": {
         "idx_answer_submission": {
           "name": "idx_answer_submission",
-          "columns": [
-            "submission_id"
-          ],
+          "columns": ["submission_id"],
           "isUnique": false
         }
       },
@@ -155,12 +144,8 @@
           "name": "answer_submission_id_submission_id_fk",
           "tableFrom": "answer",
           "tableTo": "submission",
-          "columnsFrom": [
-            "submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -168,12 +153,8 @@
           "name": "answer_question_id_question_id_fk",
           "tableFrom": "answer",
           "tableTo": "question",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -183,10 +164,7 @@
         "uq_answer_unique": {
           "name": "uq_answer_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "submission_id",
-            "question_id"
-          ]
+          "columns": ["submission_id", "question_id"]
         }
       }
     },
@@ -213,12 +191,8 @@
           "name": "answer_multi_value_answer_id_answer_id_fk",
           "tableFrom": "answer_multi_value",
           "tableTo": "answer",
-          "columnsFrom": [
-            "answer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["answer_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -226,10 +200,7 @@
       "compositePrimaryKeys": {
         "answer_multi_value_pkey": {
           "name": "answer_multi_value_pkey",
-          "columns": [
-            "answer_id",
-            "item_value"
-          ]
+          "columns": ["answer_id", "item_value"]
         }
       },
       "uniqueConstraints": {}
@@ -297,9 +268,7 @@
       "indexes": {
         "idx_att_submission": {
           "name": "idx_att_submission",
-          "columns": [
-            "submission_id"
-          ],
+          "columns": ["submission_id"],
           "isUnique": false
         }
       },
@@ -308,12 +277,8 @@
           "name": "attachment_submission_id_submission_id_fk",
           "tableFrom": "attachment",
           "tableTo": "submission",
-          "columnsFrom": [
-            "submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -321,12 +286,8 @@
           "name": "attachment_question_id_question_id_fk",
           "tableFrom": "attachment",
           "tableTo": "question",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -379,10 +340,7 @@
       "indexes": {
         "idx_brule_question": {
           "name": "idx_brule_question",
-          "columns": [
-            "order_index",
-            "question_id"
-          ],
+          "columns": ["order_index", "question_id"],
           "isUnique": false
         }
       },
@@ -391,12 +349,8 @@
           "name": "branch_rule_question_id_question_id_fk",
           "tableFrom": "branch_rule",
           "tableTo": "question",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -449,9 +403,7 @@
       "indexes": {
         "idx_consent_submission": {
           "name": "idx_consent_submission",
-          "columns": [
-            "submission_id"
-          ],
+          "columns": ["submission_id"],
           "isUnique": false
         }
       },
@@ -460,12 +412,8 @@
           "name": "consent_log_submission_id_submission_id_fk",
           "tableFrom": "consent_log",
           "tableTo": "submission",
-          "columnsFrom": [
-            "submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -496,12 +444,8 @@
           "name": "email_attachment_map_email_id_email_message_id_fk",
           "tableFrom": "email_attachment_map",
           "tableTo": "email_message",
-          "columnsFrom": [
-            "email_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["email_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -509,12 +453,8 @@
           "name": "email_attachment_map_attachment_id_attachment_id_fk",
           "tableFrom": "email_attachment_map",
           "tableTo": "attachment",
-          "columnsFrom": [
-            "attachment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["attachment_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -522,10 +462,7 @@
       "compositePrimaryKeys": {
         "email_attachment_map_pkey": {
           "name": "email_attachment_map_pkey",
-          "columns": [
-            "email_id",
-            "attachment_id"
-          ]
+          "columns": ["email_id", "attachment_id"]
         }
       },
       "uniqueConstraints": {}
@@ -606,17 +543,12 @@
       "indexes": {
         "idx_email_status_next": {
           "name": "idx_email_status_next",
-          "columns": [
-            "next_attempt_at",
-            "status"
-          ],
+          "columns": ["next_attempt_at", "status"],
           "isUnique": false
         },
         "idx_email_submission": {
           "name": "idx_email_submission",
-          "columns": [
-            "submission_id"
-          ],
+          "columns": ["submission_id"],
           "isUnique": false
         }
       },
@@ -625,12 +557,8 @@
           "name": "email_message_submission_id_submission_id_fk",
           "tableFrom": "email_message",
           "tableTo": "submission",
-          "columnsFrom": [
-            "submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -701,10 +629,7 @@
         "uq_tpl_scope_name": {
           "name": "uq_tpl_scope_name",
           "nullsNotDistinct": false,
-          "columns": [
-            "form_id",
-            "name"
-          ]
+          "columns": ["form_id", "name"]
         }
       }
     },
@@ -789,20 +714,12 @@
       "indexes": {
         "idx_export_status_time": {
           "name": "idx_export_status_time",
-          "columns": [
-            "created_at",
-            "status"
-          ],
+          "columns": ["created_at", "status"],
           "isUnique": false
         },
         "idx_export_filter": {
           "name": "idx_export_filter",
-          "columns": [
-            "date_from",
-            "date_to",
-            "form_id",
-            "workflow_type"
-          ],
+          "columns": ["date_from", "date_to", "form_id", "workflow_type"],
           "isUnique": false
         }
       },
@@ -902,10 +819,7 @@
       "compositePrimaryKeys": {
         "form_default_recipient_pkey": {
           "name": "form_default_recipient_pkey",
-          "columns": [
-            "form_id",
-            "email"
-          ]
+          "columns": ["form_id", "email"]
         }
       },
       "uniqueConstraints": {}
@@ -940,9 +854,7 @@
         "form_details_form_id_key": {
           "name": "form_details_form_id_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "form_id"
-          ]
+          "columns": ["form_id"]
         }
       }
     },
@@ -1023,10 +935,7 @@
         "uq_form_section_order": {
           "name": "uq_form_section_order",
           "nullsNotDistinct": false,
-          "columns": [
-            "form_id",
-            "order_index"
-          ]
+          "columns": ["form_id", "order_index"]
         }
       }
     },
@@ -1074,9 +983,7 @@
         "grant_scheme_code_key": {
           "name": "grant_scheme_code_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       }
     },
@@ -1145,18 +1052,12 @@
       "indexes": {
         "idx_binding_q_order": {
           "name": "idx_binding_q_order",
-          "columns": [
-            "display_order",
-            "question_id"
-          ],
+          "columns": ["display_order", "question_id"],
           "isUnique": false
         },
         "idx_binding_form_q": {
           "name": "idx_binding_form_q",
-          "columns": [
-            "form_id",
-            "question_id"
-          ],
+          "columns": ["form_id", "question_id"],
           "isUnique": false
         }
       },
@@ -1165,12 +1066,8 @@
           "name": "guidance_binding_question_id_question_id_fk",
           "tableFrom": "guidance_binding",
           "tableTo": "question",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1178,12 +1075,8 @@
           "name": "guidance_binding_resource_id_guidance_resource_id_fk",
           "tableFrom": "guidance_binding",
           "tableTo": "guidance_resource",
-          "columnsFrom": [
-            "resource_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["resource_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1193,10 +1086,7 @@
         "uq_binding": {
           "name": "uq_binding",
           "nullsNotDistinct": false,
-          "columns": [
-            "question_id",
-            "resource_id"
-          ]
+          "columns": ["question_id", "resource_id"]
         }
       }
     },
@@ -1297,12 +1187,8 @@
           "name": "guidance_resource_tag_resource_id_guidance_resource_id_fk",
           "tableFrom": "guidance_resource_tag",
           "tableTo": "guidance_resource",
-          "columnsFrom": [
-            "resource_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["resource_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1310,10 +1196,7 @@
       "compositePrimaryKeys": {
         "guidance_resource_tag_pkey": {
           "name": "guidance_resource_tag_pkey",
-          "columns": [
-            "resource_id",
-            "tag"
-          ]
+          "columns": ["resource_id", "tag"]
         }
       },
       "uniqueConstraints": {}
@@ -1363,9 +1246,7 @@
       "indexes": {
         "idx_gslog_created": {
           "name": "idx_gslog_created",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false
         }
       },
@@ -1374,12 +1255,8 @@
           "name": "guidance_search_log_submission_id_submission_id_fk",
           "tableFrom": "guidance_search_log",
           "tableTo": "submission",
-          "columnsFrom": [
-            "submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1387,12 +1264,8 @@
           "name": "guidance_search_log_clicked_resource_id_guidance_resource_id_fk",
           "tableFrom": "guidance_search_log",
           "tableTo": "guidance_resource",
-          "columnsFrom": [
-            "clicked_resource_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["clicked_resource_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1472,25 +1345,17 @@
       "indexes": {
         "idx_gtrig_keyword": {
           "name": "idx_gtrig_keyword",
-          "columns": [
-            "keyword"
-          ],
+          "columns": ["keyword"],
           "isUnique": false
         },
         "idx_gtrig_active": {
           "name": "idx_gtrig_active",
-          "columns": [
-            "active",
-            "weight"
-          ],
+          "columns": ["active", "weight"],
           "isUnique": false
         },
         "idx_gtrig_scope": {
           "name": "idx_gtrig_scope",
-          "columns": [
-            "form_id",
-            "question_id"
-          ],
+          "columns": ["form_id", "question_id"],
           "isUnique": false
         }
       },
@@ -1499,12 +1364,8 @@
           "name": "guidance_trigger_question_id_question_id_fk",
           "tableFrom": "guidance_trigger",
           "tableTo": "question",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1512,12 +1373,8 @@
           "name": "guidance_trigger_resource_id_guidance_resource_id_fk",
           "tableFrom": "guidance_trigger",
           "tableTo": "guidance_resource",
-          "columnsFrom": [
-            "resource_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["resource_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1570,10 +1427,7 @@
       "indexes": {
         "idx_org_unit_type_active": {
           "name": "idx_org_unit_type_active",
-          "columns": [
-            "active",
-            "unit_type"
-          ],
+          "columns": ["active", "unit_type"],
           "isUnique": false
         }
       },
@@ -1582,12 +1436,8 @@
           "name": "fk_org_parent",
           "tableFrom": "org_unit",
           "tableTo": "org_unit",
-          "columnsFrom": [
-            "parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1597,9 +1447,7 @@
         "org_unit_code_key": {
           "name": "org_unit_code_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       }
     },
@@ -1648,9 +1496,7 @@
       "indexes": {
         "idx_person_name": {
           "name": "idx_person_name",
-          "columns": [
-            "name"
-          ],
+          "columns": ["name"],
           "isUnique": false
         }
       },
@@ -1659,12 +1505,8 @@
           "name": "person_org_unit_id_org_unit_id_fk",
           "tableFrom": "person",
           "tableTo": "org_unit",
-          "columnsFrom": [
-            "org_unit_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_unit_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1674,9 +1516,7 @@
         "person_email_key": {
           "name": "person_email_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       }
     },
@@ -1751,10 +1591,7 @@
       "indexes": {
         "idx_question_form_order": {
           "name": "idx_question_form_order",
-          "columns": [
-            "form_id",
-            "order_index"
-          ],
+          "columns": ["form_id", "order_index"],
           "isUnique": false
         }
       },
@@ -1763,12 +1600,8 @@
           "name": "question_section_id_form_section_id_fk",
           "tableFrom": "question",
           "tableTo": "form_section",
-          "columnsFrom": [
-            "section_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["section_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1817,12 +1650,8 @@
           "name": "question_option_question_id_question_id_fk",
           "tableFrom": "question_option",
           "tableTo": "question",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1832,10 +1661,7 @@
         "uq_question_value": {
           "name": "uq_question_value",
           "nullsNotDistinct": false,
-          "columns": [
-            "question_id",
-            "value_key"
-          ]
+          "columns": ["question_id", "value_key"]
         }
       }
     },
@@ -1926,12 +1752,8 @@
           "name": "referral_submissions_form_id_form_id_fk",
           "tableFrom": "referral_submissions",
           "tableTo": "form",
-          "columnsFrom": [
-            "form_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["form_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1941,9 +1763,7 @@
         "referral_submissions_submission_uid_key": {
           "name": "referral_submissions_submission_uid_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "submission_uid"
-          ]
+          "columns": ["submission_uid"]
         }
       }
     },
@@ -1998,18 +1818,12 @@
       "indexes": {
         "idx_submission_form_time": {
           "name": "idx_submission_form_time",
-          "columns": [
-            "created_at",
-            "form_id"
-          ],
+          "columns": ["created_at", "form_id"],
           "isUnique": false
         },
         "idx_submission_type_time": {
           "name": "idx_submission_type_time",
-          "columns": [
-            "created_at",
-            "workflow_type"
-          ],
+          "columns": ["created_at", "workflow_type"],
           "isUnique": false
         }
       },
@@ -2019,9 +1833,7 @@
         "submission_submission_uid_key": {
           "name": "submission_submission_uid_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "submission_uid"
-          ]
+          "columns": ["submission_uid"]
         }
       }
     },
@@ -2071,9 +1883,7 @@
       "indexes": {
         "idx_draft_expiry": {
           "name": "idx_draft_expiry",
-          "columns": [
-            "expires_at"
-          ],
+          "columns": ["expires_at"],
           "isUnique": false
         }
       },
@@ -2083,9 +1893,7 @@
         "submission_draft_draft_uid_key": {
           "name": "submission_draft_draft_uid_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "draft_uid"
-          ]
+          "columns": ["draft_uid"]
         }
       }
     },
@@ -2131,12 +1939,8 @@
           "name": "submission_draft_answer_draft_id_submission_draft_id_fk",
           "tableFrom": "submission_draft_answer",
           "tableTo": "submission_draft",
-          "columnsFrom": [
-            "draft_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["draft_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2144,12 +1948,8 @@
           "name": "submission_draft_answer_question_id_question_id_fk",
           "tableFrom": "submission_draft_answer",
           "tableTo": "question",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -2159,10 +1959,7 @@
         "uq_draft_question": {
           "name": "uq_draft_question",
           "nullsNotDistinct": false,
-          "columns": [
-            "draft_id",
-            "question_id"
-          ]
+          "columns": ["draft_id", "question_id"]
         }
       }
     },
@@ -2189,12 +1986,8 @@
           "name": "submission_draft_answer_multi_draft_answer_id_submission_draft_answer_id_fk",
           "tableFrom": "submission_draft_answer_multi",
           "tableTo": "submission_draft_answer",
-          "columnsFrom": [
-            "draft_answer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["draft_answer_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2202,10 +1995,7 @@
       "compositePrimaryKeys": {
         "submission_draft_answer_multi_pkey": {
           "name": "submission_draft_answer_multi_pkey",
-          "columns": [
-            "draft_answer_id",
-            "item_value"
-          ]
+          "columns": ["draft_answer_id", "item_value"]
         }
       },
       "uniqueConstraints": {}
@@ -2261,10 +2051,7 @@
       "indexes": {
         "idx_status_sub_time": {
           "name": "idx_status_sub_time",
-          "columns": [
-            "changed_at",
-            "submission_id"
-          ],
+          "columns": ["changed_at", "submission_id"],
           "isUnique": false
         }
       },
@@ -2273,12 +2060,8 @@
           "name": "submission_status_history_submission_id_submission_id_fk",
           "tableFrom": "submission_status_history",
           "tableTo": "submission",
-          "columnsFrom": [
-            "submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2354,10 +2137,7 @@
       "indexes": {
         "idx_vrule_question": {
           "name": "idx_vrule_question",
-          "columns": [
-            "order_index",
-            "question_id"
-          ],
+          "columns": ["order_index", "question_id"],
           "isUnique": false
         }
       },
@@ -2366,12 +2146,8 @@
           "name": "validation_rule_question_id_question_id_fk",
           "tableFrom": "validation_rule",
           "tableTo": "question",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2408,12 +2184,8 @@
           "name": "validation_rule_param_rule_id_validation_rule_id_fk",
           "tableFrom": "validation_rule_param",
           "tableTo": "validation_rule",
-          "columnsFrom": [
-            "rule_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["rule_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2421,10 +2193,7 @@
       "compositePrimaryKeys": {
         "validation_rule_param_pkey": {
           "name": "validation_rule_param_pkey",
-          "columns": [
-            "rule_id",
-            "param_key"
-          ]
+          "columns": ["rule_id", "param_key"]
         }
       },
       "uniqueConstraints": {}

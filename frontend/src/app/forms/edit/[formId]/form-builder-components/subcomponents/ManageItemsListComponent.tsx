@@ -108,10 +108,7 @@ const ManageItemsListComponent: FC<ManageItemsListComponentProps> = (props) => {
                   <IconButton edge="end" onClick={() => changeToEditMode(item)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton
-                    onClick={() => deleteItemFromList(item)}
-                    edge="end"
-                  >
+                  <IconButton onClick={() => deleteItemFromList(item)} edge="end">
                     <DeleteIcon />
                   </IconButton>
                 </ListItemSecondaryAction>

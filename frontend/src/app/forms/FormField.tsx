@@ -35,9 +35,7 @@ const components: Record<SupportedFieldType, (params: Props) => JSX.Element> = {
   ),
   Textarea: ({ onChange }) => (
     <Textarea
-      onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
-        onChange(event.target.value)
-      }
+      onChange={(event: ChangeEvent<HTMLTextAreaElement>) => onChange(event.target.value)}
     />
   ),
   Select: ({ element, onChange }) => (
@@ -47,10 +45,7 @@ const components: Record<SupportedFieldType, (params: Props) => JSX.Element> = {
       </SelectTrigger>
       <SelectContent>
         {element.fieldOptions.map((option) => (
-          <SelectItem
-            key={`${option.text}_${option.id}`}
-            value={`answerId_${option.id}`}
-          >
+          <SelectItem key={`${option.text}_${option.id}`} value={`answerId_${option.id}`}>
             {option.text}
           </SelectItem>
         ))}
@@ -60,10 +55,7 @@ const components: Record<SupportedFieldType, (params: Props) => JSX.Element> = {
   RadioGroup: ({ element, onChange }) => (
     <RadioGroup onValueChange={(value) => onChange(value)}>
       {element.fieldOptions.map((option) => (
-        <div
-          key={`${option.text}_${option.id}`}
-          className="flex items-center space-x-2"
-        >
+        <div key={`${option.text}_${option.id}`} className="flex items-center space-x-2">
           <FormControl>
             <RadioGroupItem
               value={`answerId_${option.id}`}
@@ -80,13 +72,15 @@ const components: Record<SupportedFieldType, (params: Props) => JSX.Element> = {
 };
 
 const isSupportedFieldType = (
-  value: QuestionSelectModel["fieldType"],
+  value: QuestionSelectModel["fieldType"]
 ): value is SupportedFieldType => {
-  return value === "Input" ||
+  return (
+    value === "Input" ||
     value === "Switch" ||
     value === "Textarea" ||
     value === "Select" ||
-    value === "RadioGroup";
+    value === "RadioGroup"
+  );
 };
 
 const FormField = ({ element, value, onChange }: Props) => {

@@ -1,3 +1,1 @@
-export const shapeConverter = (shape: any) => {
-
-}
+export const shapeConverter = (shape: any) => {};

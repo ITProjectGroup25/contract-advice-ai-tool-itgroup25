@@ -110,10 +110,7 @@ const renderItem = (item: FormLayoutComponentChildrenType) => {
       return (
         <>
           <LocalizationProvider dateAdapter={AdapterMoment}>
-            <DatePicker
-              slotProps={{ textField: { fullWidth: true } }}
-              disabled
-            />
+            <DatePicker slotProps={{ textField: { fullWidth: true } }} disabled />
           </LocalizationProvider>
         </>
       );
@@ -122,10 +119,7 @@ const renderItem = (item: FormLayoutComponentChildrenType) => {
       return (
         <>
           <LocalizationProvider dateAdapter={AdapterMoment}>
-            <TimePicker
-              disabled
-              slotProps={{ textField: { fullWidth: true } }}
-            />
+            <TimePicker disabled slotProps={{ textField: { fullWidth: true } }} />
           </LocalizationProvider>
         </>
       );
@@ -133,15 +127,8 @@ const renderItem = (item: FormLayoutComponentChildrenType) => {
     case FormControlNames.FILEUPLOAD:
       return (
         <>
-          <input
-            style={{ display: "none" }}
-            id={item.controlName + item.id}
-            type="file"
-          />
-          <label
-            className="control-input-trigger-buttons"
-            htmlFor={item.controlName + item.id}
-          >
+          <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
+          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
             <i className="fas fa-cloud-upload-alt"></i>
           </label>
         </>
@@ -150,15 +137,8 @@ const renderItem = (item: FormLayoutComponentChildrenType) => {
     case FormControlNames.IMAGEUPLOAD:
       return (
         <>
-          <input
-            style={{ display: "none" }}
-            id={item.controlName + item.id}
-            type="file"
-          />
-          <label
-            className="control-input-trigger-buttons"
-            htmlFor={item.controlName + item.id}
-          >
+          <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
+          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
             <i className="far fa-image"></i>
           </label>
         </>
@@ -167,15 +147,8 @@ const renderItem = (item: FormLayoutComponentChildrenType) => {
     case FormControlNames.SCANCODE:
       return (
         <>
-          <input
-            style={{ display: "none" }}
-            id={item.controlName + item.id}
-            type="file"
-          />
-          <label
-            className="control-input-trigger-buttons"
-            htmlFor={item.controlName + item.id}
-          >
+          <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
+          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
             <i className="fas fa-qrcode"></i>
           </label>
         </>
@@ -184,15 +157,8 @@ const renderItem = (item: FormLayoutComponentChildrenType) => {
     case FormControlNames.SCANCODE:
       return (
         <>
-          <input
-            style={{ display: "none" }}
-            id={item.controlName + item.id}
-            type="file"
-          />
-          <label
-            className="control-input-trigger-buttons"
-            htmlFor={item.controlName + item.id}
-          >
+          <input style={{ display: "none" }} id={item.controlName + item.id} type="file" />
+          <label className="control-input-trigger-buttons" htmlFor={item.controlName + item.id}>
             <i className="fas fa-qrcode"></i>
           </label>
         </>
@@ -252,15 +218,8 @@ interface ControlViewComponentProps {
 }
 
 function ControlViewComponent(props: ControlViewComponentProps) {
-  const {
-    item,
-    deleteControl,
-    containerId,
-    selectControl,
-    selectedControl,
-    index,
-    moveControl,
-  } = props;
+  const { item, deleteControl, containerId, selectControl, selectedControl, index, moveControl } =
+    props;
 
   let colBackgroundcolor = nonSelectedColor;
   let color = "";
@@ -274,19 +233,13 @@ function ControlViewComponent(props: ControlViewComponentProps) {
   };
 
   // Check if its the same type and id to change color.
-  if (
-    selectedControl &&
-    item.id === selectedControl.id &&
-    item.type === selectedControl.type
-  ) {
+  if (selectedControl && item.id === selectedControl.id && item.type === selectedControl.type) {
     wrapperStyle.border = "2px solid " + selectedColor;
     colBackgroundcolor = selectedColor;
     color = "white";
   }
 
-  const handleDeleteControl: React.MouseEventHandler<HTMLSpanElement> = (
-    event
-  ) => {
+  const handleDeleteControl: React.MouseEventHandler<HTMLSpanElement> = (event) => {
     deleteControl(item.id, containerId);
     if (event.stopPropagation) event.stopPropagation();
   };
@@ -318,8 +271,7 @@ function ControlViewComponent(props: ControlViewComponentProps) {
       // Determine rectangle on screen
       const hoverBoundingRect = ref.current?.getBoundingClientRect();
       // Get vertical middle
-      const hoverMiddleY =
-        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
       // Determine mouse position
       const clientOffset = monitor.getClientOffset();
       // Get pixels to the top

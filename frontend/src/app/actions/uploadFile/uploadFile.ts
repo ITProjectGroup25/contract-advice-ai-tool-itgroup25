@@ -45,9 +45,7 @@ export async function uploadFile({ formData }: Args): Promise<Return> {
     // Generate unique filename
     const timestamp = Date.now();
     const fileExt = file.name.split(".").pop();
-    const fileName = `${timestamp}-${Math.random()
-      .toString(36)
-      .substring(7)}.${fileExt}`;
+    const fileName = `${timestamp}-${Math.random().toString(36).substring(7)}.${fileExt}`;
     const filePath = `form-uploads/${fileName}`;
 
     // Convert File to ArrayBuffer for upload
@@ -71,9 +69,7 @@ export async function uploadFile({ formData }: Args): Promise<Return> {
     }
 
     // Get public URL
-    const { data: urlData } = supabaseAdmin.storage
-      .from(FILE_BUCKET_NAME)
-      .getPublicUrl(filePath);
+    const { data: urlData } = supabaseAdmin.storage.from(FILE_BUCKET_NAME).getPublicUrl(filePath);
 
     return {
       message: "success",

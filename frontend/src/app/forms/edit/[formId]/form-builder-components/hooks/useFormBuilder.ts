@@ -15,16 +15,12 @@ interface useFormBuilderProps {
 }
 
 const useFormBuilder = (props: useFormBuilderProps) => {
-  const [selectedTemplate, setSelectedTemplate] = useState<null | TemplateType>(
-    props.template
+  const [selectedTemplate, setSelectedTemplate] = useState<null | TemplateType>(props.template);
+  const [formLayoutComponents, setFormLayoutComponents] = useState<FormLayoutComponentsType[]>(
+    props.template.formLayoutComponents
   );
-  const [formLayoutComponents, setFormLayoutComponents] = useState<
-    FormLayoutComponentsType[]
-  >(props.template.formLayoutComponents);
   const [selectedControl, setSelectedControl] = useState<
-    | undefined
-    | FormLayoutComponentContainerType
-    | FormLayoutComponentChildrenType
+    undefined | FormLayoutComponentContainerType | FormLayoutComponentChildrenType
   >(undefined);
 
   const dispatch = useAppDispatch();
@@ -47,9 +43,7 @@ const useFormBuilder = (props: useFormBuilderProps) => {
       setFormLayoutComponents(newState);
     } else if (item.itemType === FormItemTypes.CONTROL) {
       const newState = formLayoutComponents.slice();
-      const formContainerId = newState.findIndex(
-        (f) => f.container.id === containerId
-      );
+      const formContainerId = newState.findIndex((f) => f.container.id === containerId);
       const formContainer = { ...newState[formContainerId] };
       const obj = {
         ...(item as FormLayoutComponentChildrenType),
@@ -73,9 +67,7 @@ const useFormBuilder = (props: useFormBuilderProps) => {
   // Delete a container from the layout
   const deleteContainer = (containerId: string) => {
     if (confirm("Are you sure you want to delete container?")) {
-      const newState = formLayoutComponents.filter(
-        (comp) => comp.container.id !== containerId
-      );
+      const newState = formLayoutComponents.filter((comp) => comp.container.id !== containerId);
       setFormLayoutComponents(newState);
       setSelectedControl((prev) =>
         prev &&
@@ -90,24 +82,15 @@ const useFormBuilder = (props: useFormBuilderProps) => {
   // Delete a control from the layout
   const deleteControl = (controlId: string, containerId: string) => {
     const newState = formLayoutComponents.slice();
-    const formContainer = newState.filter(
-      (comp) => comp.container.id === containerId
-    )[0];
-    formContainer.children = formContainer.children.filter(
-      (cont) => cont.id !== controlId
-    );
+    const formContainer = newState.filter((comp) => comp.container.id === containerId)[0];
+    formContainer.children = formContainer.children.filter((cont) => cont.id !== controlId);
     setFormLayoutComponents(newState);
-    setSelectedControl((prev) =>
-      prev && prev.id === controlId ? undefined : prev
-    );
+    setSelectedControl((prev) => (prev && prev.id === controlId ? undefined : prev));
   };
 
   // Selet a control on click
   const selectControl = (
-    item:
-      | FormLayoutComponentChildrenType
-      | FormLayoutComponentContainerType
-      | undefined
+    item: FormLayoutComponentChildrenType | FormLayoutComponentContainerType | undefined
   ) => {
     setSelectedControl(item);
   };
@@ -115,9 +98,7 @@ const useFormBuilder = (props: useFormBuilderProps) => {
   // Edit properties of the control from Sidebar
   const editControlProperties = (item: FormLayoutComponentChildrenType) => {
     const newState = formLayoutComponents.slice();
-    const formContainerId = newState.findIndex(
-      (comp) => comp.container.id === item.containerId
-    );
+    const formContainerId = newState.findIndex((comp) => comp.container.id === item.containerId);
     let formContainer = { ...newState[formContainerId] };
     formContainer.children.forEach((cont, ind) => {
       if (cont.id === item.id) {
@@ -134,9 +115,7 @@ const useFormBuilder = (props: useFormBuilderProps) => {
   // Edit properties of the container
   const editContainerProperties = (item: FormLayoutComponentContainerType) => {
     const newState = formLayoutComponents.slice();
-    const formContainerId = newState.findIndex(
-      (comp) => comp.container.id === item.id
-    );
+    const formContainerId = newState.findIndex((comp) => comp.container.id === item.id);
     const formContainer = { ...newState[formContainerId] };
     formContainer.container = {
       ...formContainer.container,
@@ -164,9 +143,7 @@ const useFormBuilder = (props: useFormBuilderProps) => {
       return con.container.id === containerId;
     })[0];
 
-    const itemIndex = currentItemContainer.children.findIndex(
-      (con) => con.id === item.id
-    );
+    const itemIndex = currentItemContainer.children.findIndex((con) => con.id === item.id);
 
     const deletedItem = currentItemContainer.children.splice(itemIndex, 1);
     deletedItem[0].containerId = containerId;

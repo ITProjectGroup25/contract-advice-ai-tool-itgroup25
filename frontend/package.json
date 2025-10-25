@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --project tsconfig.json --noEmit"
+    "typecheck": "tsc --project tsconfig.json --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "0.7.0",

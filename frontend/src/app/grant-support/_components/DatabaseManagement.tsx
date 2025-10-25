@@ -32,28 +32,9 @@ import {
 } from "./ui/alert-dialog";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 const GOOGLE_USER_STORAGE_KEY = "grant-support-google-user-id";
@@ -65,8 +46,7 @@ export function DatabaseManagement() {
   const [checkingGoogle, setCheckingGoogle] = useState(false);
   const [exportingGoogle, setExportingGoogle] = useState(false);
 
-  const [selectedSubmission, setSelectedSubmission] =
-    useState<FormSubmission | null>(null);
+  const [selectedSubmission, setSelectedSubmission] = useState<FormSubmission | null>(null);
 
   const {
     data: submissionsData,
@@ -133,10 +113,7 @@ export function DatabaseManagement() {
     }
   };
 
-  const handleUpdateStatus = async (
-    id: string,
-    status: FormSubmission["status"]
-  ) => {
+  const handleUpdateStatus = async (id: string, status: FormSubmission["status"]) => {
     try {
       await localDB.updateSubmission(id, { status });
       await handleRefresh();
@@ -155,9 +132,7 @@ export function DatabaseManagement() {
 
       const link = document.createElement("a");
       link.href = url;
-      link.download = `all_submissions_${
-        new Date().toISOString().split("T")[0]
-      }.sql`;
+      link.download = `all_submissions_${new Date().toISOString().split("T")[0]}.sql`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -170,8 +145,7 @@ export function DatabaseManagement() {
     }
   };
 
-  const formatDate = (timestamp: string) =>
-    new Date(timestamp).toLocaleString();
+  const formatDate = (timestamp: string) => new Date(timestamp).toLocaleString();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -190,17 +164,17 @@ export function DatabaseManagement() {
   const googleStatusLabel = checkingGoogle
     ? "Checking..."
     : googleConnected
-    ? "Google Connected"
-    : trimmedGoogleUserId
-    ? "Not Connected"
-    : "Not Configured";
+      ? "Google Connected"
+      : trimmedGoogleUserId
+        ? "Not Connected"
+        : "Not Configured";
   const googleStatusClass = checkingGoogle
     ? "bg-blue-100 text-blue-800"
     : googleConnected
-    ? "bg-green-100 text-green-800"
-    : trimmedGoogleUserId
-    ? "bg-red-100 text-red-800"
-    : "bg-gray-100 text-gray-800";
+      ? "bg-green-100 text-green-800"
+      : trimmedGoogleUserId
+        ? "bg-red-100 text-red-800"
+        : "bg-gray-100 text-gray-800";
 
   const handleGoogleUserIdChange = (event: ChangeEvent<HTMLInputElement>) => {
     setGoogleUserId(event.target.value);
@@ -263,9 +237,7 @@ export function DatabaseManagement() {
     if (typeof window !== "undefined") {
       window.localStorage.setItem(GOOGLE_USER_STORAGE_KEY, trimmed);
       toast.info("Redirecting to Google for authorization...");
-      window.location.href = `/api/google/oauth/start?userId=${encodeURIComponent(
-        trimmed
-      )}`;
+      window.location.href = `/api/google/oauth/start?userId=${encodeURIComponent(trimmed)}`;
     }
   };
 
@@ -288,9 +260,7 @@ export function DatabaseManagement() {
         expand: "1",
       });
 
-      const response = await fetch(
-        `/api/v1/submissions/export/google-sheets?${params.toString()}`
-      );
+      const response = await fetch(`/api/v1/submissions/export/google-sheets?${params.toString()}`);
       const data = await response.json();
       if (!response.ok || !data?.ok) {
         throw new Error(data?.error || "Failed to export to Google Sheets");
@@ -331,16 +301,15 @@ export function DatabaseManagement() {
             Google Sheets Export
           </CardTitle>
           <CardDescription>
-            Connect your Google account to export submissions directly to Google
-            Sheets
+            Connect your Google account to export submissions directly to Google Sheets
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {/* Left: User ID Input and Status */}
             <div className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   Google User ID
                 </label>
                 <Input
@@ -351,17 +320,13 @@ export function DatabaseManagement() {
                 />
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600">
-                  Connection Status:
-                </span>
-                <Badge className={`font-medium ${googleStatusClass}`}>
-                  {googleStatusLabel}
-                </Badge>
+                <span className="text-sm text-gray-600">Connection Status:</span>
+                <Badge className={`font-medium ${googleStatusClass}`}>{googleStatusLabel}</Badge>
               </div>
             </div>
 
             {/* Right: Action Buttons */}
-            <div className="flex flex-col gap-3 justify-center">
+            <div className="flex flex-col justify-center gap-3">
               <Button
                 variant="outline"
                 className="w-full justify-start"
@@ -369,36 +334,32 @@ export function DatabaseManagement() {
                 disabled={checkingGoogle}
               >
                 {checkingGoogle ? (
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  <RefreshCw className="h-4 w-4 mr-2" />
+                  <RefreshCw className="mr-2 h-4 w-4" />
                 )}
                 Check Connection Status
               </Button>
               <Button
                 variant={googleConnected ? "outline" : "default"}
                 className={`w-full justify-start ${
-                  !googleConnected
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : ""
+                  !googleConnected ? "bg-green-600 text-white hover:bg-green-700" : ""
                 }`}
                 onClick={handleConnectGoogle}
                 disabled={checkingGoogle || !googleUserId.trim()}
               >
-                <LogIn className="h-4 w-4 mr-2" />
-                {googleConnected
-                  ? "Reconnect Google Account"
-                  : "Connect Google Account"}
+                <LogIn className="mr-2 h-4 w-4" />
+                {googleConnected ? "Reconnect Google Account" : "Connect Google Account"}
               </Button>
               <Button
-                className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white"
+                className="w-full justify-start bg-blue-600 text-white hover:bg-blue-700"
                 onClick={handleExportGoogleSheets}
                 disabled={exportingGoogle || !googleConnected}
               >
                 {exportingGoogle ? (
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                  <FileSpreadsheet className="mr-2 h-4 w-4" />
                 )}
                 Export to Google Sheets
               </Button>
@@ -414,30 +375,28 @@ export function DatabaseManagement() {
             <Database className="h-5 w-5" />
             Database Management
           </h2>
-          <p className="text-muted-foreground">
-            Manage and export form submission data
-          </p>
+          <p className="text-muted-foreground">Manage and export form submission data</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleRefresh} variant="outline" size="sm">
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
           <Button onClick={handleExportAll} size="sm">
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="mr-2 h-4 w-4" />
             Download to Local
           </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
         <Card>
           <CardContent className="flex items-center gap-2 p-4">
             <FileText className="h-5 w-5 text-blue-500" />
             <div>
               <p className="text-2xl font-medium">{stats?.total}</p>
-              <p className="text-sm text-muted-foreground">Total</p>
+              <p className="text-muted-foreground text-sm">Total</p>
             </div>
           </CardContent>
         </Card>
@@ -447,7 +406,7 @@ export function DatabaseManagement() {
             <Users className="h-5 w-5 text-green-500" />
             <div>
               <p className="text-2xl font-medium">{stats?.simple}</p>
-              <p className="text-sm text-muted-foreground">Simple</p>
+              <p className="text-muted-foreground text-sm">Simple</p>
             </div>
           </CardContent>
         </Card>
@@ -457,7 +416,7 @@ export function DatabaseManagement() {
             <BarChart3 className="h-5 w-5 text-purple-500" />
             <div>
               <p className="text-2xl font-medium">{stats?.complex}</p>
-              <p className="text-sm text-muted-foreground">Complex</p>
+              <p className="text-muted-foreground text-sm">Complex</p>
             </div>
           </CardContent>
         </Card>
@@ -467,7 +426,7 @@ export function DatabaseManagement() {
             <Clock className="h-5 w-5 text-orange-500" />
             <div>
               <p className="text-2xl font-medium">{stats?.processed}</p>
-              <p className="text-sm text-muted-foreground">Processed</p>
+              <p className="text-muted-foreground text-sm">Processed</p>
             </div>
           </CardContent>
         </Card>
@@ -477,7 +436,7 @@ export function DatabaseManagement() {
             <Users className="h-5 w-5 text-red-500" />
             <div>
               <p className="text-2xl font-medium">{stats?.escalated}</p>
-              <p className="text-sm text-muted-foreground">Escalated</p>
+              <p className="text-muted-foreground text-sm">Escalated</p>
             </div>
           </CardContent>
         </Card>
@@ -487,7 +446,7 @@ export function DatabaseManagement() {
             <Users className="h-5 w-5 text-green-600" />
             <div>
               <p className="text-2xl font-medium">{stats?.satisfied}</p>
-              <p className="text-sm text-muted-foreground">Satisfied</p>
+              <p className="text-muted-foreground text-sm">Satisfied</p>
             </div>
           </CardContent>
         </Card>
@@ -500,12 +459,10 @@ export function DatabaseManagement() {
         </CardHeader>
         <CardContent>
           {submissions.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <div className="text-muted-foreground py-8 text-center">
+              <Database className="mx-auto mb-4 h-12 w-12 opacity-50" />
               <p>No submissions found</p>
-              <p className="text-sm">
-                Submissions will appear here after forms are submitted
-              </p>
+              <p className="text-sm">Submissions will appear here after forms are submitted</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -532,11 +489,7 @@ export function DatabaseManagement() {
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant={
-                              submission.queryType === "complex"
-                                ? "default"
-                                : "secondary"
-                            }
+                            variant={submission.queryType === "complex" ? "default" : "secondary"}
                           >
                             {submission.queryType}
                           </Badge>
@@ -550,8 +503,8 @@ export function DatabaseManagement() {
                           {submission.userSatisfied === true
                             ? "Yes"
                             : submission.userSatisfied === false
-                            ? "No"
-                            : "-"}
+                              ? "No"
+                              : "-"}
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
@@ -570,20 +523,16 @@ export function DatabaseManagement() {
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Delete Submission
-                                  </AlertDialogTitle>
+                                  <AlertDialogTitle>Delete Submission</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to delete this
-                                    submission? This action cannot be undone.
+                                    Are you sure you want to delete this submission? This action
+                                    cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction
-                                    onClick={() =>
-                                      handleDeleteSubmission(submission.id)
-                                    }
+                                    onClick={() => handleDeleteSubmission(submission.id)}
                                   >
                                     Delete
                                   </AlertDialogAction>
@@ -599,26 +548,23 @@ export function DatabaseManagement() {
               </div>
 
               {submissions.length > 0 && (
-                <div className="flex justify-between items-center pt-4 border-t">
-                  <p className="text-sm text-muted-foreground">
+                <div className="flex items-center justify-between border-t pt-4">
+                  <p className="text-muted-foreground text-sm">
                     Showing {submissions.length} submissions
                   </p>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="outline" size="sm">
-                        <Trash2 className="h-4 w-4 mr-2" />
+                        <Trash2 className="mr-2 h-4 w-4" />
                         Clear All Data
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Clear All Submissions
-                        </AlertDialogTitle>
+                        <AlertDialogTitle>Clear All Submissions</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete all form submissions?
-                          This action cannot be undone and will permanently
-                          remove all data from the local database.
+                          Are you sure you want to delete all form submissions? This action cannot
+                          be undone and will permanently remove all data from the local database.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -637,11 +583,8 @@ export function DatabaseManagement() {
       </Card>
 
       {/* Submission Detail Dialog */}
-      <Dialog
-        open={selectedSubmission !== null}
-        onOpenChange={() => setSelectedSubmission(null)}
-      >
-        <DialogContent className="max-w-4xl max-h-[80vh]">
+      <Dialog open={selectedSubmission !== null} onOpenChange={() => setSelectedSubmission(null)}>
+        <DialogContent className="max-h-[80vh] max-w-4xl">
           <DialogHeader>
             <DialogTitle>Submission Details</DialogTitle>
             <DialogDescription>{selectedSubmission?.id}</DialogDescription>
@@ -654,14 +597,11 @@ export function DatabaseManagement() {
                 <TabsTrigger value="metadata">Metadata</TabsTrigger>
               </TabsList>
 
-              <SubmissionDisplay
-                submission={selectedSubmission!}
-                value="data"
-              />
+              <SubmissionDisplay submission={selectedSubmission!} value="data" />
 
               <TabsContent value="sql">
-                <div className="h-[400px] w-full overflow-auto border rounded-md p-4">
-                  <pre className="text-xs font-mono whitespace-pre-wrap break-all">
+                <div className="h-[400px] w-full overflow-auto rounded-md border p-4">
+                  <pre className="whitespace-pre-wrap break-all font-mono text-xs">
                     {JSON.stringify(selectedSubmission, null, 2)}
                   </pre>
                 </div>
@@ -672,13 +612,13 @@ export function DatabaseManagement() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium">Submission ID</p>
-                      <p className="text-sm text-muted-foreground font-mono">
+                      <p className="text-muted-foreground font-mono text-sm">
                         {selectedSubmission.id}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm font-medium">Timestamp</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         {formatDate(selectedSubmission.timestamp)}
                       </p>
                     </div>
@@ -686,9 +626,7 @@ export function DatabaseManagement() {
                       <p className="text-sm font-medium">Query Type</p>
                       <Badge
                         variant={
-                          selectedSubmission.queryType === "complex"
-                            ? "default"
-                            : "secondary"
+                          selectedSubmission.queryType === "complex" ? "default" : "secondary"
                         }
                       >
                         {selectedSubmission.queryType}
@@ -696,30 +634,28 @@ export function DatabaseManagement() {
                     </div>
                     <div>
                       <p className="text-sm font-medium">Status</p>
-                      <Badge
-                        className={getStatusColor(selectedSubmission.status)}
-                      >
+                      <Badge className={getStatusColor(selectedSubmission.status)}>
                         {selectedSubmission.status}
                       </Badge>
                     </div>
                     <div>
                       <p className="text-sm font-medium">User Satisfied</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         {selectedSubmission.userSatisfied === true
                           ? "Yes"
                           : selectedSubmission.userSatisfied === false
-                          ? "No"
-                          : "Not specified"}
+                            ? "No"
+                            : "Not specified"}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm font-medium">Needs Human Review</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         {selectedSubmission.needsHumanReview === true
                           ? "Yes"
                           : selectedSubmission.needsHumanReview === false
-                          ? "No"
-                          : "Not specified"}
+                            ? "No"
+                            : "Not specified"}
                       </p>
                     </div>
                   </div>
@@ -729,10 +665,7 @@ export function DatabaseManagement() {
                       size="sm"
                       variant="outline"
                       onClick={() =>
-                        handleUpdateStatus(
-                          selectedSubmission.submissionUid!,
-                          "processed"
-                        )
+                        handleUpdateStatus(selectedSubmission.submissionUid!, "processed")
                       }
                       disabled={selectedSubmission.status === "processed"}
                     >
@@ -742,10 +675,7 @@ export function DatabaseManagement() {
                       size="sm"
                       variant="outline"
                       onClick={() =>
-                        handleUpdateStatus(
-                          selectedSubmission.submissionUid!,
-                          "escalated"
-                        )
+                        handleUpdateStatus(selectedSubmission.submissionUid!, "escalated")
                       }
                       disabled={selectedSubmission.status === "escalated"}
                     >

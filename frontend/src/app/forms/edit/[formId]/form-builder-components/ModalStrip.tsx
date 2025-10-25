@@ -4,9 +4,7 @@ import { useAppSelector } from "./redux/hooks";
 interface ModalStripProps {}
 
 const ModalStrip: FunctionComponent<ModalStripProps> = (props) => {
-  const { modalType, message } = useAppSelector(
-    (state) => state.uielements.modalstrip
-  );
+  const { modalType, message } = useAppSelector((state) => state.uielements.modalstrip);
 
   return (
     <>

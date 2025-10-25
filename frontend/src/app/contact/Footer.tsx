@@ -10,12 +10,7 @@ type Props = {
 const MainSiteFooter = (props: Props) => {
   const { className } = props;
   return (
-    <footer
-      className={cn(
-        "bg-white p-4 dark:bg-dark sm:p-6 lg:mt-16 lg:py-16",
-        className
-      )}
-    >
+    <footer className={cn("dark:bg-dark bg-white p-4 sm:p-6 lg:mt-16 lg:py-16", className)}>
       <div className="mx-auto max-w-screen-xl">
         <div className="lg:flex lg:justify-between">
           <div className="mb-6 md:mb-0">
@@ -25,7 +20,7 @@ const MainSiteFooter = (props: Props) => {
           </div>
           <div className="block space-y-8 lg:grid lg:grid-cols-4 lg:space-y-0">
             <div>
-              <h2 className="mb-2 text-md font-semibold uppercase text-gray-900 dark:text-white">
+              <h2 className="text-md mb-2 font-semibold uppercase text-gray-900 dark:text-white">
                 About
               </h2>
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
@@ -42,7 +37,7 @@ const MainSiteFooter = (props: Props) => {
               </ul>
             </div>
             <div>
-              <h2 className="mb-2 text-md font-semibold uppercase text-gray-900 dark:text-white">
+              <h2 className="text-md mb-2 font-semibold uppercase text-gray-900 dark:text-white">
                 Legal
               </h2>
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
@@ -68,12 +63,10 @@ const MainSiteFooter = (props: Props) => {
             </div>
           </div>
         </div>
-        <hr className="my-6 border-gray-200 dark:border-gray-700 sm:mx-auto lg:my-8" />
+        <hr className="my-6 border-gray-200 sm:mx-auto lg:my-8 dark:border-gray-700" />
         <div className="sm:flex sm:items-center sm:justify-between">
-          <span className="text-sm text-gray-500 dark:text-gray-400 sm:text-center">
-            © 2025{" "}
-            . All
-            Rights Reserved.
+          <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">
+            © 2025 . All Rights Reserved.
           </span>
           <div className="mt-4 flex space-x-6 sm:mt-0 sm:justify-center">
             {/* <a

@@ -39,22 +39,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Checkbox } from "./ui/checkbox";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Separator } from "./ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Textarea } from "./ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { FAQManagement } from "./FAQManagement";
 
 interface AdminInterfaceProps {
@@ -87,24 +76,17 @@ export function AdminInterface({
 }: AdminInterfaceProps) {
   console.log({ sections });
 
-  const [editingFieldId, setEditingFieldId] = useState<string | number | null>(
-    null
-  );
+  const [editingFieldId, setEditingFieldId] = useState<string | number | null>(null);
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [isCreatingField, setIsCreatingField] = useState(false);
   const [isCreatingSection, setIsCreatingSection] = useState(false);
   const [activeTab, setActiveTab] = useState("fields");
   const [isPending, startTransition] = useTransition();
-  const [confirmationAction, setConfirmationAction] =
-    useState<ConfirmationAction>(null);
+  const [confirmationAction, setConfirmationAction] = useState<ConfirmationAction>(null);
 
   // Section visibility configuration
-  const [sectionVisibilityField, setSectionVisibilityField] = useState<
-    string | null
-  >(null);
-  const [sectionVisibilityOption, setSectionVisibilityOption] = useState<
-    string | null
-  >(null);
+  const [sectionVisibilityField, setSectionVisibilityField] = useState<string | null>(null);
+  const [sectionVisibilityOption, setSectionVisibilityOption] = useState<string | null>(null);
 
   const [newField, setNewField] = useState<Partial<FormSectionChildrenType>>({
     controlName: "text-field",
@@ -147,9 +129,7 @@ export function AdminInterface({
         };
       case "save-section":
         return {
-          title: confirmationAction.sectionId
-            ? "Update Section?"
-            : "Create Section?",
+          title: confirmationAction.sectionId ? "Update Section?" : "Create Section?",
           description: confirmationAction.sectionId
             ? "Are you sure you want to update this section? This will save changes to the database."
             : "Are you sure you want to create this section? This will save changes to the database.",
@@ -157,8 +137,7 @@ export function AdminInterface({
       case "delete-field":
         return {
           title: "Delete Field?",
-          description:
-            "Are you sure you want to delete this field? This action cannot be undone.",
+          description: "Are you sure you want to delete this field? This action cannot be undone.",
         };
       case "delete-section":
         return {
@@ -188,10 +167,7 @@ export function AdminInterface({
         await performSaveSection(confirmationAction.sectionId);
         break;
       case "delete-field":
-        await performDeleteField(
-          confirmationAction.fieldId,
-          confirmationAction.containerId
-        );
+        await performDeleteField(confirmationAction.fieldId, confirmationAction.containerId);
         break;
       case "delete-section":
         await performDeleteSection(confirmationAction.sectionId);
@@ -233,9 +209,7 @@ export function AdminInterface({
     if (fieldId) {
       // EDITING an existing field
       // Find the old section (where the field currently is)
-      const oldField = sections
-        .flatMap((s) => s.children)
-        .find((child) => child.id === fieldId);
+      const oldField = sections.flatMap((s) => s.children).find((child) => child.id === fieldId);
 
       const oldContainerId = oldField?.containerId;
 
@@ -246,9 +220,7 @@ export function AdminInterface({
           if (section.container.id === oldContainerId) {
             return {
               ...section,
-              children: section.children.filter(
-                (child) => child.id !== fieldId
-              ),
+              children: section.children.filter((child) => child.id !== fieldId),
             };
           }
           // Add to new section
@@ -266,9 +238,7 @@ export function AdminInterface({
           if (section.container.id === field.containerId) {
             return {
               ...section,
-              children: section.children.map((child) =>
-                child.id === field.id ? field : child
-              ),
+              children: section.children.map((child) => (child.id === field.id ? field : child)),
             };
           }
           return section;
@@ -294,9 +264,7 @@ export function AdminInterface({
       });
 
       if (result.message === "success") {
-        toast.success(
-          fieldId ? "Field updated successfully" : "Field created successfully"
-        );
+        toast.success(fieldId ? "Field updated successfully" : "Field created successfully");
         onSectionsUpdate(updatedSections);
         resetFieldForm();
       } else {
@@ -313,9 +281,7 @@ export function AdminInterface({
     // Validate conditional visibility if not always visible
     if (!newSection.container?.alwaysVisible) {
       if (!sectionVisibilityField || !sectionVisibilityOption) {
-        toast.error(
-          "Please select a field and option for conditional visibility"
-        );
+        toast.error("Please select a field and option for conditional visibility");
         return;
       }
     }
@@ -325,9 +291,7 @@ export function AdminInterface({
         ...newSection.container!,
         id: sectionId || `section_${Date.now()}`,
         visibilityCondition:
-          !newSection.container?.alwaysVisible &&
-          sectionVisibilityField &&
-          sectionVisibilityOption
+          !newSection.container?.alwaysVisible && sectionVisibilityField && sectionVisibilityOption
             ? {
                 fieldId: sectionVisibilityField,
                 optionId: sectionVisibilityOption,
@@ -354,11 +318,7 @@ export function AdminInterface({
       });
 
       if (result.message === "success") {
-        toast.success(
-          sectionId
-            ? "Section updated successfully"
-            : "Section created successfully"
-        );
+        toast.success(sectionId ? "Section updated successfully" : "Section created successfully");
         onSectionsUpdate(updatedSections);
         resetSectionForm();
         // window.location.reload();
@@ -368,10 +328,7 @@ export function AdminInterface({
     });
   };
 
-  const performDeleteField = async (
-    fieldId: string | number,
-    containerId: string
-  ) => {
+  const performDeleteField = async (fieldId: string | number, containerId: string) => {
     const updatedSections = sections.map((section) => {
       if (section.container.id === containerId) {
         return {
@@ -399,9 +356,7 @@ export function AdminInterface({
   };
 
   const performDeleteSection = async (sectionId: string) => {
-    const updatedSections = sections.filter(
-      (s) => s.container.id !== sectionId
-    );
+    const updatedSections = sections.filter((s) => s.container.id !== sectionId);
 
     startTransition(async () => {
       const result = await updateFormFields({
@@ -534,9 +489,7 @@ export function AdminInterface({
     // Load existing visibility conditions if any
     if (section.container.visibilityCondition) {
       setSectionVisibilityField(section.container.visibilityCondition.fieldId);
-      setSectionVisibilityOption(
-        section.container.visibilityCondition.optionId
-      );
+      setSectionVisibilityOption(section.container.visibilityCondition.optionId);
     } else {
       setSectionVisibilityField(null);
       setSectionVisibilityOption(null);
@@ -547,10 +500,7 @@ export function AdminInterface({
     const currentItems = newField.items || [];
     setNewField({
       ...newField,
-      items: [
-        ...currentItems,
-        { id: `opt_${Date.now()}`, label: "", value: "" },
-      ],
+      items: [...currentItems, { id: `opt_${Date.now()}`, label: "", value: "" }],
     });
   };
 
@@ -585,8 +535,7 @@ export function AdminInterface({
 
   // Get options for selected visibility field
   const visibilityFieldOptions = sectionVisibilityField
-    ? fieldsWithOptions.find((f) => f.id === sectionVisibilityField)?.items ||
-      []
+    ? fieldsWithOptions.find((f) => f.id === sectionVisibilityField)?.items || []
     : [];
 
   const allFields = sections.flatMap((section) =>
@@ -596,14 +545,13 @@ export function AdminInterface({
     }))
   );
 
-  const { title: confirmTitle, description: confirmDescription } =
-    getConfirmationMessage();
+  const { title: confirmTitle, description: confirmDescription } = getConfirmationMessage();
 
   const renderFieldEditor = (field?: FormSectionChildrenType) => {
     const isEditing = field && editingFieldId === field.id;
 
     return (
-      <Card className="border-2 border-primary/20">
+      <Card className="border-primary/20 border-2">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
@@ -645,9 +593,7 @@ export function AdminInterface({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="text-field">Text Input</SelectItem>
-                  <SelectItem value="multiline-text-field">
-                    Text Area
-                  </SelectItem>
+                  <SelectItem value="multiline-text-field">Text Area</SelectItem>
                   <SelectItem value="checklist">Checkbox Group</SelectItem>
                   <SelectItem value="radio-group">Radio Group</SelectItem>
                   <SelectItem value="file-upload">File Upload</SelectItem>
@@ -679,9 +625,7 @@ export function AdminInterface({
               <Label htmlFor="field-section">Section *</Label>
               <Select
                 value={newField.containerId}
-                onValueChange={(value) =>
-                  setNewField({ ...newField, containerId: value })
-                }
+                onValueChange={(value) => setNewField({ ...newField, containerId: value })}
                 disabled={isPending}
               >
                 <SelectTrigger>
@@ -689,10 +633,7 @@ export function AdminInterface({
                 </SelectTrigger>
                 <SelectContent>
                   {sections.map((section) => (
-                    <SelectItem
-                      key={section.container.id}
-                      value={section.container.id}
-                    >
+                    <SelectItem key={section.container.id} value={section.container.id}>
                       {section.container.heading}
                     </SelectItem>
                   ))}
@@ -721,9 +662,7 @@ export function AdminInterface({
             <Checkbox
               id="field-required"
               checked={newField.required}
-              onCheckedChange={(checked) =>
-                setNewField({ ...newField, required: !!checked })
-              }
+              onCheckedChange={(checked) => setNewField({ ...newField, required: !!checked })}
               disabled={isPending}
             />
             <Label htmlFor="field-required">Required field</Label>
@@ -732,7 +671,7 @@ export function AdminInterface({
           {/* Options for checklist/radio types */}
           {["checklist", "radio-group"].includes(newField.controlName!) && (
             <div className="space-y-3">
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <Label>Options</Label>
                 <Button
                   type="button"
@@ -741,7 +680,7 @@ export function AdminInterface({
                   onClick={addOption}
                   disabled={isPending}
                 >
-                  <Plus className="h-4 w-4 mr-1" />
+                  <Plus className="mr-1 h-4 w-4" />
                   Add Option
                 </Button>
               </div>
@@ -750,18 +689,14 @@ export function AdminInterface({
                   <div key={index} className="flex items-center gap-2">
                     <Input
                       value={item.label}
-                      onChange={(e) =>
-                        updateOption(index, "label", e.target.value)
-                      }
+                      onChange={(e) => updateOption(index, "label", e.target.value)}
                       placeholder="Option label"
                       className="flex-1"
                       disabled={isPending}
                     />
                     <Input
                       value={item.value}
-                      onChange={(e) =>
-                        updateOption(index, "value", e.target.value)
-                      }
+                      onChange={(e) => updateOption(index, "value", e.target.value)}
                       placeholder="Option value"
                       className="flex-1"
                       disabled={isPending}
@@ -784,26 +719,19 @@ export function AdminInterface({
           <Separator />
 
           <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={resetFieldForm}
-              disabled={isPending}
-            >
-              <X className="h-4 w-4 mr-1" />
+            <Button variant="outline" onClick={resetFieldForm} disabled={isPending}>
+              <X className="mr-1 h-4 w-4" />
               Cancel
             </Button>
-            <Button
-              onClick={() => handleSaveField(field?.id)}
-              disabled={isPending}
-            >
+            <Button onClick={() => handleSaveField(field?.id)} disabled={isPending}>
               {isPending ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
                   Saving...
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-1" />
+                  <Save className="mr-1 h-4 w-4" />
                   {isEditing ? "Update Field" : "Create Field"}
                 </>
               )}
@@ -818,7 +746,7 @@ export function AdminInterface({
     const isEditing = section && editingSectionId === section.container.id;
 
     return (
-      <Card className="border-2 border-primary/20">
+      <Card className="border-primary/20 border-2">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
@@ -890,11 +818,10 @@ export function AdminInterface({
 
           {/* Conditional Visibility Configuration */}
           {!newSection.container?.alwaysVisible && (
-            <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+            <div className="bg-muted/50 space-y-4 rounded-lg border p-4">
               <h4 className="text-sm font-medium">Conditional Visibility</h4>
-              <p className="text-sm text-muted-foreground">
-                This section will only be visible when a specific option is
-                selected
+              <p className="text-muted-foreground text-sm">
+                This section will only be visible when a specific option is selected
               </p>
 
               <div className="space-y-2">
@@ -924,9 +851,7 @@ export function AdminInterface({
 
               {sectionVisibilityField && (
                 <div className="space-y-2">
-                  <Label htmlFor="visibility-option">
-                    When this option is selected *
-                  </Label>
+                  <Label htmlFor="visibility-option">When this option is selected *</Label>
                   <Select
                     value={sectionVisibilityOption || ""}
                     onValueChange={setSectionVisibilityOption}
@@ -937,10 +862,7 @@ export function AdminInterface({
                     </SelectTrigger>
                     <SelectContent>
                       {visibilityFieldOptions.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toLocaleString()}
-                        >
+                        <SelectItem key={option.id} value={option.id.toLocaleString()}>
                           {option.label}
                         </SelectItem>
                       ))}
@@ -954,26 +876,19 @@ export function AdminInterface({
           <Separator />
 
           <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={resetSectionForm}
-              disabled={isPending}
-            >
-              <X className="h-4 w-4 mr-1" />
+            <Button variant="outline" onClick={resetSectionForm} disabled={isPending}>
+              <X className="mr-1 h-4 w-4" />
               Cancel
             </Button>
-            <Button
-              onClick={() => handleSaveSection(section?.container.id)}
-              disabled={isPending}
-            >
+            <Button onClick={() => handleSaveSection(section?.container.id)} disabled={isPending}>
               {isPending ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
                   Saving...
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-1" />
+                  <Save className="mr-1 h-4 w-4" />
                   {isEditing ? "Update Section" : "Create Section"}
                 </>
               )}
@@ -986,7 +901,7 @@ export function AdminInterface({
 
   return (
     <TooltipProvider>
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <div className="mx-auto max-w-6xl space-y-6 p-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -1008,10 +923,7 @@ export function AdminInterface({
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-1 text-xs"
-            >
+            <Badge variant="secondary" className="flex items-center gap-1 text-xs">
               <Settings className="h-3 w-3" />
               Admin Mode
             </Badge>
@@ -1039,12 +951,10 @@ export function AdminInterface({
 
           <TabsContent value="fields" className="space-y-6">
             {/* Fields Header */}
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl">Fields ({allFields.length})</h2>
-                <p className="text-muted-foreground">
-                  Add, edit, and manage form fields
-                </p>
+                <p className="text-muted-foreground">Add, edit, and manage form fields</p>
               </div>
               <Button
                 onClick={() => setIsCreatingField(true)}
@@ -1069,34 +979,23 @@ export function AdminInterface({
                     {editingFieldId === field.id ? (
                       renderFieldEditor(field)
                     ) : (
-                      <Card
-                        className={
-                          isSystem ? "border-blue-200 bg-blue-50/50" : ""
-                        }
-                      >
+                      <Card className={isSystem ? "border-blue-200 bg-blue-50/50" : ""}>
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                {isSystem && (
-                                  <Lock className="h-4 w-4 text-blue-600" />
-                                )}
-                                <h3 className="font-medium">
-                                  {field.labelName}
-                                </h3>
+                              <div className="mb-1 flex items-center gap-2">
+                                {isSystem && <Lock className="h-4 w-4 text-blue-600" />}
+                                <h3 className="font-medium">{field.labelName}</h3>
                                 {isSystem && (
                                   <Badge
                                     variant="outline"
-                                    className="text-xs bg-blue-100 text-blue-700 border-blue-300"
+                                    className="border-blue-300 bg-blue-100 text-xs text-blue-700"
                                   >
                                     System Field
                                   </Badge>
                                 )}
                                 {field.required && (
-                                  <Badge
-                                    variant="destructive"
-                                    className="text-xs"
-                                  >
+                                  <Badge variant="destructive" className="text-xs">
                                     Required
                                   </Badge>
                                 )}
@@ -1108,16 +1007,11 @@ export function AdminInterface({
                                 </Badge>
                               </div>
                               {field.description && (
-                                <p className="text-sm text-muted-foreground">
-                                  {field.description}
-                                </p>
+                                <p className="text-muted-foreground text-sm">{field.description}</p>
                               )}
                               {field.items && field.items.length > 0 && (
-                                <div className="mt-2 text-xs text-muted-foreground">
-                                  Options:{" "}
-                                  {field.items
-                                    .map((item) => item.label)
-                                    .join(", ")}
+                                <div className="text-muted-foreground mt-2 text-xs">
+                                  Options: {field.items.map((item) => item.label).join(", ")}
                                 </div>
                               )}
                             </div>
@@ -1132,7 +1026,7 @@ export function AdminInterface({
                                     disabled={isPending}
                                     className="hover:text-inherit"
                                   >
-                                    <Copy className="h-4 w-4 text-grey-300" />
+                                    <Copy className="text-grey-300 h-4 w-4" />
                                   </Button>
                                   <Button
                                     variant="ghost"
@@ -1146,16 +1040,11 @@ export function AdminInterface({
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() =>
-                                      handleDeleteField(
-                                        field.id,
-                                        field.containerId
-                                      )
-                                    }
+                                    onClick={() => handleDeleteField(field.id, field.containerId)}
                                     className="hover:text-inherit"
                                     disabled={isPending}
                                   >
-                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                    <Trash2 className="text-destructive h-4 w-4" />
                                   </Button>
                                 </>
                               )}
@@ -1168,9 +1057,7 @@ export function AdminInterface({
                                     </div>
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                    <p>
-                                      System fields cannot be edited or deleted
-                                    </p>
+                                    <p>System fields cannot be edited or deleted</p>
                                   </TooltipContent>
                                 </Tooltip>
                               )}
@@ -1187,12 +1074,10 @@ export function AdminInterface({
 
           <TabsContent value="sections" className="space-y-6">
             {/* Sections Header */}
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl">Sections ({sections.length})</h2>
-                <p className="text-muted-foreground">
-                  Organize fields into logical sections
-                </p>
+                <p className="text-muted-foreground">Organize fields into logical sections</p>
               </div>
               <Button
                 onClick={() => setIsCreatingSection(true)}
@@ -1211,8 +1096,7 @@ export function AdminInterface({
             <div className="space-y-3">
               {sections.map((section) => {
                 const sectionFields = section.children.length;
-                const hasVisibilityCondition =
-                  section.container.visibilityCondition;
+                const hasVisibilityCondition = section.container.visibilityCondition;
 
                 return (
                   <div key={section.container.id}>
@@ -1223,20 +1107,15 @@ export function AdminInterface({
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-medium">
-                                  {section.container.heading}
-                                </h3>
+                              <div className="mb-1 flex items-center gap-2">
+                                <h3 className="font-medium">{section.container.heading}</h3>
                                 {section.container.alwaysVisible && (
                                   <Badge variant="outline" className="text-xs">
                                     Always Visible
                                   </Badge>
                                 )}
                                 {hasVisibilityCondition && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="text-xs"
-                                  >
+                                  <Badge variant="secondary" className="text-xs">
                                     Conditional
                                   </Badge>
                                 )}
@@ -1245,25 +1124,22 @@ export function AdminInterface({
                                 </Badge>
                               </div>
                               {section.container.subHeading && (
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-muted-foreground text-sm">
                                   {section.container.subHeading}
                                 </p>
                               )}
                               {hasVisibilityCondition && (
-                                <p className="text-xs text-muted-foreground mt-2">
+                                <p className="text-muted-foreground mt-2 text-xs">
                                   Visible when:{" "}
                                   {(() => {
                                     const field = allFields.find(
                                       (f) =>
                                         f.id.toString() ===
-                                        section.container.visibilityCondition
-                                          ?.fieldId
+                                        section.container.visibilityCondition?.fieldId
                                     );
                                     const option = field?.items?.find(
                                       (item) =>
-                                        item.id ===
-                                        section.container.visibilityCondition
-                                          ?.optionId
+                                        item.id === section.container.visibilityCondition?.optionId
                                     );
                                     return field && option
                                       ? `"${field.labelName}" = "${option.label}"`
@@ -1284,9 +1160,7 @@ export function AdminInterface({
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() =>
-                                  handleDeleteSection(section.container.id)
-                                }
+                                onClick={() => handleDeleteSection(section.container.id)}
                                 className="text-destructive hover:text-destructive"
                                 disabled={isPending}
                               >
@@ -1325,16 +1199,14 @@ export function AdminInterface({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{confirmTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {confirmDescription}
-            </AlertDialogDescription>
+            <AlertDialogDescription>{confirmDescription}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={executeAction} disabled={isPending}>
               {isPending ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Processing...
                 </>
               ) : (

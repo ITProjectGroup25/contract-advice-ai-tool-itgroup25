@@ -14,20 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  EmailData,
-  GrantTeamEmailData,
-  emailService,
-} from "@/lib/emailService";
+import { EmailData, GrantTeamEmailData, emailService } from "@/lib/emailService";
 import { FormData, FormSection, Question } from "@shared";
-import {
-  Clock,
-  FileText,
-  HelpCircle,
-  Search,
-  Settings,
-  Users,
-} from "lucide-react";
+import { Clock, FileText, HelpCircle, Search, Settings, Users } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -54,9 +43,7 @@ export function DynamicFormRenderer({
     formState: { errors, isSubmitting },
   } = useForm<FormData>();
 
-  const [otherFields, setOtherFields] = useState<{ [key: string]: boolean }>(
-    {}
-  );
+  const [otherFields, setOtherFields] = useState<{ [key: string]: boolean }>({});
   const formValues = watch();
 
   const visibleQuestions = questions.filter((q) => q.visible);
@@ -79,10 +66,7 @@ export function DynamicFormRenderer({
 
       // Check query type visibility
       const queryType = getQueryType();
-      if (
-        question.conditional?.dependsOn === "query-type" &&
-        question.conditional.showWhen
-      ) {
+      if (question.conditional?.dependsOn === "query-type" && question.conditional.showWhen) {
         return question.conditional.showWhen.includes(queryType);
       }
 
@@ -91,15 +75,10 @@ export function DynamicFormRenderer({
         const dependentValue = formValues[question.conditional.dependsOn];
 
         // First check if the question we depend on is itself visible
-        const dependentQuestion = questions.find(
-          (q) => q.id === question.conditional?.dependsOn
-        );
+        const dependentQuestion = questions.find((q) => q.id === question.conditional?.dependsOn);
         if (dependentQuestion) {
           checkingStack.add(question.id);
-          const isParentVisible = isQuestionVisible(
-            dependentQuestion,
-            checkingStack
-          );
+          const isParentVisible = isQuestionVisible(dependentQuestion, checkingStack);
           checkingStack.delete(question.id);
 
           if (!isParentVisible) {
@@ -123,15 +102,9 @@ export function DynamicFormRenderer({
   );
   // Clear values for invisible questions
   useEffect(() => {
-    const invisibleQuestions = visibleQuestions.filter(
-      (q) => !isQuestionVisible(q)
-    );
+    const invisibleQuestions = visibleQuestions.filter((q) => !isQuestionVisible(q));
     invisibleQuestions.forEach((q) => {
-      if (
-        formValues[q.id] !== undefined &&
-        formValues[q.id] !== null &&
-        formValues[q.id] !== ""
-      ) {
+      if (formValues[q.id] !== undefined && formValues[q.id] !== null && formValues[q.id] !== "") {
         setValue(q.id, undefined);
       }
     });
@@ -144,9 +117,7 @@ export function DynamicFormRenderer({
     if (section.conditional) {
       const dependentValue = formValues[section.conditional.dependsOn];
       if (Array.isArray(dependentValue)) {
-        return section.conditional.showWhen.some((val) =>
-          dependentValue.includes(val)
-        );
+        return section.conditional.showWhen.some((val) => dependentValue.includes(val));
       }
       return section.conditional.showWhen.includes(dependentValue);
     }
@@ -188,32 +159,21 @@ export function DynamicFormRenderer({
         };
 
         try {
-          console.log(
-            "📧 FORM: Sending USER CONFIRMATION email to:",
-            userEmail
-          );
+          console.log("📧 FORM: Sending USER CONFIRMATION email to:", userEmail);
           const emailSent = await emailService.sendConfirmationEmail(emailData);
           if (emailSent) {
-            console.log(
-              "✅ FORM: User confirmation email sent successfully to:",
-              userEmail
-            );
+            console.log("✅ FORM: User confirmation email sent successfully to:", userEmail);
           } else {
             console.warn("⚠️ FORM: Failed to send user confirmation email");
           }
         } catch (emailError) {
-          console.error(
-            "❌ FORM: User confirmation email service error:",
-            emailError
-          );
+          console.error("❌ FORM: User confirmation email service error:", emailError);
           // Don't fail the form submission if email fails
         }
       }
 
       if (queryType === "simple") {
-        toast.success(
-          "Simple request submitted successfully! Check your email for confirmation."
-        );
+        toast.success("Simple request submitted successfully! Check your email for confirmation.");
         setTimeout(() => {
           onSimpleQuerySuccess?.(submissionId);
         }, 1000);
@@ -229,9 +189,7 @@ export function DynamicFormRenderer({
             submitterEmail: userEmail,
             timestamp: new Date().toISOString(),
             formData: data,
-            grantTeam: Array.isArray(data["grants-team"])
-              ? data["grants-team"]
-              : [],
+            grantTeam: Array.isArray(data["grants-team"]) ? data["grants-team"] : [],
             urgency: data["is-urgent"] === "yes",
           };
 
@@ -240,9 +198,7 @@ export function DynamicFormRenderer({
               "📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:",
               submissionId
             );
-            const grantEmailSent = await emailService.sendGrantTeamNotification(
-              grantTeamEmailData
-            );
+            const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
             if (grantEmailSent) {
               console.log(
                 "✅ FORM: Grant team notification sent successfully for complex query:",
@@ -252,24 +208,17 @@ export function DynamicFormRenderer({
               console.warn("⚠️ FORM: Failed to send grant team notification");
             }
           } catch (grantEmailError) {
-            console.error(
-              "❌ FORM: Grant team notification error:",
-              grantEmailError
-            );
+            console.error("❌ FORM: Grant team notification error:", grantEmailError);
             // Don't fail the form submission if grant team email fails
           }
         }
 
-        toast.success(
-          "Complex request submitted successfully! Check your email for confirmation."
-        );
+        toast.success("Complex request submitted successfully! Check your email for confirmation.");
         setTimeout(() => {
           onComplexQuerySuccess?.();
         }, 1000);
       } else {
-        toast.success(
-          "Form submitted successfully! Check your email for confirmation."
-        );
+        toast.success("Form submitted successfully! Check your email for confirmation.");
       }
     } catch (error) {
       console.error("Form submission error:", error);
@@ -332,14 +281,10 @@ export function DynamicFormRenderer({
           <div key={question.id} className="space-y-2">
             <Label htmlFor={question.id} className="text-sm font-medium">
               {question.label}
-              {question.required && (
-                <span className="text-red-500 ml-1">*</span>
-              )}
+              {question.required && <span className="ml-1 text-red-500">*</span>}
             </Label>
             {question.helpText && (
-              <p className="text-sm text-muted-foreground">
-                {question.helpText}
-              </p>
+              <p className="text-muted-foreground text-sm">{question.helpText}</p>
             )}
             <Input
               id={question.id}
@@ -349,9 +294,7 @@ export function DynamicFormRenderer({
               className={errors[question.id] ? "border-red-500" : ""}
             />
             {errors[question.id] && (
-              <p className="text-sm text-red-500">
-                {String(errors[question.id]?.message || "")}
-              </p>
+              <p className="text-sm text-red-500">{String(errors[question.id]?.message || "")}</p>
             )}
           </div>
         );
@@ -361,27 +304,19 @@ export function DynamicFormRenderer({
           <div key={question.id} className="space-y-2">
             <Label htmlFor={question.id} className="text-sm font-medium">
               {question.label}
-              {question.required && (
-                <span className="text-red-500 ml-1">*</span>
-              )}
+              {question.required && <span className="ml-1 text-red-500">*</span>}
             </Label>
             {question.helpText && (
-              <p className="text-sm text-muted-foreground">
-                {question.helpText}
-              </p>
+              <p className="text-muted-foreground text-sm">{question.helpText}</p>
             )}
             <Textarea
               id={question.id}
               placeholder={question.placeholder}
               {...register(question.id, getValidationRules())}
-              className={`min-h-[100px] ${
-                errors[question.id] ? "border-red-500" : ""
-              }`}
+              className={`min-h-[100px] ${errors[question.id] ? "border-red-500" : ""}`}
             />
             {errors[question.id] && (
-              <p className="text-sm text-red-500">
-                {String(errors[question.id]?.message || "")}
-              </p>
+              <p className="text-sm text-red-500">{String(errors[question.id]?.message || "")}</p>
             )}
           </div>
         );
@@ -391,14 +326,10 @@ export function DynamicFormRenderer({
           <div key={question.id} className="space-y-2">
             <Label className="text-sm font-medium">
               {question.label}
-              {question.required && (
-                <span className="text-red-500 ml-1">*</span>
-              )}
+              {question.required && <span className="ml-1 text-red-500">*</span>}
             </Label>
             {question.helpText && (
-              <p className="text-sm text-muted-foreground">
-                {question.helpText}
-              </p>
+              <p className="text-muted-foreground text-sm">{question.helpText}</p>
             )}
             <Controller
               name={question.id}
@@ -406,12 +337,8 @@ export function DynamicFormRenderer({
               rules={getValidationRules()}
               render={({ field }) => (
                 <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger
-                    className={errors[question.id] ? "border-red-500" : ""}
-                  >
-                    <SelectValue
-                      placeholder={question.placeholder || "Select an option"}
-                    />
+                  <SelectTrigger className={errors[question.id] ? "border-red-500" : ""}>
+                    <SelectValue placeholder={question.placeholder || "Select an option"} />
                   </SelectTrigger>
                   <SelectContent>
                     {question.options?.map((option) => (
@@ -424,9 +351,7 @@ export function DynamicFormRenderer({
               )}
             />
             {errors[question.id] && (
-              <p className="text-sm text-red-500">
-                {String(errors[question.id]?.message || "")}
-              </p>
+              <p className="text-sm text-red-500">{String(errors[question.id]?.message || "")}</p>
             )}
           </div>
         );
@@ -436,14 +361,10 @@ export function DynamicFormRenderer({
           <div key={question.id} className="space-y-3">
             <Label className="text-sm font-medium">
               {question.label}
-              {question.required && (
-                <span className="text-red-500 ml-1">*</span>
-              )}
+              {question.required && <span className="ml-1 text-red-500">*</span>}
             </Label>
             {question.helpText && (
-              <p className="text-sm text-muted-foreground">
-                {question.helpText}
-              </p>
+              <p className="text-muted-foreground text-sm">{question.helpText}</p>
             )}
             <div className="space-y-3">
               {question.options?.map((option) => (
@@ -456,26 +377,18 @@ export function DynamicFormRenderer({
                       <Checkbox
                         id={`${question.id}-${option.value}`}
                         checked={
-                          Array.isArray(field.value)
-                            ? field.value.includes(option.value)
-                            : false
+                          Array.isArray(field.value) ? field.value.includes(option.value) : false
                         }
                         onCheckedChange={(checked) => {
-                          const currentValues = Array.isArray(field.value)
-                            ? field.value
-                            : [];
-                          handleCheckboxChange(
-                            question.id,
-                            option.value,
-                            currentValues
-                          );
+                          const currentValues = Array.isArray(field.value) ? field.value : [];
+                          handleCheckboxChange(question.id, option.value, currentValues);
                         }}
                       />
                     )}
                   />
                   <Label
                     htmlFor={`${question.id}-${option.value}`}
-                    className="text-sm font-normal cursor-pointer"
+                    className="cursor-pointer text-sm font-normal"
                   >
                     {option.label}
                   </Label>
@@ -483,9 +396,7 @@ export function DynamicFormRenderer({
               ))}
             </div>
             {errors[question.id] && (
-              <p className="text-sm text-red-500">
-                {String(errors[question.id]?.message || "")}
-              </p>
+              <p className="text-sm text-red-500">{String(errors[question.id]?.message || "")}</p>
             )}
           </div>
         );
@@ -495,14 +406,10 @@ export function DynamicFormRenderer({
           <div key={question.id} className="space-y-3">
             <Label className="text-sm font-medium">
               {question.label}
-              {question.required && (
-                <span className="text-red-500 ml-1">*</span>
-              )}
+              {question.required && <span className="ml-1 text-red-500">*</span>}
             </Label>
             {question.helpText && (
-              <p className="text-sm text-muted-foreground">
-                {question.helpText}
-              </p>
+              <p className="text-muted-foreground text-sm">{question.helpText}</p>
             )}
             <Controller
               name={question.id}
@@ -515,17 +422,11 @@ export function DynamicFormRenderer({
                   className="space-y-3"
                 >
                   {question.options?.map((option) => (
-                    <div
-                      key={option.value}
-                      className="flex items-center space-x-3"
-                    >
-                      <RadioGroupItem
-                        value={option.value}
-                        id={`${question.id}-${option.value}`}
-                      />
+                    <div key={option.value} className="flex items-center space-x-3">
+                      <RadioGroupItem value={option.value} id={`${question.id}-${option.value}`} />
                       <Label
                         htmlFor={`${question.id}-${option.value}`}
-                        className="text-sm font-normal cursor-pointer"
+                        className="cursor-pointer text-sm font-normal"
                       >
                         {option.label}
                       </Label>
@@ -535,9 +436,7 @@ export function DynamicFormRenderer({
               )}
             />
             {errors[question.id] && (
-              <p className="text-sm text-red-500">
-                {String(errors[question.id]?.message || "")}
-              </p>
+              <p className="text-sm text-red-500">{String(errors[question.id]?.message || "")}</p>
             )}
           </div>
         );
@@ -550,29 +449,29 @@ export function DynamicFormRenderer({
   const getIconComponent = (iconName?: string) => {
     switch (iconName) {
       case "User":
-        return <Users className="w-5 h-5" />;
+        return <Users className="h-5 w-5" />;
       case "Users":
-        return <Users className="w-5 h-5" />;
+        return <Users className="h-5 w-5" />;
       case "Clock":
-        return <Clock className="w-5 h-5" />;
+        return <Clock className="h-5 w-5" />;
       case "HelpCircle":
-        return <HelpCircle className="w-5 h-5" />;
+        return <HelpCircle className="h-5 w-5" />;
       case "FileText":
-        return <FileText className="w-5 h-5" />;
+        return <FileText className="h-5 w-5" />;
       case "Search":
-        return <Search className="w-5 h-5" />;
+        return <Search className="h-5 w-5" />;
       case "Settings":
-        return <Settings className="w-5 h-5" />;
+        return <Settings className="h-5 w-5" />;
       default:
-        return <HelpCircle className="w-5 h-5" />;
+        return <HelpCircle className="h-5 w-5" />;
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+      <div className="mx-auto max-w-2xl">
+        <div className="mb-8 text-center">
+          <h1 className="mb-2 text-3xl font-semibold text-gray-900">
             Contract Advice Request Form
           </h1>
           <p className="text-gray-600">
@@ -591,26 +490,17 @@ export function DynamicFormRenderer({
             if (sectionQuestions.length === 0) return null;
 
             return (
-              <Card
-                key={section.id}
-                className="border border-gray-200 bg-white"
-              >
+              <Card key={section.id} className="border border-gray-200 bg-white">
                 <CardContent className="p-6">
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="mb-4 flex items-center gap-2">
                     {getIconComponent(section.icon)}
-                    <h2 className="text-lg font-medium text-gray-900">
-                      {section.title}
-                    </h2>
+                    <h2 className="text-lg font-medium text-gray-900">{section.title}</h2>
                   </div>
                   {section.description && (
-                    <p className="text-sm text-gray-600 mb-6">
-                      {section.description}
-                    </p>
+                    <p className="mb-6 text-sm text-gray-600">{section.description}</p>
                   )}
 
-                  <div className="space-y-4">
-                    {sectionQuestions.map(renderQuestion)}
-                  </div>
+                  <div className="space-y-4">{sectionQuestions.map(renderQuestion)}</div>
                 </CardContent>
               </Card>
             );
@@ -621,7 +511,7 @@ export function DynamicFormRenderer({
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-green-700 hover:bg-green-600 text-white px-8 py-2"
+              className="bg-green-700 px-8 py-2 text-white hover:bg-green-600"
             >
               {isSubmitting ? "Submitting..." : "Submit Request"}
             </Button>

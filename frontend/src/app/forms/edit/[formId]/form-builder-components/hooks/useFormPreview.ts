@@ -1,22 +1,21 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 
-const useFormPreview = ()=>{
-
+const useFormPreview = () => {
   const [showPreview, setShowPreview] = useState<boolean>(false);
 
-  const openPreviewDrawer = ()=>{
+  const openPreviewDrawer = () => {
     setShowPreview(true);
-  }
+  };
 
-  const closePreviewDrawer = ()=>{
+  const closePreviewDrawer = () => {
     setShowPreview(false);
-  }
+  };
 
   return {
     showPreview,
     openPreviewDrawer,
-    closePreviewDrawer
-  }
+    closePreviewDrawer,
+  };
 };
 
 export default useFormPreview;

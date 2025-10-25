@@ -7,18 +7,11 @@ type Props = {
 };
 
 const ResultsDisplay = async ({ formId }: Props) => {
-  const singleForm = (await db
-    .select()
-    .from(form)
-    .where(eq(form.id, formId))
-    .limit(1))?.[0];
+  const singleForm = (await db.select().from(form).where(eq(form.id, formId)).limit(1))?.[0];
 
   if (!singleForm) return null;
 
-  const submissions = await db
-    .select()
-    .from(formResults)
-    .where(eq(formResults.formId, formId));
+  const submissions = await db.select().from(formResults).where(eq(formResults.formId, formId));
 
   if (!submissions || submissions.length === 0) {
     return <p>No submissions on this form yet!</p>;
@@ -28,4 +21,3 @@ const ResultsDisplay = async ({ formId }: Props) => {
 };
 
 export default ResultsDisplay;
-

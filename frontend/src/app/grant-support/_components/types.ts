@@ -6,18 +6,14 @@ export const FormSectionChildrenItemsSchema = z.object({
   value: z.string(),
   label: z.string(),
 });
-export type FormSectionChildrenItemsType = z.infer<
-  typeof FormSectionChildrenItemsSchema
->;
+export type FormSectionChildrenItemsType = z.infer<typeof FormSectionChildrenItemsSchema>;
 
 const ComponentToMakeVisibleSchema = z.object({
   containerToMakeVisible: z.string(),
   optionThatMakesVisible: z.string(),
 });
 
-export type ComponentToMakeVisibleSchemaType = z.infer<
-  typeof ComponentToMakeVisibleSchema
->;
+export type ComponentToMakeVisibleSchemaType = z.infer<typeof ComponentToMakeVisibleSchema>;
 
 // Children type
 export const FormSectionChildrenSchema = z.object({
@@ -64,9 +60,7 @@ export const FormSectionContainerSchema = z.object({
     .optional(), // Add this line
 });
 
-export type FormSectionContainerType = z.infer<
-  typeof FormSectionContainerSchema
->;
+export type FormSectionContainerType = z.infer<typeof FormSectionContainerSchema>;
 
 // Section type (formerly FormLayoutComponentsSchema)
 export const FormSectionSchema = z.object({
@@ -155,12 +149,7 @@ export const FormResultSchema = z.object({
 
 export type FormResult = z.infer<typeof FormResultSchema>;
 
-export const formStatusEnum = z.enum([
-  "Active",
-  "Draft",
-  "Published",
-  "Archived",
-]); // Add "Active"
+export const formStatusEnum = z.enum(["Active", "Draft", "Published", "Archived"]); // Add "Active"
 
 export const formSchema = z.object({
   id: z.string().transform((val) => parseInt(val, 10)), // Convert string id to number

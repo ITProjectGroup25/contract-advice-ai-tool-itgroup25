@@ -14,9 +14,9 @@ const Header = async (props: Props) => {
   const session: Session | null = await getServerSession(authOptions as any);
 
   return (
-    <header className="border bottom-1">
+    <header className="bottom-1 border">
       <nav className="border-gray-200 px-4 py-3">
-        <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
+        <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between">
           <Link href="/">
             <h1 className="md:text-2xl lg:text-2xl">Grants Review Team</h1>
           </Link>
@@ -36,7 +36,7 @@ const Header = async (props: Props) => {
                     alt={session.user.name}
                     width={32}
                     height={32}
-                    className="rounded-full hidden md:block"
+                    className="hidden rounded-full md:block"
                   />
                 )}
                 <SignOutButton />

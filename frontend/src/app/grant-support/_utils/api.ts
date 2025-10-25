@@ -58,10 +58,7 @@ async function handleJsonResponse<T>(res: Response): Promise<T> {
       /* noop */
     }
 
-    const message =
-      detail?.message ||
-      detail?.error ||
-      `Request failed with status ${res.status}`;
+    const message = detail?.message || detail?.error || `Request failed with status ${res.status}`;
     throw new Error(message);
   }
   return (await res.json()) as T;
@@ -97,9 +94,7 @@ export async function fetchGrantSupportSubmissions(
   if (params.limit) query.set("limit", String(params.limit));
 
   const res = await fetch(
-    `/api/grant-support/submissions${
-      query.toString() ? `?${query.toString()}` : ""
-    }`
+    `/api/grant-support/submissions${query.toString() ? `?${query.toString()}` : ""}`
   );
   return handleJsonResponse<{
     submissions: GrantSupportSubmission[];
@@ -123,9 +118,7 @@ export async function updateGrantSupportSubmission(
   await handleJsonResponse(res);
 }
 
-export async function deleteGrantSupportSubmission(
-  submissionId: number
-): Promise<void> {
+export async function deleteGrantSupportSubmission(submissionId: number): Promise<void> {
   const res = await fetch(`/api/grant-support/submissions/${submissionId}`, {
     method: "DELETE",
   });
@@ -158,9 +151,7 @@ export async function fetchEmailConfig(): Promise<{
   }>(res);
 }
 
-export async function saveEmailConfig(
-  config: EmailConfig
-): Promise<EmailConfig> {
+export async function saveEmailConfig(config: EmailConfig): Promise<EmailConfig> {
   const res = await fetch("/api/v1/email-config", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },

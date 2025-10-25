@@ -30,16 +30,16 @@ export async function createNewForm(
 
   try {
     console.log("Creating form with name:", data.formName);
-    
+
     // Try direct SQL query as a workaround
     const connectionString = process.env.DATABASE_URL;
     if (!connectionString) {
       throw new Error("DATABASE_URL not configured");
     }
-    
+
     console.log("Using direct SQL connection...");
     const sql = postgres(connectionString);
-    
+
     try {
       // Insert using raw SQL
       const insertResult = await sql`
@@ -47,7 +47,7 @@ export async function createNewForm(
         VALUES (${data.formName}) 
         RETURNING *
       `;
-      
+
       console.log("SQL Insert result:", insertResult);
       console.log("Insert result length:", insertResult.length);
       console.log("First item:", insertResult[0]);
@@ -67,34 +67,32 @@ export async function createNewForm(
         console.error("No ID in returned record. Full result:", JSON.stringify(formRecord));
         throw new Error("Insert did not return an id. Record: " + JSON.stringify(formRecord));
       }
-      
+
       // Insert form details
       console.log("Creating form details for formId:", formId);
       await sql`
         INSERT INTO form_details (form_id, form_fields)
         VALUES (${formId}, ${JSON.stringify([])})
       `;
-      
+
       console.log("Form created successfully with ID:", formId);
-      
+
       await sql.end();
-      
+
       return {
         message: "success",
         data: { formId },
       };
-      
     } finally {
       // Make sure to close the connection
       await sql.end({ timeout: 1 });
     }
-
   } catch (error) {
     console.error("createNewForm failed", error);
-    
+
     // Provide more specific error messages
     let errorMessage = "Failed to create form";
-    
+
     if (error instanceof Error) {
       // Check for common database errors
       if (error.message.includes("relation") && error.message.includes("does not exist")) {
@@ -107,10 +105,9 @@ export async function createNewForm(
         errorMessage = `Failed to create form: ${error.message}`;
       }
     }
-    
+
     return {
       message: errorMessage,
     };
   }
 }
-

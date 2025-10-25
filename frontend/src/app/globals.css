@@ -4,20 +4,19 @@
 
 @layer base {
   :root {
-
-    --background: 200 33% 98%;          /* soft blue-gray backdrop */
-    --foreground: 222 47% 10%;          /* near-black text */
-    --card: 0 0% 100%;                  /* white cards */
+    --background: 200 33% 98%; /* soft blue-gray backdrop */
+    --foreground: 222 47% 10%; /* near-black text */
+    --card: 0 0% 100%; /* white cards */
     --card-foreground: 222 47% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 10%;
-    --primary: 222 83% 58%;             /* vibrant blue accent */
-    --primary-foreground: 210 40% 98%;  /* white on primary */
-    --secondary: 210 17% 93%;           /* pale panel */
+    --primary: 222 83% 58%; /* vibrant blue accent */
+    --primary-foreground: 210 40% 98%; /* white on primary */
+    --secondary: 210 17% 93%; /* pale panel */
     --secondary-foreground: 222 47% 20%;
     --muted: 210 17% 93%;
     --muted-foreground: 222 10% 40%;
-    --accent: 356 70% 56%;              /* coral highlight */
+    --accent: 356 70% 56%; /* coral highlight */
     --accent-foreground: 210 40% 98%;
     --border: 213 27% 84%;
     --input: 213 27% 90%;

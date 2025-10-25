@@ -28,9 +28,7 @@ import { Palette } from "lucide-react";
 
 export function ThemeChange() {
   const storedThemeString = localStorage.getItem("ai-form-builder-theme");
-  const selectedTheme = storedThemeString
-    ? JSON.parse(storedThemeString)
-    : slateTheme;
+  const selectedTheme = storedThemeString ? JSON.parse(storedThemeString) : slateTheme;
 
   const [theme, setTheme] = useState(selectedTheme);
 
@@ -48,10 +46,7 @@ export function ThemeChange() {
       localStorage.setItem("ai-form-builder-theme", JSON.stringify(slateTheme));
     } else if (selectedTheme === "Violet") {
       setTheme(violetTheme);
-      localStorage.setItem(
-        "ai-form-builder-theme",
-        JSON.stringify(violetTheme)
-      );
+      localStorage.setItem("ai-form-builder-theme", JSON.stringify(violetTheme));
     } else if (selectedTheme === "Red") {
       setTheme(redTheme);
       localStorage.setItem("ai-form-builder-theme", JSON.stringify(redTheme));
@@ -60,16 +55,10 @@ export function ThemeChange() {
       localStorage.setItem("ai-form-builder-theme", JSON.stringify(blueTheme));
     } else if (selectedTheme == "Orange") {
       setTheme(orangeTheme);
-      localStorage.setItem(
-        "ai-form-builder-theme",
-        JSON.stringify(orangeTheme)
-      );
+      localStorage.setItem("ai-form-builder-theme", JSON.stringify(orangeTheme));
     } else if (selectedTheme == "Neutral") {
       setTheme(neutralTheme);
-      localStorage.setItem(
-        "ai-form-builder-theme",
-        JSON.stringify(neutralTheme)
-      );
+      localStorage.setItem("ai-form-builder-theme", JSON.stringify(neutralTheme));
     }
   };
 
@@ -94,27 +83,27 @@ export function ThemeChange() {
         <MenubarContent>
           <MenubarRadioGroup onChange={handleChange}>
             <MenubarRadioItem value="slate">
-              <span className="w-3 h-3 rounded-full bg-slate-900 mr-4"></span>
+              <span className="mr-4 h-3 w-3 rounded-full bg-slate-900"></span>
               Slate
             </MenubarRadioItem>
             <MenubarRadioItem value="red">
-              <span className="w-3 h-3 rounded-full bg-red-900 mr-4"></span>
+              <span className="mr-4 h-3 w-3 rounded-full bg-red-900"></span>
               Red
             </MenubarRadioItem>
             <MenubarRadioItem value="orange">
-              <span className="w-3 h-3 rounded-full bg-orange-900 mr-4"></span>
+              <span className="mr-4 h-3 w-3 rounded-full bg-orange-900"></span>
               Orange
             </MenubarRadioItem>
             <MenubarRadioItem value="blue">
-              <span className="w-3 h-3 rounded-full bg-blue-900 mr-4"></span>
+              <span className="mr-4 h-3 w-3 rounded-full bg-blue-900"></span>
               Blue
             </MenubarRadioItem>
             <MenubarRadioItem value="violet">
-              <span className="w-3 h-3 rounded-full bg-violet-900 mr-4"></span>
+              <span className="mr-4 h-3 w-3 rounded-full bg-violet-900"></span>
               Violet
             </MenubarRadioItem>
             <MenubarRadioItem value="neautral">
-              <span className="w-3 h-3 rounded-full bg-neutral-900 mr-4"></span>
+              <span className="mr-4 h-3 w-3 rounded-full bg-neutral-900"></span>
               Neutral
             </MenubarRadioItem>
           </MenubarRadioGroup>
