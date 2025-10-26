@@ -4,11 +4,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AdminInterface } from "./AdminInterface";
-import { ChatBot } from "./ChatBot";
 import { DynamicFormRenderer } from "./DynamicFormRenderer/DynamicFormRenderer";
 import { PasswordDialog } from "./PasswordDialog";
 import { SimpleQueryResponse } from "./SimpleQueryResponse";
 import { SuccessPage } from "./SuccessPage";
+import { ChatBot } from "./chatbot/ChatBot";
 import { Form, FormSectionsType } from "./types";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
@@ -27,7 +27,7 @@ export default function App({ form, formId }: Props) {
   const [currentState, setCurrentState] = useState<AppState>("chatbot");
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [successPageType, setSuccessPageType] = useState<"complex" | "simple-escalated">("complex");
-  const [currentSubmissionId, setCurrentSubmissionId] = useState<string | undefined>();
+  const [currentSubmissionId, setCurrentSubmissionId] = useState<string | undefined>("GS-20251026-1YQ73Z");
 
   // Check EmailJS on app start
   useEffect(() => {
@@ -99,12 +99,14 @@ export default function App({ form, formId }: Props) {
     queryClient.invalidateQueries({ queryKey: ["form", formId] });
   };
 
+  console.log({currentSubmissionId})
+
   console.log({ sections });
 
   const renderCurrentView = () => {
     switch (currentState) {
       case "chatbot":
-        return <ChatBot onBack={handleBackToForm} />;
+        return <ChatBot onBack={handleBackToForm} submissionId={currentSubmissionId} />;
       case "simple-response":
         return (
           <SimpleQueryResponse
