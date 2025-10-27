@@ -1,8 +1,9 @@
 import { getFaqs } from "@/app/actions/getFaqs";
 import { getSubmission } from "@/app/actions/getSubmission";
 import { useQuery } from "@tanstack/react-query";
-import { extractFaqSelections, matchFaqWithSubmission } from "./utils/faqMatchingUtils";
 import { SelectedFormSectionsType } from "../selected-sections.type";
+import { extractFaqSelections } from "./utils/extractFaqSelections";
+import { matchFaqWithSubmission } from "./utils/faqMatchingUtils";
 
 interface FormData {
   [key: string]: any;

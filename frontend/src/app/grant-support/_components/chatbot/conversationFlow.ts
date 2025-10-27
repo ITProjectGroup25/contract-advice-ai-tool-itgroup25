@@ -1,13 +1,14 @@
 import { ChatOption } from "./ChatBot";
+import { MatchedFAQ } from "./useGetFaq";
+import { extractFaqFieldInfo } from "./utils/extractFaqFieldInfo";
 
 interface ChatNode {
   id: string;
   message: string;
   options?: ChatOption[];
   allowFreeText?: boolean;
-  onUserInput?: (input: string) => string | void; // Returns next node ID or void
+  onUserInput?: (input: string) => string | void;
 }
-
 
 export const conversationFlow: Record<string, ChatNode> = {
   start: {
@@ -109,7 +110,6 @@ export const conversationFlow: Record<string, ChatNode> = {
       "To check your application status, please provide your application ID (format: APP-XXXXX):",
     allowFreeText: true,
     onUserInput: (input: string) => {
-      // Simple validation for demo purposes
       if (input.toUpperCase().startsWith("APP-")) {
         return "status_found";
       }
@@ -157,7 +157,6 @@ export const conversationFlow: Record<string, ChatNode> = {
       "I'll connect you with our grants team. They typically respond within 1-2 business days. Please provide your email address so they can reach you:",
     allowFreeText: true,
     onUserInput: (input: string) => {
-      // Basic email validation
       if (input.includes("@")) {
         return "escalate_complete";
       }
@@ -190,4 +189,48 @@ export const conversationFlow: Record<string, ChatNode> = {
       "Thank you for using our Grants Assistant! If you have any other questions in the future, feel free to start a new chat. Have a great day!",
     options: [],
   },
+
+  // New FAQ-based flow nodes
+  faq_found: {
+    id: "faq_found",
+    message: "", // Will be dynamically set
+    options: [
+      { id: "opt1", text: "Yes, this answers my question", nextNodeId: "faq_satisfied" },
+      { id: "opt2", text: "No, I need further human assistance", nextNodeId: "faq_escalate" },
+    ],
+  },
+  faq_satisfied: {
+    id: "faq_satisfied",
+    message:
+      "Great! I'm glad I could help. If you have any other questions in the future, feel free to reach out. Have a great day!",
+    options: [],
+  },
+  faq_escalate: {
+    id: "faq_escalate",
+    message:
+      "No problem! We have forwarded your form to the RIC staff who will contact you at their earliest availability. They will reach out to you soon with further assistance.",
+    options: [],
+  },
+  faq_not_found: {
+    id: "faq_not_found",
+    message:
+      "Unfortunately, we have not found any pre-prepared answers for your form selections. We have forwarded your form to the RIC staff who will contact you at their earliest availability.",
+    options: [],
+  },
 };
+
+// Helper function to generate FAQ found message with better formatting
+export function generateFaqFoundMessage(faq: MatchedFAQ): string {
+  const fieldInfo = extractFaqFieldInfo(faq);
+
+  let selectionsText = "";
+  if (fieldInfo.length > 0) {
+    selectionsText = fieldInfo
+      .map(({ question, answer }) => `**${question}:** ${answer}`)
+      .join("\n");
+  } else {
+    selectionsText = "your selections";
+  }
+
+  return `Good news! We have found pre-prepared answers for your form selections provided by the RIC Staff.\n\n**Your Selections:**\n${selectionsText}\n\n**Answer from RIC Staff:**\n${faq.answer}\n\nDoes this answer your question?`;
+}

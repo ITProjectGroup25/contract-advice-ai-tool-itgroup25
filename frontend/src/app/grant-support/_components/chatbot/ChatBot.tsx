@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
-import { conversationFlow } from "./conversationFlow";
+import { conversationFlow, generateFaqFoundMessage } from "./conversationFlow";
 import { useGetFaq } from "./useGetFaq";
 
 // Define the structure for conversation flow
@@ -23,10 +23,6 @@ export interface ChatOption {
   action?: () => void;
 }
 
-
-// Define your conversation flow here
-
-
 interface ChatBotProps {
   onBack?: () => void;
   initialNodeId?: string;
@@ -34,13 +30,12 @@ interface ChatBotProps {
 }
 
 export function ChatBot({ onBack, initialNodeId = "start", submissionId }: ChatBotProps) {
-
   const { matchedFaqs, submission, isLoading, error } = useGetFaq({
     submissionUid: submissionId,
     formId: 2,
   });
 
-  console.log({matchedFaqs, submission})
+  console.log({ matchedFaqs, submission });
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentNodeId, setCurrentNodeId] = useState(initialNodeId);
@@ -58,16 +53,40 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId }: ChatB
     scrollToBottom();
   }, [messages]);
 
-  // Initialize with first message
+  // Initialize with FAQ-based flow when submission is loaded
   useEffect(() => {
-    if (hasInitialized.current) return;
-    
+    if (hasInitialized.current || isLoading || !submissionId) return;
+
+    hasInitialized.current = true;
+
+    // Check if we have matched FAQs
+    if (matchedFaqs && matchedFaqs.length > 0) {
+      // Use the highest scoring FAQ
+      const topFaq = matchedFaqs[0];
+      const faqMessage = generateFaqFoundMessage(topFaq);
+      
+      // Update the faq_found node message dynamically
+      conversationFlow.faq_found.message = faqMessage;
+      
+      setCurrentNodeId("faq_found");
+      addBotMessage(faqMessage);
+    } else {
+      // No FAQs found
+      setCurrentNodeId("faq_not_found");
+      addBotMessage(conversationFlow.faq_not_found.message);
+    }
+  }, [matchedFaqs, isLoading, submissionId]);
+
+  // Fallback initialization for non-submission flow
+  useEffect(() => {
+    if (hasInitialized.current || submissionId) return;
+
     const initialNode = conversationFlow[initialNodeId];
     if (initialNode) {
       hasInitialized.current = true;
       addBotMessage(initialNode.message);
     }
-  }, [initialNodeId]);
+  }, [initialNodeId, submissionId]);
 
   const addBotMessage = (text: string) => {
     setIsTyping(true);
@@ -80,7 +99,7 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId }: ChatB
       };
       setMessages((prev) => [...prev, newMessage]);
       setIsTyping(false);
-    }, 500); // Simulate typing delay
+    }, 500);
   };
 
   const addUserMessage = (text: string) => {
@@ -138,11 +157,27 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId }: ChatB
   const currentNode = conversationFlow[currentNodeId];
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex h-[600px] items-center justify-center">
+        <div className="text-center">
+          <Bot className="mx-auto mb-4 h-12 w-12 animate-pulse text-blue-600" />
+          <p className="text-gray-600">Loading your information...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error: {error.message}</div>;
+    return (
+      <div className="flex h-[600px] items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600">Error: {error.message}</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -203,7 +238,18 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId }: ChatB
                         : "bg-green-600 text-white"
                     }`}
                   >
-                    <p className="whitespace-pre-line text-sm">{message.text}</p>
+                    <p className="whitespace-pre-line text-sm">
+                      {message.text.split(/(\*\*.*?\*\*)/).map((part, index) => {
+                        if (part.startsWith('**') && part.endsWith('**')) {
+                          return (
+                            <strong key={index} className="font-bold text-blue-700">
+                              {part.slice(2, -2)}
+                            </strong>
+                          );
+                        }
+                        return part;
+                      })}
+                    </p>
                   </div>
                 </div>
               </div>

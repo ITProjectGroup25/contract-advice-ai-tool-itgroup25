@@ -1,5 +1,5 @@
 // @ts-ignore
-import { test, expect } from 'bun:test';
+import { expect, test } from 'bun:test';
 import { matchFaqWithSubmission } from './faqMatchingUtils';
 
 test('matchFaqWithSubmission - should match FAQ with real database structure', () => {
@@ -108,7 +108,7 @@ test('matchFaqWithSubmission - should match FAQ with real database structure', (
     'Query Type': 'Complex',
     'Your Email': 'bradysuryasie@gmail.com',
     'Is UOM the lead?': 'Yes',
-  };
+  } as any;
 
   const result = matchFaqWithSubmission(faq, formData);
 
