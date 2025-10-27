@@ -1,102 +1,5 @@
-/**
- * FAQ Matching Utilities
- * 
- * This module contains functions for extracting selections from FAQ structures
- * and matching them against form submission data.
- */
-
-interface FormData {
-  [key: string]: any;
-}
-
-interface FAQ {
-  id: number;
-  form_id: number;
-  name: string;
-  answer: string;
-  selections: string[] | null;
-  created_at: string;
-  updated_at: string;
-  children?: any[];
-  container?: any;
-}
-
-interface MatchedFAQ extends FAQ {
-  matchScore: number;
-  matchedSelections: string[];
-}
-
-/**
- * Extracts selected values from FAQ structure (form builder format)
- * Handles nested children array with selected items
- * 
- * @param faq - The FAQ object to extract selections from
- * @returns Array of unique, non-empty string selections
- * 
- * @example
- * const faq = {
- *   selections: ["keyword1"],
- *   children: [{
- *     items: [{ value: "ARC-D", selected: true }],
- *     labelName: "Grant Team"
- *   }]
- * };
- * extractFaqSelections(faq); // ["keyword1", "ARC-D", "Grant Team"]
- */
-export function extractFaqSelections(faq: any): string[] {
-  const selections: string[] = [];
-  
-  // Handle different FAQ structures
-  if (faq.selections && Array.isArray(faq.selections)) {
-    // Direct selections array - ensure all are strings
-    faq.selections.forEach((sel: any) => {
-      if (sel !== null && sel !== undefined) {
-        selections.push(String(sel));
-      }
-    });
-  }
-  
-  // Extract from form builder structure (children array)
-  if (faq.children && Array.isArray(faq.children)) {
-    faq.children.forEach((child: any) => {
-      if (child.items && Array.isArray(child.items)) {
-        child.items.forEach((item: any) => {
-          if (item.selected === true) {
-            if (item.value !== null && item.value !== undefined) {
-              selections.push(String(item.value));
-            }
-            if (item.label && item.label !== item.value && item.label !== null && item.label !== undefined) {
-              selections.push(String(item.label));
-            }
-          }
-        });
-      }
-      
-      // Also check selectedOptionLabel
-      if (child.selectedOptionLabel !== null && child.selectedOptionLabel !== undefined) {
-        selections.push(String(child.selectedOptionLabel));
-      }
-      
-      // Check labelName (field name)
-      if (child.labelName !== null && child.labelName !== undefined) {
-        selections.push(String(child.labelName));
-      }
-    });
-  }
-  
-  // Extract from container
-  if (faq.container) {
-    if (faq.container.heading !== null && faq.container.heading !== undefined) {
-      selections.push(String(faq.container.heading));
-    }
-    if (faq.container.selectedControlOption !== null && faq.container.selectedControlOption !== undefined) {
-      selections.push(String(faq.container.selectedControlOption));
-    }
-  }
-  
-  // Filter out empty strings and remove duplicates
-  return [...new Set(selections.filter(s => s && s.trim().length > 0))];
-}
+import { FAQ, MatchedFAQ } from "../useGetFaq";
+import { extractFaqSelections } from "./extractFaqSelections";
 
 /**
  * Normalizes form_data values for matching
@@ -219,6 +122,8 @@ export function isSelectionMatched(
 export function matchFaqWithSubmission(faq: FAQ, formData: FormData): MatchedFAQ {
   // Extract selections from FAQ (handles both flat and nested structures)
   const selections = extractFaqSelections(faq);
+
+  console.log({selections})
   
   if (!selections || selections.length === 0) {
     return {

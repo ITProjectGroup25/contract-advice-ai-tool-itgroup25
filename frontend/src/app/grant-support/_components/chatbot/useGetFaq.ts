@@ -2,6 +2,7 @@ import { getFaqs } from "@/app/actions/getFaqs";
 import { getSubmission } from "@/app/actions/getSubmission";
 import { useQuery } from "@tanstack/react-query";
 import { extractFaqSelections, matchFaqWithSubmission } from "./utils/faqMatchingUtils";
+import { SelectedFormSectionsType } from "../selected-sections.type";
 
 interface FormData {
   [key: string]: any;
@@ -12,17 +13,17 @@ interface Submission {
   form_data: FormData;
 }
 
-interface FAQ {
+export interface FAQ {
   id: number;
   form_id: number;
   name: string;
   answer: string;
-  selections: string[] | null;
+  selections: SelectedFormSectionsType;
   created_at: string;
   updated_at: string;
 }
 
-interface MatchedFAQ extends FAQ {
+export interface MatchedFAQ extends FAQ {
   matchScore: number;
   matchedSelections: string[];
 }
@@ -43,9 +44,19 @@ interface UseGetFaqParams {
 
 /**
  * Custom hook to fetch submission data and matching FAQs using server actions
+ * 
  * @param submissionUid - The unique identifier for the submission
  * @param formId - The form ID to fetch FAQs for
  * @param enabled - Whether the query should run (default: true)
+ * 
+ * @returns Object containing matched FAQs, all FAQs, submission data, loading state, and error
+ * 
+ * @example
+ * const { matchedFaqs, isLoading, error } = useGetFaq({
+ *   submissionUid: "abc-123",
+ *   formId: 1,
+ *   enabled: true
+ * });
  */
 export function useGetFaq({
   submissionUid,
@@ -60,7 +71,7 @@ export function useGetFaq({
       }
 
       // Fetch submission data using server action
-      const submissionResult = await getSubmission({submissionUid});
+      const submissionResult = await getSubmission({ submissionUid });
 
       if (submissionResult.message === "error") {
         throw new Error(submissionResult.error || "Failed to fetch submission");
@@ -91,6 +102,11 @@ export function useGetFaq({
       const matchedFaqs = faqs
         .map((faq: FAQ) => {
           const matched = matchFaqWithSubmission(faq, submissionData.form_data);
+
+          console.log({faq})
+
+          console.log({matched})
+
           const selections = extractFaqSelections(faq);
           console.log(`🔍 FAQ matching result:`, {
             faqId: faq.id,
