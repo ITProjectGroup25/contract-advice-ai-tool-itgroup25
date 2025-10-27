@@ -1,13 +1,12 @@
 "use client";
 
-import Image from "next/image";
+import { AlertCircle, ArrowLeft, Bot, CheckCircle, ThumbsUp } from "lucide-react";
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Bot, ArrowLeft, ThumbsUp, CheckCircle, AlertCircle } from "lucide-react";
+import { GrantTeamEmailData, emailService } from "../_utils/emailService";
 import { localDB } from "../_utils/localDatabase";
-import { emailService, GrantTeamEmailData } from "../_utils/emailService";
-import exampleImage from "../_assets/automated-response.png";
+import { ChatBot } from "./chatbot/ChatBot";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 interface SimpleQueryResponseProps {
   onBack: () => void;
@@ -103,6 +102,7 @@ export function SimpleQueryResponse({
     );
   }
 
+
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       <div className="flex items-center gap-4">
@@ -130,17 +130,12 @@ export function SimpleQueryResponse({
           <CardDescription>Automated guidance based on your query</CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-6">
-          <div className="bg-muted rounded-lg p-4">
-            <div className="prose prose-sm max-w-none">
-              <Image
-                src={exampleImage}
-                alt="Automated response example showing guidance for contractual clause reviews and grant compliance queries"
-                className="w-full max-w-none rounded-md"
-              />
-            </div>
-          </div>
+              
+        <ChatBot submissionId={submissionId} />;
 
+
+        <CardContent className="space-y-6">
+      
           <div className="border-t pt-6">
             <h3 className="mb-4 text-lg">Was this response helpful?</h3>
             <p className="text-muted-foreground mb-6">

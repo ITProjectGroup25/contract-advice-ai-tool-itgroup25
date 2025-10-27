@@ -8,7 +8,6 @@ import { DynamicFormRenderer } from "./DynamicFormRenderer/DynamicFormRenderer";
 import { PasswordDialog } from "./PasswordDialog";
 import { SimpleQueryResponse } from "./SimpleQueryResponse";
 import { SuccessPage } from "./SuccessPage";
-import { ChatBot } from "./chatbot/ChatBot";
 import { Form, FormSectionsType } from "./types";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
@@ -105,8 +104,6 @@ export default function App({ form, formId }: Props) {
 
   const renderCurrentView = () => {
     switch (currentState) {
-      case "chatbot":
-        return <ChatBot onBack={handleBackToForm} submissionId={currentSubmissionId} />;
       case "simple-response":
         return (
           <SimpleQueryResponse
