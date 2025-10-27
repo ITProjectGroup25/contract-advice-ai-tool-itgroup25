@@ -108,17 +108,22 @@ test('matchFaqWithSubmission - should match FAQ with real database structure', (
     'Query Type': 'Complex',
     'Your Email': 'bradysuryasie@gmail.com',
     'Is UOM the lead?': 'Yes',
-  } as any;
+  };
 
+    //   @ts-ignore 
   const result = matchFaqWithSubmission(faq, formData);
 
-  // Should match: ARC-D, Grant Team, Grants Team, Yes, Is UOM the lead?, Project Details, Complex
+  // FAQ now extracts only selectedOptionLabels: ["ARC-D", "Yes"]
+  // These should match formData values
   expect(result.matchScore).toBeGreaterThan(0);
-    expect(result.matchedSelections).toContain('ARC-D');
-    expect(result.matchedSelections).toContain('Grant Team');
-    expect(result.matchedSelections).toContain('Yes');
-    expect(result.matchedSelections).toContain('Complex');
+  expect(result.matchedSelections).toContain('ARC-D');
+  expect(result.matchedSelections).toContain('Yes');
+  
+  // Should NOT match field names or container data (those aren't extracted anymore)
+  expect(result.matchedSelections).not.toContain('Grant Team');
+  expect(result.matchedSelections).not.toContain('Complex');
   
   console.log('✅ Match Score:', result.matchScore);
   console.log('✅ Matched Selections:', result.matchedSelections);
+  console.log('✅ Extracted from FAQ:', ['ARC-D', 'Yes']);
 });
