@@ -24,7 +24,7 @@ export default function App({ form, formId }: Props) {
   const queryClient = useQueryClient();
 
   const { formSections: sections } = form;
-  const [currentState, setCurrentState] = useState<AppState>("chatbot");
+  const [currentState, setCurrentState] = useState<AppState>("simple-response");
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [successPageType, setSuccessPageType] = useState<"complex" | "simple-escalated">("complex");
   const [currentSubmissionId, setCurrentSubmissionId] = useState<string | undefined>("GS-20251026-1YQ73Z");
