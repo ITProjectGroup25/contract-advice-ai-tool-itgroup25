@@ -12,7 +12,7 @@ import { Form, FormSectionsType } from "./types";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
 
-type AppState = "form" | "simple-response" | "success" | "admin" | "chatbot";
+type AppState = "form" | "simple-response" | "success" | "admin" 
 
 type Props = {
   form: Form;
@@ -23,10 +23,10 @@ export default function App({ form, formId }: Props) {
   const queryClient = useQueryClient();
 
   const { formSections: sections } = form;
-  const [currentState, setCurrentState] = useState<AppState>("simple-response");
+  const [currentState, setCurrentState] = useState<AppState>("form");
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [successPageType, setSuccessPageType] = useState<"complex" | "simple-escalated">("complex");
-  const [currentSubmissionId, setCurrentSubmissionId] = useState<string | undefined>("GS-20251026-1YQ73Z");
+  const [currentSubmissionId, setCurrentSubmissionId] = useState<string | undefined>();
 
   // Check EmailJS on app start
   useEffect(() => {
