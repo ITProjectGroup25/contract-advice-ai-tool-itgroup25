@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Bot, Send, User, ThumbsUp, AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowLeft, Bot, Send, ThumbsUp, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -42,9 +42,12 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
   const [currentNodeId, setCurrentNodeId] = useState(initialNodeId);
   const [userInput, setUserInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
+  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,6 +56,37 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (countdown !== null && countdown > 0) {
+      countdownTimerRef.current = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+    } else if (countdown === 0) {
+      setIsRedirecting(true);
+      
+      // Call parent callbacks when countdown completes
+      // Check which flow we're in based on current node
+      const currentNode = conversationFlow[currentNodeId];
+      if (currentNode) {
+        // If we're at faq_satisfied node (after "Yes, helped!")
+        if (currentNodeId === "faq_satisfied" && onSatisfied) {
+          onSatisfied();
+        }
+        // If we're at faq_escalate node (after "Need help")
+        else if (currentNodeId === "faq_escalate" && onNeedHelp) {
+          onNeedHelp();
+        }
+      }
+    }
+
+    return () => {
+      if (countdownTimerRef.current) {
+        clearTimeout(countdownTimerRef.current);
+      }
+    };
+  }, [countdown, currentNodeId, onSatisfied, onNeedHelp]);
 
   // Initialize with FAQ-based flow when submission is loaded
   useEffect(() => {
@@ -156,25 +190,41 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
   };
 
   // Custom handlers for FAQ buttons
-  const handleSatisfied = () => {
-    if (onSatisfied) {
-      // Use parent callback if provided
-      onSatisfied();
-    } else {
-      // Default behavior
-      const option = conversationFlow.faq_found.options?.find(opt => opt.id === "opt1");
-      if (option) handleOptionClick(option);
+  const handleSatisfied = async () => {
+    // First show the conversation message
+    const option = conversationFlow.faq_found.options?.find(opt => opt.id === "opt1");
+    if (option) {
+      handleOptionClick(option);
+      
+      // Wait for message to be added, then start countdown
+      setTimeout(() => {
+        setCountdown(10); // Start 10 second countdown
+      }, 600); // Wait for message animation
     }
   };
 
-  const handleNeedHelp = () => {
-    if (onNeedHelp) {
-      // Use parent callback if provided
-      onNeedHelp();
-    } else {
-      // Default behavior
-      const option = conversationFlow.faq_found.options?.find(opt => opt.id === "opt2");
-      if (option) handleOptionClick(option);
+  const handleNeedHelp = async () => {
+    // First show the conversation message
+    const option = conversationFlow.faq_found.options?.find(opt => opt.id === "opt2");
+    if (option) {
+      handleOptionClick(option);
+      
+      // Wait for message to be added, then start countdown and download
+      setTimeout(async () => {
+        setCountdown(10); // Start 10 second countdown
+        
+        // Trigger image download
+        try {
+          const link = document.createElement('a');
+          link.href = '/exampleImage.png'; // Adjust path to your image
+          link.download = 'exampleImage.png';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } catch (error) {
+          console.error('Failed to download image:', error);
+        }
+      }, 600); // Wait for message animation
     }
   };
 
@@ -287,6 +337,24 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
             </div>
           )}
 
+          {/* Countdown timer message */}
+          {countdown !== null && (
+            <div className="flex justify-center">
+              <div className="rounded-lg border-2 border-orange-300 bg-orange-50 px-6 py-4 text-center">
+                <p className="text-sm font-semibold text-orange-800">
+                  {isRedirecting ? (
+                    "Redirecting now..."
+                  ) : (
+                    <>
+                      We are going to redirect you to the debrief page in{" "}
+                      <span className="text-lg font-bold">{countdown}</span> seconds
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
 
@@ -294,23 +362,33 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
         <div className="border-t bg-gray-50 p-4">
           {/* Special styling for FAQ response buttons */}
           {currentNodeId === "faq_found" && currentNode?.options && currentNode.options.length > 0 && (
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button
-                onClick={handleSatisfied}
-                className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
-              >
-                <ThumbsUp className="h-4 w-4" />
-                Yes, this helped!
-              </Button>
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button
+                  onClick={handleSatisfied}
+                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
+                >
+                  <ThumbsUp className="h-4 w-4" />
+                  Yes, this helped!
+                </Button>
 
-              <Button
-                onClick={handleNeedHelp}
-                variant="outline"
-                className="flex items-center justify-center gap-2 border-orange-200 hover:bg-orange-50"
-              >
-                <AlertCircle className="h-4 w-4 text-orange-600" />
-                I need human assistance
-              </Button>
+                <Button
+                  onClick={handleNeedHelp}
+                  variant="outline"
+                  className="flex items-center justify-center gap-2 border-orange-200 hover:bg-orange-50"
+                >
+                  <AlertCircle className="h-4 w-4 text-orange-600" />
+                  I need human assistance
+                </Button>
+              </div>
+
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                <p className="text-sm text-blue-800">
+                  <strong>Note:</strong> If you selected &quot;I need human assistance,&quot; your
+                  original form submission will be forwarded to our grants team for manual review.
+                  You&apos;ll receive a response within 1-2 business days.
+                </p>
+              </div>
             </div>
           )}
 
