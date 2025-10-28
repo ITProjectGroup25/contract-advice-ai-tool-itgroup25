@@ -37,5 +37,6 @@ export function extractFaqSelections(faq: any): string[] {
   }
   
   // Filter out empty strings and remove duplicates
-  return [...new Set(selections.filter(s => s && s.trim().length > 0))];
+  const filtered = selections.filter(s => s && s.trim().length > 0);
+  return Array.from(new Set(filtered));
 }
