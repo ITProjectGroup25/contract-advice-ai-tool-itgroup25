@@ -1,11 +1,13 @@
 "use client";
 
-import { AlertCircle, ArrowLeft, Bot, Send, ThumbsUp, User } from "lucide-react";
+import { ArrowLeft, Bot, Send, User, ThumbsUp, AlertCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import type { StaticImageData } from "next/image";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { conversationFlow, generateFaqFoundMessage } from "./conversationFlow";
 import { useGetFaq } from "./useGetFaq";
+import exampleImage from "../../_assets/automated-response.png";
 
 // Define the structure for conversation flow
 interface ChatMessage {
@@ -213,14 +215,27 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
       setTimeout(async () => {
         setCountdown(10); // Start 10 second countdown
         
-        // Trigger image download
+        // Trigger image download using imported image
         try {
+          // Get the image source (handle both string and StaticImageData)
+          const imageSrc: string = typeof exampleImage === 'string' 
+            ? exampleImage 
+            : (exampleImage as StaticImageData).src;
+          
+          // Fetch the image and convert to blob
+          const response = await fetch(imageSrc);
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          
           const link = document.createElement('a');
-          link.href = '/exampleImage.png'; // Adjust path to your image
-          link.download = 'exampleImage.png';
+          link.href = url;
+          link.download = 'automated-response.png';
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          
+          // Clean up the object URL
+          window.URL.revokeObjectURL(url);
         } catch (error) {
           console.error('Failed to download image:', error);
         }
