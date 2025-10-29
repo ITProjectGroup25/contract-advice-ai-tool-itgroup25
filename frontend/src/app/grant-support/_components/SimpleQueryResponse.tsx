@@ -1,13 +1,12 @@
 "use client";
 
-import Image from "next/image";
+import { ArrowLeft, CheckCircle } from "lucide-react";
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Bot, ArrowLeft, ThumbsUp, CheckCircle, AlertCircle } from "lucide-react";
+import { GrantTeamEmailData, emailService } from "../_utils/emailService";
 import { localDB } from "../_utils/localDatabase";
-import { emailService, GrantTeamEmailData } from "../_utils/emailService";
-import exampleImage from "../_assets/automated-response.png";
+import { ChatBot } from "./chatbot/ChatBot";
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
 
 interface SimpleQueryResponseProps {
   onBack: () => void;
@@ -36,11 +35,14 @@ export function SimpleQueryResponse({
         console.error("Error updating submission:", error);
       }
     }
-
+    
+    // Show feedback page immediately (ChatBot already handled countdown)
     setShowFeedback(true);
+    
+    // After showing thank you page, redirect to form
     setTimeout(() => {
-      onSatisfied();
-    }, 2000);
+      onSatisfied(); // This calls handleSimpleQuerySatisfied which goes back to form
+    }, 2000); // 2 seconds on thank you page
   };
 
   const handleNeedHelp = async () => {
@@ -83,9 +85,11 @@ export function SimpleQueryResponse({
       }
     }
 
-    onNeedHumanHelp();
+    // Redirect immediately (ChatBot already handled countdown)
+    onNeedHumanHelp(); // This calls handleSimpleQueryNeedHelp which goes to success page
   };
 
+  // Show thank you feedback page after user clicks "Yes, this helped!"
   if (showFeedback) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-4xl items-center justify-center space-y-6 p-6">
@@ -121,61 +125,11 @@ export function SimpleQueryResponse({
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bot className="text-primary h-5 w-5" />
-            Grants Assistant Response
-          </CardTitle>
-          <CardDescription>Automated guidance based on your query</CardDescription>
-        </CardHeader>
-
-        <CardContent className="space-y-6">
-          <div className="bg-muted rounded-lg p-4">
-            <div className="prose prose-sm max-w-none">
-              <Image
-                src={exampleImage}
-                alt="Automated response example showing guidance for contractual clause reviews and grant compliance queries"
-                className="w-full max-w-none rounded-md"
-              />
-            </div>
-          </div>
-
-          <div className="border-t pt-6">
-            <h3 className="mb-4 text-lg">Was this response helpful?</h3>
-            <p className="text-muted-foreground mb-6">
-              Please let us know if this automated response resolved your query or if you need
-              further assistance from our grants team.
-            </p>
-
-            <div className="flex gap-4">
-              <Button
-                onClick={handleSatisfied}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
-              >
-                <ThumbsUp className="h-4 w-4" />
-                Yes, this helped!
-              </Button>
-
-              <Button
-                onClick={handleNeedHelp}
-                variant="outline"
-                className="flex items-center gap-2 border-orange-200 hover:bg-orange-50"
-              >
-                <AlertCircle className="h-4 w-4 text-orange-600" />I need human assistance
-              </Button>
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-            <p className="text-sm text-blue-800">
-              <strong>Note:</strong> If you selected &quot;I need human assistance,&quot; your
-              original form submission will be forwarded to our grants team for manual review.
-              You&apos;ll receive a response within 1-2 business days.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <ChatBot 
+        submissionId={submissionId}
+        onSatisfied={handleSatisfied}
+        onNeedHelp={handleNeedHelp}
+      />
     </div>
   );
 }

@@ -26,6 +26,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "app/grant-support/_components/chatbot/utils/faqMatchingUtils.test.mjs"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

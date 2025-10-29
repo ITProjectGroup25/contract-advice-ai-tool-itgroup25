@@ -4,7 +4,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AdminInterface } from "./AdminInterface";
-import { ChatBot } from "./ChatBot";
 import { DynamicFormRenderer } from "./DynamicFormRenderer/DynamicFormRenderer";
 import { PasswordDialog } from "./PasswordDialog";
 import { SimpleQueryResponse } from "./SimpleQueryResponse";
@@ -13,7 +12,7 @@ import { Form, FormSectionsType } from "./types";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
 
-type AppState = "form" | "simple-response" | "success" | "admin" | "chatbot";
+type AppState = "form" | "simple-response" | "success" | "admin" 
 
 type Props = {
   form: Form;
@@ -99,12 +98,12 @@ export default function App({ form, formId }: Props) {
     queryClient.invalidateQueries({ queryKey: ["form", formId] });
   };
 
+  console.log({currentSubmissionId})
+
   console.log({ sections });
 
   const renderCurrentView = () => {
     switch (currentState) {
-      case "chatbot":
-        return <ChatBot onBack={handleBackToForm} />;
       case "simple-response":
         return (
           <SimpleQueryResponse
