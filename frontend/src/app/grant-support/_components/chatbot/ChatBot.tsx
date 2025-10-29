@@ -1,13 +1,11 @@
 "use client";
 
-import { ArrowLeft, Bot, Send, User, ThumbsUp, AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowLeft, Bot, Send, ThumbsUp, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { StaticImageData } from "next/image";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { conversationFlow, generateFaqFoundMessage } from "./conversationFlow";
 import { useGetFaq } from "./useGetFaq";
-import exampleImage from "../../_assets/automated-response.png";
 
 // Define the structure for conversation flow
 interface ChatMessage {
@@ -31,6 +29,8 @@ interface ChatBotProps {
   onSatisfied?: () => void;
   onNeedHelp?: () => void;
 }
+
+const REDIRECT_COUNTDOWN = 15;
 
 export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatisfied, onNeedHelp }: ChatBotProps) {
   const { matchedFaqs, submission, isLoading, error } = useGetFaq({
@@ -213,32 +213,7 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
       
       // Wait for message to be added, then start countdown and download
       setTimeout(async () => {
-        setCountdown(10); // Start 10 second countdown
-        
-        // Trigger image download using imported image
-        try {
-          // Get the image source (handle both string and StaticImageData)
-          const imageSrc: string = typeof exampleImage === 'string' 
-            ? exampleImage 
-            : (exampleImage as StaticImageData).src;
-          
-          // Fetch the image and convert to blob
-          const response = await fetch(imageSrc);
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = 'automated-response.png';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          
-          // Clean up the object URL
-          window.URL.revokeObjectURL(url);
-        } catch (error) {
-          console.error('Failed to download image:', error);
-        }
+        setCountdown(REDIRECT_COUNTDOWN); // Start countdown
       }, 600); // Wait for message animation
     }
   };
