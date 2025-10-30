@@ -267,7 +267,7 @@ Push to main branch →
 
 2. Go into form page, on the upper right, there is the admin Panal, enter password.
 
-   - The default password is `**WARNING:unclear if we place default password in readMe file**`
+   - EDIT: contact dev team for default password
 
 <div align="center">
          <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder3.png" width="600">
