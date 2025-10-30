@@ -15,18 +15,13 @@ All user requests and form responses are stored in an online database and catego
 
 ## Features
 
-(undone)
-- **AI-Powered Form Creation**: Users can create forms by simply providing prompts, and the AI generates the necessary form fields based on the prompts. **(The necessity of this function needs to be verified later)**
-- **Authentication**: Next-auth is integrated for secure authentication, allowing users to sign up, sign in, and manage their accounts. **(To be clarified)**
+- **AI-Powered Form Creation**: Users can create forms by simply providing prompts, and the AI generates the necessary form fields based on the prompts.
+- **Authentication**: Next-auth is integrated for secure authentication, allowing users to sign up, sign in, and manage their accounts.
 - **Responsive Design**: Shadcn UI ensures that the application is responsive and looks great across various devices and screen sizes.
 - **Admin Dashboard**: Admin users have access to a dashboard where they can view all responses submitted to their forms.
 - **Persistent Data Storage**: PostgreSQL is used as the database to store form configurations, user information, and form responses securely.
 - **Theme Customization**: The app offers six different themes for users to choose from, allowing them to customize the appearance of their app interface.
 - **Type Safety**: TypeScript is employed throughout the project to provide type safety and enhance code maintainability.
-
-## Tutorial
-
-**WARNING**
 
 # System Architecture Overview
 
@@ -482,6 +477,16 @@ cat frontend/.env.local
 ```bash
 vercel logs
 # Check GitHub Actions logs in the "Actions" tab
+
+
+```
+
+## Testing
+
+For testing, try following command
+
+```bash
+npm run test
 
 
 ```
