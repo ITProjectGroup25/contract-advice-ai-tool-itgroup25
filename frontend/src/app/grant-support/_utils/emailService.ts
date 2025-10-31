@@ -45,6 +45,10 @@ export interface EmailData {
   queryType: "simple" | "complex";
   timestamp: string;
   formData?: Record<string, any>;
+  submissionDate?: string;
+  submissionTime?: string;
+  to?: string;
+  toName?: string;
 }
 
 export interface GrantTeamEmailData {
@@ -55,6 +59,8 @@ export interface GrantTeamEmailData {
   timestamp: string;
   formData: Record<string, any>;
   matchedSelections?: string[];
+  submissionDate?: string;
+  submissionTime?: string;
 }
 
 export type EmailConfig = ApiEmailConfig;
@@ -78,6 +84,35 @@ class EmailService {
   clearCache(): void {
     this.cache = null;
     this.emailJsInitialised = false;
+  }
+
+  private static formatTimestampParts(timestamp?: string) {
+    const inputDate = timestamp ? new Date(timestamp) : new Date();
+    const date = Number.isNaN(inputDate.getTime()) ? new Date() : inputDate;
+    const locale = "en-AU";
+
+    const formattedTimestamp = date.toLocaleString(locale, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    const submissionDate = date.toLocaleDateString(locale, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const submissionTime = date.toLocaleTimeString(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    return { formattedTimestamp, submissionDate, submissionTime };
   }
 
   private ensureEmailJs(config: EmailConfig, context: string): boolean {
@@ -122,28 +157,14 @@ class EmailService {
     }
 
     const formattedFormData = formatFormData(data.formData ?? null);
-    
-    // 格式化时间戳为可读格式
-    const formattedTimestamp = data.timestamp 
-      ? new Date(data.timestamp).toLocaleString('en-AU', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
-        })
-      : new Date().toLocaleString('en-AU', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
-        });
-    
+    const { formattedTimestamp, submissionDate, submissionTime } =
+      EmailService.formatTimestampParts(data.timestamp);
+
     const templateParams = {
-      to_email: data.userEmail,
+      to_email: data.to ?? data.userEmail,
+      toEmail: data.to ?? data.userEmail,
+      to_name: data.toName ?? data.userName,
+      toName: data.toName ?? data.userName,
       user_name: data.userName,
       userName: data.userName,
       submitter_name: data.userName,
@@ -156,6 +177,10 @@ class EmailService {
       queryType: data.queryType,
       timestamp: formattedTimestamp,
       date: formattedTimestamp,
+      submission_date: data.submissionDate ?? submissionDate,
+      submissionDate: data.submissionDate ?? submissionDate,
+      submission_time: data.submissionTime ?? submissionTime,
+      submissionTime: data.submissionTime ?? submissionTime,
       form_data: JSON.stringify(data.formData ?? {}, null, 2),
       form_data_pretty: formattedFormData,
       formData: formattedFormData,
@@ -200,26 +225,9 @@ class EmailService {
     }
 
     const formattedFormData = formatFormData(data.formData ?? null);
-    
-    // 格式化时间戳为可读格式
-    const formattedTimestamp = data.timestamp 
-      ? new Date(data.timestamp).toLocaleString('en-AU', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
-        })
-      : new Date().toLocaleString('en-AU', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
-        });
-    
+    const { formattedTimestamp, submissionDate, submissionTime } =
+      EmailService.formatTimestampParts(data.timestamp);
+
     const templateParams = {
       grant_team_email: config.grantTeamEmail,
       submission_id: data.submissionId,
@@ -239,12 +247,23 @@ class EmailService {
       form_data_pretty: formattedFormData,
       formData: formattedFormData,
       form_details: formattedFormData,
+      submission_date: data.submissionDate ?? submissionDate,
+      submissionDate: data.submissionDate ?? submissionDate,
+      submission_time: data.submissionTime ?? submissionTime,
+      submissionTime: data.submissionTime ?? submissionTime,
       matched_selections: data.matchedSelections?.join(", "),
       matchedSelections: data.matchedSelections?.join(", "),
     };
 
     try {
       console.log("📧 [EmailJS] Sending grant team notification:", templateParams);
+      console.log("📧 [EmailJS] Grant team email summary:", {
+        submissionId: data.submissionId,
+        queryType: data.queryType,
+        userEmail: data.userEmail,
+        userName: data.userName,
+        matchedSelections: data.matchedSelections,
+      });
       const response = await emailjs.send(
         config.serviceId,
         config.grantTeamTemplateId,

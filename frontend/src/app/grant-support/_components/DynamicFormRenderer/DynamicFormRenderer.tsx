@@ -36,6 +36,92 @@ interface UploadedFile {
 const generateSubmissionId = () =>
   `submission_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 
+const EMAIL_FIELD_KEYS = [
+  "email",
+  "email address",
+  "emailAddress",
+  "contactEmail",
+  "contact email",
+  "your email",
+  "your email address",
+  "user email",
+  "userEmail",
+  "primary email",
+  "primaryEmail",
+];
+
+const NAME_FIELD_KEYS = [
+  "name",
+  "full name",
+  "fullName",
+  "contact name",
+  "contactName",
+  "your name",
+  "yourName",
+  "user name",
+  "userName",
+];
+
+const resolveContactField = (formData: Record<string, any>, keys: string[]): string | undefined => {
+  const normalizedEntries = new Map<string, unknown>();
+
+  for (const [rawKey, value] of Object.entries(formData)) {
+    const normalizedKey = rawKey.trim().toLowerCase();
+    if (!normalizedEntries.has(normalizedKey)) {
+      normalizedEntries.set(normalizedKey, value);
+    }
+  }
+
+  for (const key of keys) {
+    const trimmedKey = key.trim();
+    const directValue = formData[trimmedKey];
+
+    if (typeof directValue === "string" && directValue.trim().length > 0) {
+      return directValue.trim();
+    }
+
+    const fromNormalized = normalizedEntries.get(trimmedKey.toLowerCase());
+    if (typeof fromNormalized === "string" && fromNormalized.trim().length > 0) {
+      return fromNormalized.trim();
+    }
+
+    if (Array.isArray(fromNormalized)) {
+      const stringEntry = fromNormalized.find(
+        (entry) => typeof entry === "string" && entry.trim().length > 0
+      );
+      if (stringEntry) {
+        return stringEntry.trim();
+      }
+    }
+  }
+
+  return undefined;
+};
+
+const formatSubmissionDateParts = (inputTimestamp?: string) => {
+  const candidateDate = inputTimestamp ? new Date(inputTimestamp) : new Date();
+  const date = Number.isNaN(candidateDate.getTime()) ? new Date() : candidateDate;
+  const locale = "en-AU";
+
+  const submissionDate = date.toLocaleDateString(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const submissionTime = date.toLocaleTimeString(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return {
+    isoTimestamp: date.toISOString(),
+    submissionDate,
+    submissionTime,
+  };
+};
+
 const isUploadedFileArray = (value: unknown): value is UploadedFile[] => {
   return (
     Array.isArray(value) &&
@@ -209,29 +295,47 @@ export function DynamicFormRenderer({
 
       console.log({ processedData });
 
+      const userEmail =
+        resolveContactField(processedData, EMAIL_FIELD_KEYS) ??
+        resolveContactField(data, EMAIL_FIELD_KEYS);
+      const userName =
+        resolveContactField(processedData, NAME_FIELD_KEYS) ??
+        resolveContactField(data, NAME_FIELD_KEYS);
+
+      if (!userEmail || !userName) {
+        console.warn("⚠️ FORM: Missing contact details for submission email", {
+          hasUserEmail: !!userEmail,
+          hasUserName: !!userName,
+        });
+      }
+
       const submissionResponse: GrantSupportSubmissionResponse = await createGrantSupportSubmission(
         {
           formData: processedData,
           queryType,
-          userEmail: (processedData["Your Email"] as string) || undefined,
-          userName: (processedData["Your Name"] as string) || undefined,
+          userEmail: userEmail || undefined,
+          userName: userName || undefined,
           status: "submitted",
         }
       );
 
       const submissionId = submissionResponse.submissionUid;
+      const { isoTimestamp, submissionDate, submissionTime } = formatSubmissionDateParts(
+        submissionResponse.createdAt
+      );
 
       // Send confirmation email to user
-      const userEmail = processedData["Your Email"] as string;
-      const userName = processedData["Your Name"] as string;
-
       if (userEmail && userName) {
         const emailData: EmailData = {
           userEmail,
           userName,
           submissionId,
           queryType,
-          timestamp: new Date().toISOString(),
+          timestamp: isoTimestamp,
+          submissionDate,
+          submissionTime,
+          to: userEmail,
+          toName: userName,
           formData: processedData,
         };
 
@@ -258,7 +362,9 @@ export function DynamicFormRenderer({
             queryType: "complex",
             userEmail,
             userName,
-            timestamp: new Date().toISOString(),
+            timestamp: isoTimestamp,
+            submissionDate,
+            submissionTime,
             formData: processedData,
           };
 
