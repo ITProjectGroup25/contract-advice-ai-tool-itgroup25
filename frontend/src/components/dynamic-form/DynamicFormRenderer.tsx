@@ -147,7 +147,7 @@ export function DynamicFormRenderer({
       const userEmail = data.email as string;
       const userName = data.name as string;
 
-      if (userEmail && userName && emailService.isConfigured()) {
+      if (userEmail && userName) {
         const emailData: EmailData = {
           to: userEmail,
           subject: "Contract Advice Request Confirmation",
@@ -159,12 +159,19 @@ export function DynamicFormRenderer({
         };
 
         try {
-          console.log("📧 FORM: Sending USER CONFIRMATION email to:", userEmail);
-          const emailSent = await emailService.sendConfirmationEmail(emailData);
-          if (emailSent) {
-            console.log("✅ FORM: User confirmation email sent successfully to:", userEmail);
+          if (!emailService.isConfigured()) {
+            console.warn(
+              "[EmailJS] Skipping user confirmation email because configuration is incomplete.",
+              emailService.getConfig()
+            );
           } else {
-            console.warn("⚠️ FORM: Failed to send user confirmation email");
+            console.log("📧 FORM: Sending USER CONFIRMATION email to:", userEmail);
+            const emailSent = await emailService.sendConfirmationEmail(emailData);
+            if (emailSent) {
+              console.log("✅ FORM: User confirmation email sent successfully to:", userEmail);
+            } else {
+              console.warn("⚠️ FORM: Failed to send user confirmation email");
+            }
           }
         } catch (emailError) {
           console.error("❌ FORM: User confirmation email service error:", emailError);
@@ -179,7 +186,7 @@ export function DynamicFormRenderer({
         }, 1000);
       } else if (queryType === "complex") {
         // Send notification email to grant team for complex queries
-        if (userEmail && userName && emailService.isConfigured()) {
+        if (userEmail && userName) {
           const grantTeamEmailData: GrantTeamEmailData = {
             to: "grants@example.com", // This should be configured
             subject: "New Complex Contract Advice Request",
@@ -194,18 +201,25 @@ export function DynamicFormRenderer({
           };
 
           try {
-            console.log(
-              "📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:",
-              submissionId
-            );
-            const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
-            if (grantEmailSent) {
-              console.log(
-                "✅ FORM: Grant team notification sent successfully for complex query:",
-                submissionId
+            if (!emailService.isConfigured()) {
+              console.warn(
+                "[EmailJS] Skipping grant team notification because configuration is incomplete.",
+                emailService.getConfig()
               );
             } else {
-              console.warn("⚠️ FORM: Failed to send grant team notification");
+              console.log(
+                "📧 FORM: Sending GRANT TEAM NOTIFICATION for complex query:",
+                submissionId
+              );
+              const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
+              if (grantEmailSent) {
+                console.log(
+                  "✅ FORM: Grant team notification sent successfully for complex query:",
+                  submissionId
+                );
+              } else {
+                console.warn("⚠️ FORM: Failed to send grant team notification");
+              }
             }
           } catch (grantEmailError) {
             console.error("❌ FORM: Grant team notification error:", grantEmailError);
@@ -521,3 +535,6 @@ export function DynamicFormRenderer({
     </div>
   );
 }
+  useEffect(() => {
+    console.log("[EmailJS] Current configuration:", emailService.getConfig());
+  }, []);
