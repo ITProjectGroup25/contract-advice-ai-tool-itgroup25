@@ -1,10 +1,12 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, CheckCircle } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GrantTeamEmailData, emailService } from "../_utils/emailService";
 import { localDB } from "../_utils/localDatabase";
 import { ChatBot } from "./chatbot/ChatBot";
+import { prefetchFaqs, prefetchSubmission } from "./chatbot/useGetFaq";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
@@ -13,6 +15,7 @@ interface SimpleQueryResponseProps {
   onSatisfied: () => void;
   onNeedHumanHelp: () => void;
   submissionId?: string;
+  formId: number;
 }
 
 export function SimpleQueryResponse({
@@ -20,9 +23,27 @@ export function SimpleQueryResponse({
   onSatisfied,
   onNeedHumanHelp,
   submissionId,
+  formId,
 }: SimpleQueryResponseProps) {
+  const queryClient = useQueryClient();
   const [showFeedback, setShowFeedback] = useState(false);
   const referenceId = useMemo(() => submissionId ?? "", [submissionId]);
+
+  useEffect(() => {
+    if (!formId) {
+      return;
+    }
+
+    void prefetchFaqs(queryClient, formId);
+  }, [formId, queryClient]);
+
+  useEffect(() => {
+    if (!submissionId) {
+      return;
+    }
+
+    void prefetchSubmission(queryClient, submissionId);
+  }, [queryClient, submissionId]);
 
   const handleSatisfied = async () => {
     if (submissionId) {
@@ -151,6 +172,7 @@ export function SimpleQueryResponse({
 
       <ChatBot 
         submissionId={submissionId}
+        formId={formId}
         onSatisfied={handleSatisfied}
         onNeedHelp={handleNeedHelp}
       />

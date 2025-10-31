@@ -11,6 +11,7 @@ import { SuccessPage } from "./SuccessPage";
 import { Form, FormSectionsType } from "./types";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
+import { prefetchFaqs, prefetchSubmission } from "./chatbot/useGetFaq";
 
 type AppState = "form" | "simple-response" | "success" | "admin" 
 
@@ -53,7 +54,21 @@ export default function App({ form, formId }: Props) {
     });
   }, []);
 
+  useEffect(() => {
+    if (!formId) {
+      return;
+    }
+
+    void prefetchFaqs(queryClient, formId);
+  }, [formId, queryClient]);
+
   const handleSimpleQuerySuccess = (submissionId?: string) => {
+    if (formId) {
+      void prefetchFaqs(queryClient, formId);
+    }
+    if (submissionId) {
+      void prefetchSubmission(queryClient, submissionId);
+    }
     setCurrentSubmissionId(submissionId);
     setCurrentState("simple-response");
   };
@@ -111,6 +126,7 @@ export default function App({ form, formId }: Props) {
             onSatisfied={handleSimpleQuerySatisfied}
             onNeedHumanHelp={handleSimpleQueryNeedHelp}
             submissionId={currentSubmissionId}
+            formId={formId}
           />
         );
       case "success":

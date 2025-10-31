@@ -28,17 +28,23 @@ interface ChatBotProps {
   submissionId?: string;
   onSatisfied?: () => void;
   onNeedHelp?: () => void;
+  formId?: number;
 }
 
 const REDIRECT_COUNTDOWN = 15;
 
-export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatisfied, onNeedHelp }: ChatBotProps) {
-  const { matchedFaqs, submission, isLoading, error } = useGetFaq({
+export function ChatBot({
+  onBack,
+  initialNodeId = "start",
+  submissionId,
+  onSatisfied,
+  onNeedHelp,
+  formId = 2,
+}: ChatBotProps) {
+  const { matchedFaqs, isLoading, error } = useGetFaq({
     submissionUid: submissionId,
-    formId: 2,
+    formId,
   });
-
-  console.log({ matchedFaqs, submission });
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentNodeId, setCurrentNodeId] = useState(initialNodeId);
@@ -97,6 +103,10 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
     if (!submissionId) {
       setProgress(100);
       setShowContent(true);
+      if (loadingIntervalRef.current) {
+        clearInterval(loadingIntervalRef.current);
+        loadingIntervalRef.current = null;
+      }
       return;
     }
 
@@ -113,23 +123,54 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
           return Math.min(prev + increment, 90);
         });
       }, 180);
-    } else {
-      if (loadingIntervalRef.current) {
-        clearInterval(loadingIntervalRef.current);
-        loadingIntervalRef.current = null;
-      }
-      setProgress(100);
-      const timeout = setTimeout(() => setShowContent(true), 200);
+      return () => {
+        if (loadingIntervalRef.current) {
+          clearInterval(loadingIntervalRef.current);
+          loadingIntervalRef.current = null;
+        }
+      };
+    }
+
+    if (loadingIntervalRef.current) {
+      clearInterval(loadingIntervalRef.current);
+      loadingIntervalRef.current = null;
+    }
+    setProgress(100);
+  }, [isLoading, submissionId]);
+
+  useEffect(() => {
+    if (!submissionId) {
+      return;
+    }
+
+    if (!isLoading && messages.length > 0) {
+      const timeout = setTimeout(() => setShowContent(true), 150);
       return () => clearTimeout(timeout);
     }
 
+    return undefined;
+  }, [isLoading, messages.length, submissionId]);
+
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+
+    setShowContent(true);
+    if (loadingIntervalRef.current) {
+      clearInterval(loadingIntervalRef.current);
+      loadingIntervalRef.current = null;
+    }
+  }, [error]);
+
+  useEffect(() => {
     return () => {
       if (loadingIntervalRef.current) {
         clearInterval(loadingIntervalRef.current);
         loadingIntervalRef.current = null;
       }
     };
-  }, [isLoading, submissionId]);
+  }, []);
 
   // Initialize with FAQ-based flow when submission is loaded
   useEffect(() => {
@@ -266,7 +307,7 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
       <div className="flex h-[600px] items-center justify-center">
         <div className="w-full max-w-lg space-y-4 rounded-lg border border-green-200 bg-white p-8 text-center shadow-sm">
           <Bot className="mx-auto h-12 w-12 text-green-600" />
-          <h2 className="text-xl font-semibold text-green-700">Generating recommendations…</h2>
+          <h2 className="text-xl font-semibold text-green-700">Generating recommendations...</h2>
           <p className="text-muted-foreground text-sm">
             We&apos;re matching your submission with relevant guidance.
           </p>

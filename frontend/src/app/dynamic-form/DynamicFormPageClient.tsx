@@ -7,6 +7,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 type AppState = "form" | "simple-response" | "success";
+const DEFAULT_FORM_ID = 2;
 
 export default function DynamicFormPageClient() {
   const [currentState, setCurrentState] = useState<AppState>("form");
@@ -49,6 +50,7 @@ export default function DynamicFormPageClient() {
             onBack={handleBackToForm}
             onSatisfied={handleSimpleQuerySatisfied}
             onNeedHumanHelp={handleSimpleQueryNeedHelp}
+            formId={DEFAULT_FORM_ID}
           />
         );
 
