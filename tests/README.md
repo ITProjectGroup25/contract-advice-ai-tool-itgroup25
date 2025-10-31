@@ -13,18 +13,18 @@ tests/
 │   ├── epic3-complex-referral.test.mjs  # Epic 3: Complex (9 tests)
 │   ├── epic4-data-reporting.test.mjs    # Epic 4: Reporting (20 tests)
 │   ├── epic5-question-edit.test.mjs     # Epic 5: Edit (14 tests)
-│   └── email-service-config.test.mjs    # Email service skips sends without config
+│   └── email-service-config.test.mjs    # EmailJS configuration & delivery regression checks
 └── functional/
     └── end-to-end-workflow.test.mjs     # E2E workflows (4 tests)
 ```
 
-**Total:** 111 tests covering all 15 User Stories plus email delivery safeguards
+**Total:** 113 tests covering all 15 User Stories plus email delivery safeguards
 
 ## Quick Start
 
 ### Run All Tests
 ```bash
-npm test                    # All tests (111 tests)
+npm test                    # All tests (113 tests)
 ```
 
 ### Run by Test Type
