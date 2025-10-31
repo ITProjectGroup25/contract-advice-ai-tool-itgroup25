@@ -46,10 +46,13 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
   const [isTyping, setIsTyping] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [showContent, setShowContent] = useState(!submissionId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const loadingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -89,6 +92,44 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
       }
     };
   }, [countdown, currentNodeId, onSatisfied, onNeedHelp]);
+
+  useEffect(() => {
+    if (!submissionId) {
+      setProgress(100);
+      setShowContent(true);
+      return;
+    }
+
+    if (isLoading) {
+      setShowContent(false);
+      setProgress(10);
+      if (loadingIntervalRef.current) {
+        clearInterval(loadingIntervalRef.current);
+      }
+      loadingIntervalRef.current = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) return prev;
+          const increment = Math.random() * 15 + 5;
+          return Math.min(prev + increment, 90);
+        });
+      }, 180);
+    } else {
+      if (loadingIntervalRef.current) {
+        clearInterval(loadingIntervalRef.current);
+        loadingIntervalRef.current = null;
+      }
+      setProgress(100);
+      const timeout = setTimeout(() => setShowContent(true), 200);
+      return () => clearTimeout(timeout);
+    }
+
+    return () => {
+      if (loadingIntervalRef.current) {
+        clearInterval(loadingIntervalRef.current);
+        loadingIntervalRef.current = null;
+      }
+    };
+  }, [isLoading, submissionId]);
 
   // Initialize with FAQ-based flow when submission is loaded
   useEffect(() => {
@@ -220,12 +261,22 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
 
   const currentNode = conversationFlow[currentNodeId];
 
-  if (isLoading) {
+  if (!showContent) {
     return (
       <div className="flex h-[600px] items-center justify-center">
-        <div className="text-center">
-          <Bot className="mx-auto mb-4 h-12 w-12 animate-pulse text-blue-600" />
-          <p className="text-gray-600">Loading your information...</p>
+        <div className="w-full max-w-lg space-y-4 rounded-lg border border-green-200 bg-white p-8 text-center shadow-sm">
+          <Bot className="mx-auto h-12 w-12 text-green-600" />
+          <h2 className="text-xl font-semibold text-green-700">Generating recommendations…</h2>
+          <p className="text-muted-foreground text-sm">
+            We&apos;re matching your submission with relevant guidance.
+          </p>
+          <div className="mx-auto h-2 w-full max-w-md rounded-full bg-gray-200">
+            <div
+              className="h-2 rounded-full bg-green-600 transition-all duration-150 ease-linear"
+              style={{ width: `${Math.round(progress)}%` }}
+            />
+          </div>
+          <p className="text-xs font-medium text-muted-foreground">{Math.round(progress)}% complete</p>
         </div>
       </div>
     );

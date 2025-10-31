@@ -249,9 +249,7 @@ export function DynamicFormRenderer({
 
       if (queryType === "simple") {
         toast.success("Simple query submitted successfully! Check your email for confirmation.");
-        setTimeout(() => {
-          onSimpleQuerySuccess?.(submissionId);
-        }, 1000);
+        onSimpleQuerySuccess?.(submissionId);
       } else {
         if (userEmail && userName) {
           const grantTeamEmailData: GrantTeamEmailData = {
