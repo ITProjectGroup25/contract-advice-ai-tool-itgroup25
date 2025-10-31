@@ -80,9 +80,7 @@ class LocalDatabase {
   }
 
   async updateSubmission(id: string, updates: Partial<FormSubmission>): Promise<void> {
-    if (this.cache.length === 0) {
-      await this.refreshCache();
-    }
+    await this.refreshCache();
     const dbId = this.resolveDbId(id);
     await updateGrantSupportSubmission(dbId, {
       status: updates.status,
