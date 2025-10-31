@@ -1,6 +1,41 @@
 import emailjs from "@emailjs/browser";
 import { EmailData, GrantTeamEmailData } from "@shared";
 
+const serializeFormValue = (value: unknown): string => {
+  if (Array.isArray(value)) {
+    return value.map((item) => serializeFormValue(item)).join(", ");
+  }
+
+  if (value && typeof value === "object") {
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return String(value);
+    }
+  }
+
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value);
+};
+
+const formatFormData = (formData?: Record<string, unknown> | null): string => {
+  if (!formData || typeof formData !== "object") {
+    return "No additional form data provided.";
+  }
+
+  const entries = Object.entries(formData);
+  if (entries.length === 0) {
+    return "No additional form data provided.";
+  }
+
+  return entries
+    .map(([key, value]) => `${key}: ${serializeFormValue(value)}`)
+    .join("\n");
+};
+
 const toBoolean = (value?: string | null): boolean => {
   if (!value) {
     return false;
@@ -82,14 +117,46 @@ class EmailService {
     }
 
     try {
+      const formattedFormData = formatFormData(data.formData ?? null);
+      
+      // 格式化时间戳为可读格式
+      const formattedTimestamp = data.timestamp 
+        ? new Date(data.timestamp).toLocaleString('en-AU', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          })
+        : new Date().toLocaleString('en-AU', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          });
+      
       const templateParams = {
         to_email: data.to,
         user_name: data.submitterName || "User",
+        userName: data.submitterName || "User",
+        submitter_name: data.submitterName || "User",
+        submitterName: data.submitterName || "User",
+        submitter_email: data.submitterEmail || data.to,
+        submitterEmail: data.submitterEmail || data.to,
         submission_id: data.submissionId || "N/A",
+        submissionId: data.submissionId || "N/A",
         query_type: data.queryType || "general",
-        timestamp: new Date().toLocaleString(),
+        queryType: data.queryType || "general",
+        timestamp: formattedTimestamp,
+        date: formattedTimestamp,
         subject: data.subject || "Referral Request Confirmation",
         form_data: JSON.stringify(data.formData ?? {}, null, 2),
+        form_data_pretty: formattedFormData,
+        formData: formattedFormData,
+        form_details: formattedFormData,
       };
 
       console.log("[EmailJS] Sending confirmation email with params:", templateParams);
@@ -125,15 +192,55 @@ class EmailService {
     }
 
     try {
+      const grantTeams = Array.isArray(data.grantTeam)
+        ? data.grantTeam
+        : typeof data.grantTeam === "string"
+          ? [data.grantTeam]
+          : [];
+      const formattedFormData = formatFormData(data.formData ?? null);
+      
+      // 格式化时间戳为可读格式
+      const formattedTimestamp = data.timestamp 
+        ? new Date(data.timestamp).toLocaleString('en-AU', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          })
+        : new Date().toLocaleString('en-AU', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          });
+      
       const templateParams = {
         user_name: data.submitterName || "Unknown User",
+        userName: data.submitterName || "Unknown User",
+        submitter_name: data.submitterName || "Unknown User",
+        submitterName: data.submitterName || "Unknown User",
         user_email: data.submitterEmail || "No email provided",
+        submitter_email: data.submitterEmail || "No email provided",
+        submitterEmail: data.submitterEmail || "No email provided",
         submission_id: data.submissionId || "N/A",
+        submissionId: data.submissionId || "N/A",
         query_type: data.queryType || "general",
-        grant_teams: Array.isArray(data.grantTeam) ? data.grantTeam.join(", ") : data.grantTeam,
+        queryType: data.queryType || "general",
+        grant_teams: grantTeams.join(", "),
+        grant_team_list: grantTeams.join("\n"),
+        grantTeams: grantTeams.join(", "),
         urgency: data.urgency ? "URGENT" : "Normal",
-        timestamp: new Date().toLocaleString(),
+        urgency_status: data.urgency ? "URGENT" : "Normal",
+        timestamp: formattedTimestamp,
+        date: formattedTimestamp,
         form_data: JSON.stringify(data.formData ?? {}, null, 2),
+        form_data_pretty: formattedFormData,
+        formData: formattedFormData,
+        form_details: formattedFormData,
       };
 
       console.log("[EmailJS] Sending grant team notification with params:", templateParams);

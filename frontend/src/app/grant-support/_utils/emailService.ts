@@ -1,6 +1,43 @@
 import emailjs from "@emailjs/browser";
 import { fetchEmailConfig, saveEmailConfig, EmailConfig as ApiEmailConfig } from "./api";
 
+// 辅助函数：序列化表单值
+const serializeFormValue = (value: unknown): string => {
+  if (Array.isArray(value)) {
+    return value.map((item) => serializeFormValue(item)).join(", ");
+  }
+
+  if (value && typeof value === "object") {
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return String(value);
+    }
+  }
+
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value);
+};
+
+// 辅助函数：格式化表单数据为可读文本
+const formatFormData = (formData?: Record<string, unknown> | null): string => {
+  if (!formData || typeof formData !== "object") {
+    return "No additional form data provided.";
+  }
+
+  const entries = Object.entries(formData);
+  if (entries.length === 0) {
+    return "No additional form data provided.";
+  }
+
+  return entries
+    .map(([key, value]) => `${key}: ${serializeFormValue(value)}`)
+    .join("\n");
+};
+
 export interface EmailData {
   userEmail: string;
   userName: string;
@@ -84,13 +121,45 @@ class EmailService {
       return false;
     }
 
+    const formattedFormData = formatFormData(data.formData ?? null);
+    
+    // 格式化时间戳为可读格式
+    const formattedTimestamp = data.timestamp 
+      ? new Date(data.timestamp).toLocaleString('en-AU', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        })
+      : new Date().toLocaleString('en-AU', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+    
     const templateParams = {
       to_email: data.userEmail,
       user_name: data.userName,
+      userName: data.userName,
+      submitter_name: data.userName,
+      submitterName: data.userName,
+      submitter_email: data.userEmail,
+      submitterEmail: data.userEmail,
       submission_id: data.submissionId,
+      submissionId: data.submissionId,
       query_type: data.queryType,
-      timestamp: data.timestamp ?? new Date().toISOString(),
+      queryType: data.queryType,
+      timestamp: formattedTimestamp,
+      date: formattedTimestamp,
       form_data: JSON.stringify(data.formData ?? {}, null, 2),
+      form_data_pretty: formattedFormData,
+      formData: formattedFormData,
+      form_details: formattedFormData,
     };
 
     try {
@@ -130,15 +199,48 @@ class EmailService {
       return false;
     }
 
+    const formattedFormData = formatFormData(data.formData ?? null);
+    
+    // 格式化时间戳为可读格式
+    const formattedTimestamp = data.timestamp 
+      ? new Date(data.timestamp).toLocaleString('en-AU', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        })
+      : new Date().toLocaleString('en-AU', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+    
     const templateParams = {
       grant_team_email: config.grantTeamEmail,
       submission_id: data.submissionId,
+      submissionId: data.submissionId,
       query_type: data.queryType,
+      queryType: data.queryType,
       user_email: data.userEmail,
       user_name: data.userName,
-      timestamp: data.timestamp ?? new Date().toISOString(),
+      userName: data.userName,
+      submitter_name: data.userName,
+      submitterName: data.userName,
+      submitter_email: data.userEmail,
+      submitterEmail: data.userEmail,
+      timestamp: formattedTimestamp,
+      date: formattedTimestamp,
       form_data: JSON.stringify(data.formData ?? {}, null, 2),
+      form_data_pretty: formattedFormData,
+      formData: formattedFormData,
+      form_details: formattedFormData,
       matched_selections: data.matchedSelections?.join(", "),
+      matchedSelections: data.matchedSelections?.join(", "),
     };
 
     try {
