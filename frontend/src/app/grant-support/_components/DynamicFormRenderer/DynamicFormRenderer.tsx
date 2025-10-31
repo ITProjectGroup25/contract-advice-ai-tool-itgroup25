@@ -8,6 +8,16 @@ import { toast } from "sonner";
 import z from "zod";
 import { GrantSupportSubmissionResponse, createGrantSupportSubmission } from "../../_utils/api";
 import { EmailData, GrantTeamEmailData, emailService } from "../../_utils/emailService";
+import {
+  USER_EMAIL_KEYS,
+  USER_NAME_KEYS,
+  GRANT_TEAM_EMAIL_KEYS,
+  GRANT_TEAM_SELECTION_KEYS,
+  resolveFieldString,
+  resolveFieldStrings,
+  resolveEmailList,
+  mergeUniqueStrings,
+} from "../../_utils/contactFieldResolver";
 import FixedLogo from "../FixedLogo";
 import { FormSectionsType } from "../types";
 import { Button } from "../ui/button";
@@ -35,68 +45,6 @@ interface UploadedFile {
 
 const generateSubmissionId = () =>
   `submission_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
-
-const EMAIL_FIELD_KEYS = [
-  "email",
-  "email address",
-  "emailAddress",
-  "contactEmail",
-  "contact email",
-  "your email",
-  "your email address",
-  "user email",
-  "userEmail",
-  "primary email",
-  "primaryEmail",
-];
-
-const NAME_FIELD_KEYS = [
-  "name",
-  "full name",
-  "fullName",
-  "contact name",
-  "contactName",
-  "your name",
-  "yourName",
-  "user name",
-  "userName",
-];
-
-const resolveContactField = (formData: Record<string, any>, keys: string[]): string | undefined => {
-  const normalizedEntries = new Map<string, unknown>();
-
-  for (const [rawKey, value] of Object.entries(formData)) {
-    const normalizedKey = rawKey.trim().toLowerCase();
-    if (!normalizedEntries.has(normalizedKey)) {
-      normalizedEntries.set(normalizedKey, value);
-    }
-  }
-
-  for (const key of keys) {
-    const trimmedKey = key.trim();
-    const directValue = formData[trimmedKey];
-
-    if (typeof directValue === "string" && directValue.trim().length > 0) {
-      return directValue.trim();
-    }
-
-    const fromNormalized = normalizedEntries.get(trimmedKey.toLowerCase());
-    if (typeof fromNormalized === "string" && fromNormalized.trim().length > 0) {
-      return fromNormalized.trim();
-    }
-
-    if (Array.isArray(fromNormalized)) {
-      const stringEntry = fromNormalized.find(
-        (entry) => typeof entry === "string" && entry.trim().length > 0
-      );
-      if (stringEntry) {
-        return stringEntry.trim();
-      }
-    }
-  }
-
-  return undefined;
-};
 
 const formatSubmissionDateParts = (inputTimestamp?: string) => {
   const candidateDate = inputTimestamp ? new Date(inputTimestamp) : new Date();
@@ -296,11 +244,24 @@ export function DynamicFormRenderer({
       console.log({ processedData });
 
       const userEmail =
-        resolveContactField(processedData, EMAIL_FIELD_KEYS) ??
-        resolveContactField(data, EMAIL_FIELD_KEYS);
+        resolveFieldString(processedData, USER_EMAIL_KEYS) ??
+        resolveFieldString(data, USER_EMAIL_KEYS);
       const userName =
-        resolveContactField(processedData, NAME_FIELD_KEYS) ??
-        resolveContactField(data, NAME_FIELD_KEYS);
+        resolveFieldString(processedData, USER_NAME_KEYS) ??
+        resolveFieldString(data, USER_NAME_KEYS);
+
+      const grantTeamEmails = (() => {
+        const fromProcessed = resolveEmailList(processedData, GRANT_TEAM_EMAIL_KEYS);
+        if (fromProcessed.length > 0) {
+          return fromProcessed;
+        }
+        return resolveEmailList(data, GRANT_TEAM_EMAIL_KEYS);
+      })();
+
+      const grantTeamSelections = mergeUniqueStrings(
+        resolveFieldStrings(processedData, GRANT_TEAM_SELECTION_KEYS),
+        resolveFieldStrings(data, GRANT_TEAM_SELECTION_KEYS)
+      );
 
       if (!userEmail || !userName) {
         console.warn("⚠️ FORM: Missing contact details for submission email", {
@@ -366,6 +327,11 @@ export function DynamicFormRenderer({
             submissionDate,
             submissionTime,
             formData: processedData,
+            grantTeamEmail: grantTeamEmails[0],
+            grantTeamEmails,
+            matchedSelections: grantTeamSelections,
+            grantTeamName: grantTeamSelections.join(", ") || undefined,
+            grantTeamNames: grantTeamSelections,
           };
 
           try {

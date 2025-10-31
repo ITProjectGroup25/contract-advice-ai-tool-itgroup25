@@ -5,6 +5,15 @@ import { ArrowLeft, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { GrantTeamEmailData, emailService } from "../_utils/emailService";
 import { localDB } from "../_utils/localDatabase";
+import {
+  USER_EMAIL_KEYS,
+  USER_NAME_KEYS,
+  GRANT_TEAM_EMAIL_KEYS,
+  GRANT_TEAM_SELECTION_KEYS,
+  resolveFieldString,
+  resolveFieldStrings,
+  resolveEmailList,
+} from "../_utils/contactFieldResolver";
 import { ChatBot } from "./chatbot/ChatBot";
 import { prefetchFaqs, prefetchSubmission } from "./chatbot/useGetFaq";
 import { Button } from "./ui/button";
@@ -80,35 +89,11 @@ export function SimpleQueryResponse({
     }
 
     const formData = submission?.formData ?? {};
-    const resolveField = (...keys: string[]) => {
-      for (const key of keys) {
-        const value = formData[key];
-        if (typeof value === "string" && value.trim().length > 0) {
-          return value.trim();
-        }
-      }
-      return undefined;
-    };
 
-    const userEmail = resolveField(
-      "email",
-      "Email",
-      "Email Address",
-      "emailAddress",
-      "contactEmail",
-      "Your Email",
-      "User Email"
-    );
-
-    const userName = resolveField(
-      "name",
-      "Name",
-      "fullName",
-      "Full Name",
-      "contactName",
-      "Your Name",
-      "User Name"
-    );
+    const userEmail = resolveFieldString(formData, USER_EMAIL_KEYS);
+    const userName = resolveFieldString(formData, USER_NAME_KEYS);
+    const grantTeamEmails = resolveEmailList(formData, GRANT_TEAM_EMAIL_KEYS);
+    const grantTeamSelections = resolveFieldStrings(formData, GRANT_TEAM_SELECTION_KEYS);
 
     try {
       await localDB.updateSubmission(submissionId, {
@@ -129,6 +114,11 @@ export function SimpleQueryResponse({
           userName,
           timestamp: new Date().toISOString(),
           formData,
+          grantTeamEmail: grantTeamEmails[0],
+          grantTeamEmails,
+          matchedSelections: grantTeamSelections,
+          grantTeamName: grantTeamSelections.join(", ") || undefined,
+          grantTeamNames: grantTeamSelections,
         };
 
         const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);

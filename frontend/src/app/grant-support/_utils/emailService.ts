@@ -1,6 +1,16 @@
 import emailjs from "@emailjs/browser";
 import { fetchEmailConfig, saveEmailConfig, EmailConfig as ApiEmailConfig } from "./api";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+
+const extractEmails = (value: string | string[] | undefined): string[] => {
+  if (!value) return [];
+  const values = Array.isArray(value) ? value : value.split(/[,;]+/);
+  return values
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0 && EMAIL_REGEX.test(entry));
+};
+
 // 辅助函数：序列化表单值
 const serializeFormValue = (value: unknown): string => {
   if (Array.isArray(value)) {
@@ -61,6 +71,10 @@ export interface GrantTeamEmailData {
   matchedSelections?: string[];
   submissionDate?: string;
   submissionTime?: string;
+  grantTeamEmail?: string;
+  grantTeamEmails?: string[];
+  grantTeamName?: string;
+  grantTeamNames?: string[];
 }
 
 export type EmailConfig = ApiEmailConfig;
@@ -228,8 +242,41 @@ class EmailService {
     const { formattedTimestamp, submissionDate, submissionTime } =
       EmailService.formatTimestampParts(data.timestamp);
 
+    const recipientEmails = Array.from(
+      new Set<string>([
+        ...extractEmails(data.grantTeamEmails),
+        ...extractEmails(
+          typeof data.grantTeamEmail === "string" ? data.grantTeamEmail : undefined
+        ),
+        ...extractEmails(config.grantTeamEmail),
+      ])
+    );
+
+    if (recipientEmails.length === 0) {
+      console.warn(
+        "[EmailJS] No grant team recipient email detected. Skipping grant team notification.",
+        {
+          submissionId: data.submissionId,
+          formRecipients: data.grantTeamEmails,
+          configRecipient: config.grantTeamEmail,
+        }
+      );
+      return false;
+    }
+
+    const [primaryRecipient, ...ccRecipients] = recipientEmails;
+    const grantTeamNames = data.grantTeamNames ?? data.matchedSelections;
+    const grantTeamDisplayName =
+      data.grantTeamName ?? grantTeamNames?.join(", ") ?? "Grant Support Team";
+
     const templateParams = {
-      grant_team_email: config.grantTeamEmail,
+      grant_team_email: primaryRecipient,
+      to_email: primaryRecipient,
+      toEmail: primaryRecipient,
+      to_name: grantTeamDisplayName,
+      toName: grantTeamDisplayName,
+      cc_emails: ccRecipients.join(", "),
+      ccEmails: ccRecipients.join(", "),
       submission_id: data.submissionId,
       submissionId: data.submissionId,
       query_type: data.queryType,
@@ -253,6 +300,10 @@ class EmailService {
       submissionTime: data.submissionTime ?? submissionTime,
       matched_selections: data.matchedSelections?.join(", "),
       matchedSelections: data.matchedSelections?.join(", "),
+      grant_team_name: grantTeamDisplayName,
+      grantTeamName: grantTeamDisplayName,
+      grant_team_list: grantTeamNames?.join(", ") ?? "",
+      grantTeamList: grantTeamNames?.join(", ") ?? "",
     };
 
     try {
@@ -263,6 +314,8 @@ class EmailService {
         userEmail: data.userEmail,
         userName: data.userName,
         matchedSelections: data.matchedSelections,
+        to: primaryRecipient,
+        cc: ccRecipients,
       });
       const response = await emailjs.send(
         config.serviceId,
