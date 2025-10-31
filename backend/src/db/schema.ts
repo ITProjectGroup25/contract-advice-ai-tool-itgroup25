@@ -916,6 +916,34 @@ export const grantSupportSubmissions = pgTable(
   (table) => [unique("grant_support_submissions_submission_uid_key").on(table.submissionUid)]
 );
 
+export const referralSubmissions = pgTable(
+  "referral_submissions",
+  {
+    id: serial("id").primaryKey().notNull(),
+    submissionUid: varchar("submission_uid", { length: 64 }).notNull(),
+    formId: integer("form_id"),
+    queryType: varchar("query_type", { length: 32 }).notNull(),
+    status: varchar("status", { length: 32 }).default("submitted").notNull(),
+    userName: varchar("user_name", { length: 200 }),
+    userEmail: varchar("user_email", { length: 200 }),
+    formData: jsonb("form_data").notNull(),
+    attachments: jsonb("attachments")
+      .default(sql`'[]'::jsonb`)
+      .notNull(),
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow().notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.formId],
+      foreignColumns: [form.id],
+      name: "referral_submissions_form_id_form_id_fk",
+    }).onDelete("set null"),
+    unique("referral_submissions_submission_uid_key").on(table.submissionUid),
+  ]
+);
+
 export const grantSupportFaqs = pgTable(
   "grant_support_faqs",
   {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-// @ts-ignore
+// @ts-ignore - backend types are compiled separately
 import { db, referralSubmissions } from "@backend";
 
 const submissionPayload = z.object({
