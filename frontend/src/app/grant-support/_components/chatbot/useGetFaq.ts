@@ -1,7 +1,7 @@
 import { getFaqs } from "@/app/actions/getFaqs";
 import { getSubmission } from "@/app/actions/getSubmission";
 import { QueryClient, useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { SelectedFormSectionsType } from "../selected-sections.type";
 import { extractFaqSelections } from "./utils/extractFaqSelections";
 import { matchFaqWithSubmission } from "./utils/faqMatchingUtils";
@@ -44,26 +44,32 @@ interface UseGetFaqParams {
   enabled?: boolean;
 }
 
-const FAQ_STALE_TIME = 30 * 60 * 1000; // 30 minutes
-const FAQ_GC_TIME = 45 * 60 * 1000; // 45 minutes
-const SUBMISSION_STALE_TIME = 5 * 60 * 1000; // 5 minutes
-const SUBMISSION_GC_TIME = 10 * 60 * 1000; // 10 minutes
+const FAQ_STALE_TIME = 30 * 60 * 1000;
+const FAQ_GC_TIME = 45 * 60 * 1000;
+const SUBMISSION_STALE_TIME = 5 * 60 * 1000;
+const SUBMISSION_GC_TIME = 10 * 60 * 1000;
 
 export const faqQueryKey = (formId: number) => ["faqs", formId] as const;
 export const submissionQueryKey = (submissionUid: string) =>
   ["submission", submissionUid] as const;
 
+const debug = (...args: unknown[]) => console.debug("[useGetFaq]", ...args);
+
 async function fetchFaqs(formId: number): Promise<FAQ[]> {
+  debug("Fetching FAQs", { formId });
   const faqsResult = await getFaqs({ formId });
 
   if (faqsResult.message === "error") {
     throw new Error(faqsResult.error || "Failed to fetch FAQs");
   }
 
-  return faqsResult.data || [];
+  const faqs = faqsResult.data || [];
+  debug("Fetched FAQs", { formId, count: faqs.length });
+  return faqs;
 }
 
 async function fetchSubmission(submissionUid: string): Promise<Submission> {
+  debug("Fetching submission", { submissionUid });
   const submissionResult = await getSubmission({ submissionUid });
 
   if (submissionResult.message === "error") {
@@ -73,6 +79,11 @@ async function fetchSubmission(submissionUid: string): Promise<Submission> {
   if (!submissionResult.data) {
     throw new Error("Submission not found");
   }
+
+  debug("Fetched submission", {
+    submissionUid,
+    keys: Object.keys(submissionResult.data.form_data || {}),
+  });
 
   return submissionResult.data;
 }
@@ -106,22 +117,6 @@ export async function prefetchSubmission(
   });
 }
 
-/**
- * Custom hook to fetch submission data and matching FAQs using server actions
- *
- * @param submissionUid - The unique identifier for the submission
- * @param formId - The form ID to fetch FAQs for
- * @param enabled - Whether the query should run (default: true)
- *
- * @returns Object containing matched FAQs, all FAQs, submission data, loading state, and error
- *
- * @example
- * const { matchedFaqs, isLoading, error } = useGetFaq({
- *   submissionUid: "abc-123",
- *   formId: 1,
- *   enabled: true
- * });
- */
 export function useGetFaq({
   submissionUid,
   formId,
@@ -129,6 +124,14 @@ export function useGetFaq({
 }: UseGetFaqParams): UseGetFaqResult {
   const isFaqQueryEnabled = enabled && typeof formId === "number";
   const isSubmissionQueryEnabled = enabled && !!submissionUid;
+
+  useEffect(() => {
+    if (!enabled) {
+      debug("Hook disabled");
+      return;
+    }
+    debug("Hook initialised", { submissionUid, formId });
+  }, [enabled, submissionUid, formId]);
 
   const faqsQuery = useQuery({
     queryKey:
@@ -154,14 +157,29 @@ export function useGetFaq({
 
   const matchedFaqs = useMemo(() => {
     if (!faqsQuery.data || !submissionQuery.data) {
+      debug("Skipping FAQ matching", {
+        submissionUid,
+        hasFaqs: !!faqsQuery.data,
+        hasSubmission: !!submissionQuery.data,
+      });
       return [] as MatchedFAQ[];
     }
 
-    return faqsQuery.data
+    const matched = faqsQuery.data
       .map((faq: FAQ) => matchFaqWithSubmission(faq, submissionQuery.data.form_data))
       .filter((faq: MatchedFAQ) => faq.matchScore > 0)
       .sort((a: MatchedFAQ, b: MatchedFAQ) => b.matchScore - a.matchScore);
-  }, [faqsQuery.data, submissionQuery.data]);
+
+    debug("Matched FAQs", {
+      submissionUid,
+      formId,
+      totalFaqs: faqsQuery.data.length,
+      matchedCount: matched.length,
+      topScore: matched[0]?.matchScore ?? null,
+    });
+
+    return matched;
+  }, [faqsQuery.data, submissionQuery.data, submissionUid, formId]);
 
   const isLoading =
     (isFaqQueryEnabled && faqsQuery.isPending) ||
@@ -171,6 +189,28 @@ export function useGetFaq({
     (submissionQuery.error as Error | undefined) ??
     (faqsQuery.error as Error | undefined) ??
     null;
+
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+    debug("Query status update", {
+      submissionUid,
+      formId,
+      faqStatus: faqsQuery.status,
+      submissionStatus: submissionQuery.status,
+      isLoading,
+      hasError: !!error,
+    });
+  }, [
+    enabled,
+    submissionUid,
+    formId,
+    faqsQuery.status,
+    submissionQuery.status,
+    isLoading,
+    error,
+  ]);
 
   return {
     matchedFaqs,

@@ -11,9 +11,9 @@ import { SuccessPage } from "./SuccessPage";
 import { Form, FormSectionsType } from "./types";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
-import { prefetchFaqs, prefetchSubmission } from "./chatbot/useGetFaq";
+import { prefetchFaqs } from "./chatbot/useGetFaq";
 
-type AppState = "form" | "simple-response" | "success" | "admin" 
+type AppState = "form" | "simple-response" | "success" | "admin";
 
 type Props = {
   form: Form;
@@ -29,7 +29,6 @@ export default function App({ form, formId }: Props) {
   const [successPageType, setSuccessPageType] = useState<"complex" | "simple-escalated">("complex");
   const [currentSubmissionId, setCurrentSubmissionId] = useState<string | undefined>();
 
-  // Check EmailJS on app start
   useEffect(() => {
     console.log("[EmailJS] App started, checking EmailJS availability...");
     const checkEmailJS = () => {
@@ -44,10 +43,8 @@ export default function App({ form, formId }: Props) {
       });
     };
 
-    // Check immediately
     checkEmailJS();
 
-    // Check periodically for more detailed monitoring
     const intervals = [500, 1000, 2000, 5000];
     intervals.forEach((delay) => {
       setTimeout(checkEmailJS, delay);
@@ -59,16 +56,16 @@ export default function App({ form, formId }: Props) {
       return;
     }
 
-    void prefetchFaqs(queryClient, formId);
+    prefetchFaqs(queryClient, formId)
+      .then(() => {
+        console.debug("[GrantSupportApp] FAQs prefetched for form", { formId });
+      })
+      .catch((error: unknown) => {
+        console.warn("[GrantSupportApp] Failed to prefetch FAQs", error);
+      });
   }, [formId, queryClient]);
 
   const handleSimpleQuerySuccess = (submissionId?: string) => {
-    if (formId) {
-      void prefetchFaqs(queryClient, formId);
-    }
-    if (submissionId) {
-      void prefetchSubmission(queryClient, submissionId);
-    }
     setCurrentSubmissionId(submissionId);
     setCurrentState("simple-response");
   };
@@ -113,10 +110,6 @@ export default function App({ form, formId }: Props) {
     queryClient.invalidateQueries({ queryKey: ["form", formId] });
   };
 
-  console.log({currentSubmissionId})
-
-  console.log({ sections });
-
   const renderCurrentView = () => {
     switch (currentState) {
       case "simple-response":
@@ -154,7 +147,6 @@ export default function App({ form, formId }: Props) {
 
   return (
     <div className={`min-h-screen ${currentState === "admin" ? "bg-white" : "bg-green-100"}`}>
-      {/* Admin Panel Access - Only show on form page */}
       {currentState === "form" && (
         <div className="fixed right-4 top-4 z-50">
           <Button
@@ -171,7 +163,6 @@ export default function App({ form, formId }: Props) {
 
       {renderCurrentView()}
 
-      {/* Password Dialog */}
       <PasswordDialog
         open={showPasswordDialog}
         onClose={handlePasswordDialogClose}
