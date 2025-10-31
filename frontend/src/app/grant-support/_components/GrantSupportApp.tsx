@@ -11,6 +11,7 @@ import { SuccessPage } from "./SuccessPage";
 import { Form, FormSectionsType } from "./types";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
+import { prefetchFaqs } from "./chatbot/useGetFaq";
 
 type AppState = "form" | "simple-response" | "success" | "admin" 
 
@@ -52,6 +53,20 @@ export default function App({ form, formId }: Props) {
       setTimeout(checkEmailJS, delay);
     });
   }, []);
+
+  useEffect(() => {
+    if (!formId) {
+      return;
+    }
+
+    prefetchFaqs(queryClient, formId)
+      .then(() => {
+        console.debug("[GrantSupportApp] FAQs prefetched for form", { formId });
+      })
+      .catch((error) => {
+        console.warn("[GrantSupportApp] Failed to prefetch FAQs", error);
+      });
+  }, [formId, queryClient]);
 
   const handleSimpleQuerySuccess = (submissionId?: string) => {
     setCurrentSubmissionId(submissionId);

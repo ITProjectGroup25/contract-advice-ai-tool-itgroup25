@@ -7,7 +7,6 @@ import { Input } from "../ui/input";
 import { conversationFlow, generateFaqFoundMessage } from "./conversationFlow";
 import { useGetFaq } from "./useGetFaq";
 
-// Define the structure for conversation flow
 interface ChatMessage {
   id: string;
   text: string;
@@ -28,17 +27,30 @@ interface ChatBotProps {
   submissionId?: string;
   onSatisfied?: () => void;
   onNeedHelp?: () => void;
+  formId?: number;
 }
 
 const REDIRECT_COUNTDOWN = 15;
+const NO_MATCH_REDIRECT_DELAY = 12;
 
-export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatisfied, onNeedHelp }: ChatBotProps) {
-  const { matchedFaqs, submission, isLoading, error } = useGetFaq({
+export function ChatBot({
+  onBack,
+  initialNodeId = "start",
+  submissionId,
+  onSatisfied,
+  onNeedHelp,
+  formId = 2,
+}: ChatBotProps) {
+  const logSequenceRef = useRef(0);
+  const debug = (...args: any[]) => {
+    logSequenceRef.current += 1;
+    console.debug(`[ChatBot][${logSequenceRef.current}]`, ...args);
+  };
+
+  const { matchedFaqs, isLoading, error } = useGetFaq({
     submissionUid: submissionId,
-    formId: 2,
+    formId,
   });
-
-  console.log({ matchedFaqs, submission });
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentNodeId, setCurrentNodeId] = useState(initialNodeId);
@@ -53,6 +65,8 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
   const hasInitialized = useRef(false);
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
   const loadingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasLoggedStuckProgressRef = useRef(false);
+  const autoEscalatedRef = useRef(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -62,7 +76,6 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
     scrollToBottom();
   }, [messages]);
 
-  // Countdown timer effect
   useEffect(() => {
     if (countdown !== null && countdown > 0) {
       countdownTimerRef.current = setTimeout(() => {
@@ -70,17 +83,16 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
       }, 1000);
     } else if (countdown === 0) {
       setIsRedirecting(true);
-      
-      // Call parent callbacks when countdown completes
-      // Check which flow we're in based on current node
       const currentNode = conversationFlow[currentNodeId];
       if (currentNode) {
-        // If we're at faq_satisfied node (after "Yes, helped!")
         if (currentNodeId === "faq_satisfied" && onSatisfied) {
+          debug("Countdown completed at faq_satisfied; notifying parent");
           onSatisfied();
-        }
-        // If we're at faq_escalate node (after "Need help")
-        else if (currentNodeId === "faq_escalate" && onNeedHelp) {
+        } else if (
+          (currentNodeId === "faq_escalate" || currentNodeId === "faq_not_found") &&
+          onNeedHelp
+        ) {
+          debug("Countdown completed; escalating to grants team");
           onNeedHelp();
         }
       }
@@ -95,14 +107,21 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
 
   useEffect(() => {
     if (!submissionId) {
+      debug("No submission ID; presenting default chat");
       setProgress(100);
       setShowContent(true);
+      if (loadingIntervalRef.current) {
+        clearInterval(loadingIntervalRef.current);
+        loadingIntervalRef.current = null;
+      }
       return;
     }
 
     if (isLoading) {
       setShowContent(false);
       setProgress(10);
+      hasLoggedStuckProgressRef.current = false;
+      debug("FAQ lookup started", { submissionId, formId });
       if (loadingIntervalRef.current) {
         clearInterval(loadingIntervalRef.current);
       }
@@ -110,63 +129,113 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
         setProgress((prev) => {
           if (prev >= 90) return prev;
           const increment = Math.random() * 15 + 5;
-          return Math.min(prev + increment, 90);
+          const nextProgress = Math.min(prev + increment, 90);
+          if (Math.floor(nextProgress / 10) !== Math.floor(prev / 10)) {
+            debug("Progress updated", { previous: prev, next: nextProgress });
+          }
+          return nextProgress;
         });
       }, 180);
-    } else {
-      if (loadingIntervalRef.current) {
-        clearInterval(loadingIntervalRef.current);
-        loadingIntervalRef.current = null;
-      }
-      setProgress(100);
-      const timeout = setTimeout(() => setShowContent(true), 200);
+      return () => {
+        if (loadingIntervalRef.current) {
+          clearInterval(loadingIntervalRef.current);
+          loadingIntervalRef.current = null;
+        }
+      };
+    }
+
+    if (loadingIntervalRef.current) {
+      clearInterval(loadingIntervalRef.current);
+      loadingIntervalRef.current = null;
+    }
+    debug("FAQ lookup completed", {
+      submissionId,
+      matchedFaqs: matchedFaqs?.length ?? 0,
+    });
+    setProgress(100);
+  }, [isLoading, submissionId, matchedFaqs?.length, formId]);
+
+  useEffect(() => {
+    if (!submissionId) {
+      return;
+    }
+
+    if (!isLoading && messages.length > 0) {
+      const timeout = setTimeout(() => setShowContent(true), 150);
+      debug("Initial bot response ready; revealing chat");
       return () => clearTimeout(timeout);
     }
 
+    return undefined;
+  }, [isLoading, messages.length, submissionId]);
+
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+
+    debug("FAQ lookup error", error);
+    setShowContent(true);
+    if (loadingIntervalRef.current) {
+      clearInterval(loadingIntervalRef.current);
+      loadingIntervalRef.current = null;
+    }
+  }, [error]);
+
+  useEffect(() => {
     return () => {
       if (loadingIntervalRef.current) {
+        debug("Cleaning progress interval on unmount");
         clearInterval(loadingIntervalRef.current);
         loadingIntervalRef.current = null;
       }
     };
-  }, [isLoading, submissionId]);
+  }, []);
 
-  // Initialize with FAQ-based flow when submission is loaded
   useEffect(() => {
     if (hasInitialized.current || isLoading || !submissionId) return;
 
     hasInitialized.current = true;
 
-    // Check if we have matched FAQs
     if (matchedFaqs && matchedFaqs.length > 0) {
-      // Use the highest scoring FAQ
       const topFaq = matchedFaqs[0];
       const faqMessage = generateFaqFoundMessage(topFaq);
-      
-      // Update the faq_found node message dynamically
+      debug("Matched FAQ found", {
+        submissionId,
+        matchedCount: matchedFaqs.length,
+        topFaqId: topFaq.id,
+        matchScore: topFaq.matchScore,
+      });
+
       conversationFlow.faq_found.message = faqMessage;
-      
+
       setCurrentNodeId("faq_found");
       addBotMessage(faqMessage);
     } else {
-      // No FAQs found
+      debug("No matching FAQs; displaying escalation notice", { submissionId });
       setCurrentNodeId("faq_not_found");
       addBotMessage(conversationFlow.faq_not_found.message);
+      if (!autoEscalatedRef.current) {
+        autoEscalatedRef.current = true;
+        debug("Scheduling automatic escalation", { delaySeconds: NO_MATCH_REDIRECT_DELAY });
+        setCountdown(NO_MATCH_REDIRECT_DELAY);
+      }
     }
   }, [matchedFaqs, isLoading, submissionId]);
 
-  // Fallback initialization for non-submission flow
   useEffect(() => {
     if (hasInitialized.current || submissionId) return;
 
     const initialNode = conversationFlow[initialNodeId];
     if (initialNode) {
       hasInitialized.current = true;
+      debug("Bootstrapping conversation with initial node", { nodeId: initialNodeId });
       addBotMessage(initialNode.message);
     }
   }, [initialNodeId, submissionId]);
 
   const addBotMessage = (text: string) => {
+    debug("Queueing bot message", { preview: text.slice(0, 80) });
     setIsTyping(true);
     setTimeout(() => {
       const newMessage: ChatMessage = {
@@ -175,6 +244,7 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
         sender: "bot",
         timestamp: new Date(),
       };
+      debug("Bot message added", { messageId: newMessage.id });
       setMessages((prev) => [...prev, newMessage]);
       setIsTyping(false);
     }, 500);
@@ -187,13 +257,16 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
       sender: "user",
       timestamp: new Date(),
     };
+    debug("User message added", { messageId: newMessage.id });
     setMessages((prev) => [...prev, newMessage]);
   };
 
   const handleOptionClick = (option: ChatOption) => {
     addUserMessage(option.text);
+    debug("User selected option", { optionId: option.id, nextNodeId: option.nextNodeId });
 
     if (option.action) {
+      debug("Executing option action", { optionId: option.id });
       option.action();
     }
 
@@ -201,6 +274,7 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
       setTimeout(() => {
         const nextNode = conversationFlow[option.nextNodeId!];
         if (nextNode) {
+          debug("Navigating to node", { nodeId: option.nextNodeId });
           setCurrentNodeId(option.nextNodeId!);
           addBotMessage(nextNode.message);
         }
@@ -214,6 +288,7 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
 
     const currentNode = conversationFlow[currentNodeId];
     addUserMessage(userInput);
+    debug("User submitted free text", { nodeId: currentNodeId, text: userInput });
 
     const input = userInput;
     setUserInput("");
@@ -224,6 +299,7 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
         if (nextNodeId && typeof nextNodeId === "string") {
           const nextNode = conversationFlow[nextNodeId];
           if (nextNode) {
+            debug("Free-text navigation", { from: currentNodeId, to: nextNodeId });
             setCurrentNodeId(nextNodeId);
             addBotMessage(nextNode.message);
           }
@@ -232,32 +308,43 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
     }
   };
 
-  // Custom handlers for FAQ buttons
   const handleSatisfied = async () => {
-    // First show the conversation message
-    const option = conversationFlow.faq_found.options?.find(opt => opt.id === "opt1");
+    debug("User indicated FAQ was helpful");
+    const option = conversationFlow.faq_found.options?.find((opt) => opt.id === "opt1");
     if (option) {
       handleOptionClick(option);
-      
-      // Wait for message to be added, then start countdown
       setTimeout(() => {
-        setCountdown(10); // Start 10 second countdown
-      }, 600); // Wait for message animation
+        debug("Starting satisfaction countdown", { seconds: 10 });
+        setCountdown(10);
+      }, 600);
     }
   };
 
   const handleNeedHelp = async () => {
-    // First show the conversation message
-    const option = conversationFlow.faq_found.options?.find(opt => opt.id === "opt2");
+    debug("User requested human assistance after FAQ");
+    const option = conversationFlow.faq_found.options?.find((opt) => opt.id === "opt2");
     if (option) {
       handleOptionClick(option);
-      
-      // Wait for message to be added, then start countdown and download
-      setTimeout(async () => {
-        setCountdown(REDIRECT_COUNTDOWN); // Start countdown
-      }, 600); // Wait for message animation
+      setTimeout(() => {
+        debug("Starting escalation countdown", { seconds: REDIRECT_COUNTDOWN });
+        setCountdown(REDIRECT_COUNTDOWN);
+      }, 600);
     }
   };
+
+  useEffect(() => {
+    if (!submissionId) return;
+    if (progress === 100 && !showContent && !isLoading && !hasLoggedStuckProgressRef.current) {
+      hasLoggedStuckProgressRef.current = true;
+      debug("Progress reached 100% but content still hidden", {
+        messagesCount: messages.length,
+        isLoading,
+      });
+    }
+    if (showContent) {
+      hasLoggedStuckProgressRef.current = false;
+    }
+  }, [progress, showContent, submissionId, messages.length, isLoading]);
 
   const currentNode = conversationFlow[currentNodeId];
 
@@ -266,7 +353,7 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
       <div className="flex h-[600px] items-center justify-center">
         <div className="w-full max-w-lg space-y-4 rounded-lg border border-green-200 bg-white p-8 text-center shadow-sm">
           <Bot className="mx-auto h-12 w-12 text-green-600" />
-          <h2 className="text-xl font-semibold text-green-700">Generating recommendations…</h2>
+          <h2 className="text-xl font-semibold text-green-700">Generating recommendations...</h2>
           <p className="text-muted-foreground text-sm">
             We&apos;re matching your submission with relevant guidance.
           </p>
@@ -310,7 +397,6 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
       )}
 
       <div className="flex h-[600px] flex-col rounded-lg border bg-white shadow-sm">
-        {/* Messages Container */}
         <div
           ref={chatContainerRef}
           className="flex-1 space-y-4 overflow-y-auto p-6"
@@ -328,34 +414,25 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
               >
                 <div
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                    message.sender === "bot" ? "bg-blue-100" : "bg-green-100"
+                    message.sender === "user" ? "bg-green-100" : "bg-blue-100"
                   }`}
                 >
-                  {message.sender === "bot" ? (
-                    <Bot className="h-4 w-4 text-blue-600" />
+                  {message.sender === "user" ? (
+                    <User className="h-4 w-4 text-green-700" />
                   ) : (
-                    <User className="h-4 w-4 text-green-600" />
+                    <Bot className="h-4 w-4 text-blue-600" />
                   )}
                 </div>
                 <div
-                  className={`rounded-lg px-4 py-2 ${
-                    message.sender === "bot"
-                      ? "bg-gray-100 text-gray-900"
-                      : "bg-green-600 text-white"
+                  className={`rounded-lg px-4 py-2 text-sm ${
+                    message.sender === "user" ? "bg-green-600 text-white" : "bg-gray-100 text-black"
                   }`}
                 >
-                  <p className="whitespace-pre-line text-sm">
-                    {message.text.split(/(\*\*.*?\*\*)/).map((part, index) => {
-                      if (part.startsWith('**') && part.endsWith('**')) {
-                        return (
-                          <strong key={index} className="font-bold text-blue-700">
-                            {part.slice(2, -2)}
-                          </strong>
-                        );
-                      }
-                      return part;
-                    })}
-                  </p>
+                  {message.text.split("\n").map((line, index) => (
+                    <p key={index} className={line.startsWith("**") ? "font-semibold" : ""}>
+                      {line.replace(/\*\*/g, "")}
+                    </p>
+                  ))}
                 </div>
               </div>
             </div>
@@ -378,7 +455,6 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
             </div>
           )}
 
-          {/* Countdown timer message */}
           {countdown !== null && (
             <div className="flex justify-center">
               <div className="rounded-lg border-2 border-orange-300 bg-orange-50 px-6 py-4 text-center">
@@ -399,9 +475,7 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Options or Input Area */}
         <div className="border-t bg-gray-50 p-4">
-          {/* Special styling for FAQ response buttons */}
           {currentNodeId === "faq_found" && currentNode?.options && currentNode.options.length > 0 && (
             <div className="space-y-4">
               <div className="flex flex-col gap-3 sm:flex-row">
@@ -433,7 +507,6 @@ export function ChatBot({ onBack, initialNodeId = "start", submissionId, onSatis
             </div>
           )}
 
-          {/* Regular options for other nodes */}
           {currentNodeId !== "faq_found" && currentNode?.options && currentNode.options.length > 0 && !currentNode.allowFreeText && (
             <div className="flex flex-wrap gap-2">
               {currentNode.options.map((option) => (
