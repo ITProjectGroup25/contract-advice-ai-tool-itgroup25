@@ -63,7 +63,7 @@ export default function App({ form, formId }: Props) {
       .then(() => {
         console.debug("[GrantSupportApp] FAQs prefetched for form", { formId });
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         console.warn("[GrantSupportApp] Failed to prefetch FAQs", error);
       });
   }, [formId, queryClient]);

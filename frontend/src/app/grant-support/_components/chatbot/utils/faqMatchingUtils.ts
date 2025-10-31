@@ -1,4 +1,4 @@
-import { FAQ, MatchedFAQ } from "../useGetFaq";
+import { FAQ, MatchedFAQ, SubmissionFormData } from "../useGetFaq";
 import { extractFaqSelections } from "./extractFaqSelections";
 
 /**
@@ -42,7 +42,7 @@ export function normalizeFormDataValue(value: any): string[] {
  * //   { key: "name", values: ["john"] }
  * // ]
  */
-export function normalizeFormData(formData: FormData): Array<{ key: string; values: string[] }> {
+export function normalizeFormData(formData: SubmissionFormData): Array<{ key: string; values: string[] }> {
   const formDataEntries: Array<{ key: string; values: string[] }> = [];
   
   Object.entries(formData).forEach(([key, value]) => {
@@ -119,7 +119,7 @@ export function isSelectionMatched(
  * // result.matchScore = 100 (2/2 matched)
  * // result.matchedSelections = ["ARC-D", "Complex"]
  */
-export function matchFaqWithSubmission(faq: FAQ, formData: FormData): MatchedFAQ {
+export function matchFaqWithSubmission(faq: FAQ, formData: SubmissionFormData): MatchedFAQ {
   // Extract selections from FAQ (handles both flat and nested structures)
   const selections = extractFaqSelections(faq);
 
@@ -178,7 +178,7 @@ export function matchFaqWithSubmission(faq: FAQ, formData: FormData): MatchedFAQ
  */
 export function matchAndSortFaqs(
   faqs: FAQ[],
-  formData: FormData,
+  formData: SubmissionFormData,
   minScore: number = 0
 ): MatchedFAQ[] {
   return faqs
