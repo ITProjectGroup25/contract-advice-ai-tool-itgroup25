@@ -67,47 +67,86 @@ export function SimpleQueryResponse({
   };
 
   const handleNeedHelp = async () => {
-    if (submissionId) {
-      try {
-        await localDB.updateSubmission(submissionId, {
-          userSatisfied: false,
-          needsHumanReview: true,
-          status: "escalated",
-        });
-
-        try {
-          const submission = await localDB.getSubmission(submissionId);
-          if (submission?.formData) {
-            const userEmail = submission.formData.email as string | undefined;
-            const userName = submission.formData.name as string | undefined;
-
-            if (userEmail && userName) {
-              const grantTeamEmailData: GrantTeamEmailData = {
-                submissionId,
-                queryType: "escalated",
-                userEmail,
-                userName,
-                timestamp: new Date().toISOString(),
-                formData: submission.formData,
-              };
-
-              const grantEmailSent =
-                await emailService.sendGrantTeamNotification(grantTeamEmailData);
-              if (!grantEmailSent) {
-                console.warn("Grant team escalation email was not sent");
-              }
-            }
-          }
-        } catch (grantEmailError) {
-          console.error("Grant team escalation email failed:", grantEmailError);
-        }
-      } catch (error) {
-        console.error("Error updating submission:", error);
-      }
+    if (!submissionId) {
+      onNeedHumanHelp();
+      return;
     }
 
-    // Redirect immediately (ChatBot already handled countdown)
-    onNeedHumanHelp(); // This calls handleSimpleQueryNeedHelp which goes to success page
+    let submission = null;
+    try {
+      submission = await localDB.getSubmission(submissionId);
+    } catch (error) {
+      console.warn("Failed to load submission before escalation:", error);
+    }
+
+    const formData = submission?.formData ?? {};
+    const resolveField = (...keys: string[]) => {
+      for (const key of keys) {
+        const value = formData[key];
+        if (typeof value === "string" && value.trim().length > 0) {
+          return value.trim();
+        }
+      }
+      return undefined;
+    };
+
+    const userEmail = resolveField(
+      "email",
+      "Email",
+      "Email Address",
+      "emailAddress",
+      "contactEmail",
+      "Your Email",
+      "User Email"
+    );
+
+    const userName = resolveField(
+      "name",
+      "Name",
+      "fullName",
+      "Full Name",
+      "contactName",
+      "Your Name",
+      "User Name"
+    );
+
+    try {
+      await localDB.updateSubmission(submissionId, {
+        userSatisfied: false,
+        needsHumanReview: true,
+        status: "escalated",
+      });
+    } catch (error) {
+      console.error("Error updating submission:", error);
+    }
+
+    if (userEmail && userName) {
+      try {
+        const grantTeamEmailData: GrantTeamEmailData = {
+          submissionId,
+          queryType: "escalated",
+          userEmail,
+          userName,
+          timestamp: new Date().toISOString(),
+          formData,
+        };
+
+        const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
+        if (!grantEmailSent) {
+          console.warn("Grant team escalation email was not sent");
+        }
+      } catch (grantEmailError) {
+        console.error("Grant team escalation email failed:", grantEmailError);
+      }
+    } else {
+      console.warn("Grant team email skipped - missing user contact details", {
+        submissionId,
+        hasEmail: !!userEmail,
+        hasName: !!userName,
+      });
+    }
+
+    onNeedHumanHelp();
   };
 
   // Show thank you feedback page after user clicks "Yes, this helped!"
@@ -155,3 +194,4 @@ export function SimpleQueryResponse({
     </div>
   );
 }
+
