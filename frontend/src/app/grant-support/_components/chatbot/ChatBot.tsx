@@ -67,6 +67,12 @@ export function ChatBot({
   const loadingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasLoggedStuckProgressRef = useRef(false);
   const autoEscalatedRef = useRef(false);
+  const hasNotifiedGrantTeamRef = useRef(false);
+
+  useEffect(() => {
+    autoEscalatedRef.current = false;
+    hasNotifiedGrantTeamRef.current = false;
+  }, [submissionId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -88,12 +94,9 @@ export function ChatBot({
         if (currentNodeId === "faq_satisfied" && onSatisfied) {
           debug("Countdown completed at faq_satisfied; notifying parent");
           onSatisfied();
-        } else if (
-          (currentNodeId === "faq_escalate" || currentNodeId === "faq_not_found") &&
-          onNeedHelp
-        ) {
+        } else if (currentNodeId === "faq_escalate" || currentNodeId === "faq_not_found") {
           debug("Countdown completed; escalating to grants team");
-          onNeedHelp();
+          notifyGrantTeam();
         }
       }
     }
@@ -217,6 +220,7 @@ export function ChatBot({
       addBotMessage(conversationFlow.faq_not_found.message);
       if (!autoEscalatedRef.current) {
         autoEscalatedRef.current = true;
+        notifyGrantTeam();
         debug("Scheduling automatic escalation", { delaySeconds: NO_MATCH_REDIRECT_DELAY });
         setCountdown(NO_MATCH_REDIRECT_DELAY);
       }
@@ -248,6 +252,16 @@ export function ChatBot({
       setMessages((prev) => [...prev, newMessage]);
       setIsTyping(false);
     }, 500);
+  };
+
+  const notifyGrantTeam = () => {
+    if (hasNotifiedGrantTeamRef.current) {
+      return;
+    }
+    if (onNeedHelp) {
+      hasNotifiedGrantTeamRef.current = true;
+      onNeedHelp();
+    }
   };
 
   const addUserMessage = (text: string) => {
@@ -325,6 +339,7 @@ export function ChatBot({
     const option = conversationFlow.faq_found.options?.find((opt) => opt.id === "opt2");
     if (option) {
       handleOptionClick(option);
+      notifyGrantTeam();
       setTimeout(() => {
         debug("Starting escalation countdown", { seconds: REDIRECT_COUNTDOWN });
         setCountdown(REDIRECT_COUNTDOWN);

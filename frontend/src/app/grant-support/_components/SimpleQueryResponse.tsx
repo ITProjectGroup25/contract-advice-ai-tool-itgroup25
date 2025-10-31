@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, CheckCircle } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { GrantTeamEmailData, emailService } from "../_utils/emailService";
 import { localDB } from "../_utils/localDatabase";
 import { ChatBot } from "./chatbot/ChatBot";
@@ -27,7 +27,6 @@ export function SimpleQueryResponse({
 }: SimpleQueryResponseProps) {
   const queryClient = useQueryClient();
   const [showFeedback, setShowFeedback] = useState(false);
-  const referenceId = useMemo(() => submissionId ?? "", [submissionId]);
 
   useEffect(() => {
     if (!formId) {
@@ -146,29 +145,6 @@ export function SimpleQueryResponse({
           <p className="text-muted-foreground">Your simple query has been processed</p>
         </div>
       </div>
-
-      {referenceId && (
-        <Card className="border-green-200 bg-white shadow">
-          <CardHeader className="pb-4">
-            <div className="flex flex-col items-center gap-3 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                <CheckCircle className="h-6 w-6 text-green-600" />
-              </div>
-              <CardTitle className="text-xl">Simple Request Submitted</CardTitle>
-              <CardDescription className="max-w-md text-base">
-                Your simple request has been submitted successfully. You should receive a response
-                within 24 hours.
-              </CardDescription>
-              <p className="text-sm font-medium text-gray-600">
-                Reference ID: <span className="font-semibold text-gray-800">{referenceId}</span>
-              </p>
-              <Button onClick={onBack} variant="outline">
-                Submit Another Request
-              </Button>
-            </div>
-          </CardHeader>
-        </Card>
-      )}
 
       <ChatBot 
         submissionId={submissionId}
