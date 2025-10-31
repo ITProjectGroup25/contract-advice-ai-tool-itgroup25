@@ -164,7 +164,7 @@ export function ChatBot({
     }
 
     if (!isLoading && messages.length > 0) {
-      const timeout = setTimeout(() => setShowContent(true), 150);
+      const timeout = setTimeout(() => setShowContent(true), 50);
       debug("Initial bot response ready; revealing chat");
       return () => clearTimeout(timeout);
     }
@@ -251,7 +251,7 @@ export function ChatBot({
       debug("Bot message added", { messageId: newMessage.id });
       setMessages((prev) => [...prev, newMessage]);
       setIsTyping(false);
-    }, 500);
+    }, 200);
   };
 
   const notifyGrantTeam = () => {
