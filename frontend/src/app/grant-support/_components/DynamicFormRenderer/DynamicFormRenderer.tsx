@@ -232,6 +232,7 @@ export function DynamicFormRenderer({
           submissionId,
           queryType,
           timestamp: new Date().toISOString(),
+          formData: processedData,
         };
 
         try {
@@ -379,3 +380,4 @@ export function DynamicFormRenderer({
     </>
   );
 }
+
