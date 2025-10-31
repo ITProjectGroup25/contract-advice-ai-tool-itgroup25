@@ -14,6 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  GrantSupportSubmissionResponse,
+  createGrantSupportSubmission,
+} from "@/app/grant-support/_utils/api";
 import { EmailData, GrantTeamEmailData, emailService } from "@/lib/emailService";
 import { FormData, FormSection, Question } from "@shared";
 import { Clock, FileText, HelpCircle, Search, Settings, Users } from "lucide-react";
@@ -48,6 +52,10 @@ export function DynamicFormRenderer({
 
   const visibleQuestions = questions.filter((q) => q.visible);
   const sortedSections = [...sections].sort((a, b) => a.order - b.order);
+
+  useEffect(() => {
+    console.log("[EmailJS] Current configuration:", emailService.getConfig());
+  }, []);
 
   const getQueryType = useCallback(() => {
     const queryTypeQuestion = questions.find((q) => q.id === "query-type");
@@ -141,12 +149,30 @@ export function DynamicFormRenderer({
       console.log("Form submitted:", data);
 
       const queryType = getQueryType() as "simple" | "complex";
-      const submissionId = `submission_${Date.now()}`;
-
-      // Send confirmation email to user
       const userEmail = data.email as string;
       const userName = data.name as string;
 
+      let submissionId: string;
+
+      try {
+        const submissionResponse: GrantSupportSubmissionResponse = await createGrantSupportSubmission(
+          {
+            formData: data,
+            queryType,
+            userEmail: userEmail || undefined,
+            userName: userName || undefined,
+            status: "submitted",
+          }
+        );
+
+        submissionId = submissionResponse.submissionUid;
+      } catch (createError) {
+        console.error("❌ FORM: Failed to save submission:", createError);
+        toast.error("Failed to save your request. Please try again.");
+        return;
+      }
+
+      // Send confirmation email to user
       if (userEmail && userName) {
         const emailData: EmailData = {
           to: userEmail,
@@ -535,6 +561,3 @@ export function DynamicFormRenderer({
     </div>
   );
 }
-  useEffect(() => {
-    console.log("[EmailJS] Current configuration:", emailService.getConfig());
-  }, []);

@@ -3,7 +3,7 @@ import NextDynamic from "next/dynamic";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 const DynamicFormPageClient = NextDynamic(
-  () => import("./DynamicFormPageClient").then((mod) => mod.DynamicFormPageClient),
+  () => import("./DynamicFormPageClient"),
   {
     ssr: false,
     loading: () => (

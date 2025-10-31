@@ -321,8 +321,6 @@ export function DynamicFormRenderer({
     return iconMap[icon] || FileText;
   };
 
-  console.log({ visibleSections });
-
   return (
     <>
       <FixedLogo />
