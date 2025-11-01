@@ -154,7 +154,7 @@ export const conversationFlow: Record<string, ChatNode> = {
   escalate: {
     id: "escalate",
     message:
-      "I'll connect you with our grants team. They typically respond within 1-2 business days. Please provide your email address so they can reach you:",
+      "I'll connect you with our grants team. Please provide your email address so they can reach you:",
     allowFreeText: true,
     onUserInput: (input: string) => {
       if (input.includes("@")) {
@@ -177,7 +177,7 @@ export const conversationFlow: Record<string, ChatNode> = {
   escalate_complete: {
     id: "escalate_complete",
     message:
-      "Perfect! Your request has been forwarded to our grants team. You'll receive a response at the email address you provided within 1-2 business days. Is there anything else I can help with right now?",
+      "Perfect! Your request has been forwarded to our grants team. You'll receive a response at the email address you provided soon. Is there anything else I can help with right now?",
     options: [
       { id: "opt1", text: "Ask another question", nextNodeId: "start" },
       { id: "opt2", text: "No, I'm all set", nextNodeId: "end" },

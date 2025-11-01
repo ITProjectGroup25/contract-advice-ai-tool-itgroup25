@@ -516,7 +516,7 @@ export function ChatBot({
                 <p className="text-sm text-blue-800">
                   <strong>Note:</strong> If you selected &quot;I need human assistance,&quot; your
                   original form submission will be forwarded to our grants team for manual review.
-                  You&apos;ll receive a response within 1-2 business days.
+                  You will receive a response soon.
                 </p>
               </div>
             </div>

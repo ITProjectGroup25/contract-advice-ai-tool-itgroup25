@@ -65,11 +65,11 @@ For now, please follow the below:
 **Next Steps:**
 1. Review the relevant documentation linked above
 2. If your issue is resolved, no further action is needed
-3. If you need additional clarification, the RIC staff will contact you within 1-2 business days
+3. If you need additional clarification, the RIC staff will contact you soon
 
 This automated response covers approximately 80% of simple queries. If your 
 specific situation requires personalized attention, our grants team will 
-review your submission within 1-2 business days.
+review your submission soon.
 
 [End - No more options]
 ```
@@ -99,11 +99,10 @@ For now, please follow the below:
 **Next Steps:**
 1. Review the relevant documentation linked above
 2. If your issue is resolved, no further action is needed
-3. If you need additional clarification, the RIC staff will contact you within 1-2 business days
-
+3. If you need additional clarification, the RIC staff will contact you soon
 This automated response covers approximately 80% of simple queries. If your 
 specific situation requires personalized attention, our grants team will 
-review your submission within 1-2 business days.
+review your submission.
 
 [End - No more options]
 ```
