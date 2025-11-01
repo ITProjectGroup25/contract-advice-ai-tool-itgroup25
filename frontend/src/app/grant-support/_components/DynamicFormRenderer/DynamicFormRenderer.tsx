@@ -8,6 +8,16 @@ import { toast } from "sonner";
 import z from "zod";
 import { GrantSupportSubmissionResponse, createGrantSupportSubmission } from "../../_utils/api";
 import { EmailData, GrantTeamEmailData, emailService } from "../../_utils/emailService";
+import {
+  USER_EMAIL_KEYS,
+  USER_NAME_KEYS,
+  GRANT_TEAM_EMAIL_KEYS,
+  GRANT_TEAM_SELECTION_KEYS,
+  resolveFieldString,
+  resolveFieldStrings,
+  resolveEmailList,
+  mergeUniqueStrings,
+} from "../../_utils/contactFieldResolver";
 import FixedLogo from "../FixedLogo";
 import { FormSectionsType } from "../types";
 import { Button } from "../ui/button";
@@ -35,6 +45,30 @@ interface UploadedFile {
 
 const generateSubmissionId = () =>
   `submission_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+
+const formatSubmissionDateParts = (inputTimestamp?: string) => {
+  const candidateDate = inputTimestamp ? new Date(inputTimestamp) : new Date();
+  const date = Number.isNaN(candidateDate.getTime()) ? new Date() : candidateDate;
+  const locale = "en-AU";
+
+  const submissionDate = date.toLocaleDateString(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const submissionTime = date.toLocaleTimeString(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return {
+    isoTimestamp: date.toISOString(),
+    submissionDate,
+    submissionTime,
+  };
+};
 
 const isUploadedFileArray = (value: unknown): value is UploadedFile[] => {
   return (
@@ -209,29 +243,60 @@ export function DynamicFormRenderer({
 
       console.log({ processedData });
 
+      const userEmail =
+        resolveFieldString(processedData, USER_EMAIL_KEYS) ??
+        resolveFieldString(data, USER_EMAIL_KEYS);
+      const userName =
+        resolveFieldString(processedData, USER_NAME_KEYS) ??
+        resolveFieldString(data, USER_NAME_KEYS);
+
+      const grantTeamEmails = (() => {
+        const fromProcessed = resolveEmailList(processedData, GRANT_TEAM_EMAIL_KEYS);
+        if (fromProcessed.length > 0) {
+          return fromProcessed;
+        }
+        return resolveEmailList(data, GRANT_TEAM_EMAIL_KEYS);
+      })();
+
+      const grantTeamSelections = mergeUniqueStrings(
+        resolveFieldStrings(processedData, GRANT_TEAM_SELECTION_KEYS),
+        resolveFieldStrings(data, GRANT_TEAM_SELECTION_KEYS)
+      );
+
+      if (!userEmail || !userName) {
+        console.warn("⚠️ FORM: Missing contact details for submission email", {
+          hasUserEmail: !!userEmail,
+          hasUserName: !!userName,
+        });
+      }
+
       const submissionResponse: GrantSupportSubmissionResponse = await createGrantSupportSubmission(
         {
           formData: processedData,
           queryType,
-          userEmail: (processedData["Your Email"] as string) || undefined,
-          userName: (processedData["Your Name"] as string) || undefined,
+          userEmail: userEmail || undefined,
+          userName: userName || undefined,
           status: "submitted",
         }
       );
 
       const submissionId = submissionResponse.submissionUid;
+      const { isoTimestamp, submissionDate, submissionTime } = formatSubmissionDateParts(
+        submissionResponse.createdAt
+      );
 
       // Send confirmation email to user
-      const userEmail = processedData["Your Email"] as string;
-      const userName = processedData["Your Name"] as string;
-
       if (userEmail && userName) {
         const emailData: EmailData = {
           userEmail,
           userName,
           submissionId,
           queryType,
-          timestamp: new Date().toISOString(),
+          timestamp: isoTimestamp,
+          submissionDate,
+          submissionTime,
+          to: userEmail,
+          toName: userName,
           formData: processedData,
         };
 
@@ -258,8 +323,15 @@ export function DynamicFormRenderer({
             queryType: "complex",
             userEmail,
             userName,
-            timestamp: new Date().toISOString(),
+            timestamp: isoTimestamp,
+            submissionDate,
+            submissionTime,
             formData: processedData,
+            grantTeamEmail: grantTeamEmails[0],
+            grantTeamEmails,
+            matchedSelections: grantTeamSelections,
+            grantTeamName: grantTeamSelections.join(", ") || undefined,
+            grantTeamNames: grantTeamSelections,
           };
 
           try {

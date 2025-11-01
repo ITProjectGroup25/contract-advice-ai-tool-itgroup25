@@ -23,7 +23,22 @@ type Args = {
   formId: number;
 };
 
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+// 单例模式：复用Supabase客户端以减少连接开销
+let supabaseAdminInstance: ReturnType<typeof createClient> | null = null;
+
+function getSupabaseAdmin() {
+  if (!supabaseAdminInstance) {
+    supabaseAdminInstance = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+  }
+  return supabaseAdminInstance;
+}
+
+const supabaseAdmin = getSupabaseAdmin();
 
 export async function getFaqs({ formId }: Args): Promise<Return> {
   try {

@@ -45,7 +45,7 @@ export function SuccessPage({ onBack, type = "complex" }: SuccessPageProps) {
               <h2 className="text-2xl text-green-700">Successfully Submitted!</h2>
               <p className="text-muted-foreground max-w-md">
                 {isSimpleEscalated
-                  ? "Your simple query has been forwarded to our grants team for personalized assistance since the automated response didn&apos;t fully address your needs."
+                  ? "Your simple query has been forwarded to our grants team for personalized assistance since the automated response didn't fully address your issue."
                   : "Your complex referral request has been received and will be processed by our team."}
               </p>
             </div>
@@ -86,8 +86,8 @@ export function SuccessPage({ onBack, type = "complex" }: SuccessPageProps) {
                 <CardContent className="space-y-2">
                   <p className="text-muted-foreground text-sm">
                     {isSimpleEscalated
-                      ? "You can expect a personalized response within 1-2 business days since this was escalated from our automated system."
-                      : "You can expect a response within 3-5 business days. Urgent requests will be prioritized accordingly."}
+                      ? "You can expect a personalized response soon since this was escalated from our automated system."
+                      : "You can expect a response soon days. Urgent requests will be prioritized accordingly."}
                   </p>
                 </CardContent>
               </Card>

@@ -5,6 +5,15 @@ import { ArrowLeft, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { GrantTeamEmailData, emailService } from "../_utils/emailService";
 import { localDB } from "../_utils/localDatabase";
+import {
+  USER_EMAIL_KEYS,
+  USER_NAME_KEYS,
+  GRANT_TEAM_EMAIL_KEYS,
+  GRANT_TEAM_SELECTION_KEYS,
+  resolveFieldString,
+  resolveFieldStrings,
+  resolveEmailList,
+} from "../_utils/contactFieldResolver";
 import { ChatBot } from "./chatbot/ChatBot";
 import { prefetchFaqs, prefetchSubmission } from "./chatbot/useGetFaq";
 import { Button } from "./ui/button";
@@ -67,47 +76,67 @@ export function SimpleQueryResponse({
   };
 
   const handleNeedHelp = async () => {
-    if (submissionId) {
-      try {
-        await localDB.updateSubmission(submissionId, {
-          userSatisfied: false,
-          needsHumanReview: true,
-          status: "escalated",
-        });
-
-        try {
-          const submission = await localDB.getSubmission(submissionId);
-          if (submission?.formData) {
-            const userEmail = submission.formData.email as string | undefined;
-            const userName = submission.formData.name as string | undefined;
-
-            if (userEmail && userName) {
-              const grantTeamEmailData: GrantTeamEmailData = {
-                submissionId,
-                queryType: "escalated",
-                userEmail,
-                userName,
-                timestamp: new Date().toISOString(),
-                formData: submission.formData,
-              };
-
-              const grantEmailSent =
-                await emailService.sendGrantTeamNotification(grantTeamEmailData);
-              if (!grantEmailSent) {
-                console.warn("Grant team escalation email was not sent");
-              }
-            }
-          }
-        } catch (grantEmailError) {
-          console.error("Grant team escalation email failed:", grantEmailError);
-        }
-      } catch (error) {
-        console.error("Error updating submission:", error);
-      }
+    if (!submissionId) {
+      onNeedHumanHelp();
+      return;
     }
 
-    // Redirect immediately (ChatBot already handled countdown)
-    onNeedHumanHelp(); // This calls handleSimpleQueryNeedHelp which goes to success page
+    let submission = null;
+    try {
+      submission = await localDB.getSubmission(submissionId);
+    } catch (error) {
+      console.warn("Failed to load submission before escalation:", error);
+    }
+
+    const formData = submission?.formData ?? {};
+
+    const userEmail = resolveFieldString(formData, USER_EMAIL_KEYS);
+    const userName = resolveFieldString(formData, USER_NAME_KEYS);
+    const grantTeamEmails = resolveEmailList(formData, GRANT_TEAM_EMAIL_KEYS);
+    const grantTeamSelections = resolveFieldStrings(formData, GRANT_TEAM_SELECTION_KEYS);
+
+    try {
+      await localDB.updateSubmission(submissionId, {
+        userSatisfied: false,
+        needsHumanReview: true,
+        status: "escalated",
+      });
+    } catch (error) {
+      console.error("Error updating submission:", error);
+    }
+
+    if (userEmail && userName) {
+      try {
+        const grantTeamEmailData: GrantTeamEmailData = {
+          submissionId,
+          queryType: "escalated",
+          userEmail,
+          userName,
+          timestamp: new Date().toISOString(),
+          formData,
+          grantTeamEmail: grantTeamEmails[0],
+          grantTeamEmails,
+          matchedSelections: grantTeamSelections,
+          grantTeamName: grantTeamSelections.join(", ") || undefined,
+          grantTeamNames: grantTeamSelections,
+        };
+
+        const grantEmailSent = await emailService.sendGrantTeamNotification(grantTeamEmailData);
+        if (!grantEmailSent) {
+          console.warn("Grant team escalation email was not sent");
+        }
+      } catch (grantEmailError) {
+        console.error("Grant team escalation email failed:", grantEmailError);
+      }
+    } else {
+      console.warn("Grant team email skipped - missing user contact details", {
+        submissionId,
+        hasEmail: !!userEmail,
+        hasName: !!userName,
+      });
+    }
+
+    onNeedHumanHelp();
   };
 
   // Show thank you feedback page after user clicks "Yes, this helped!"
@@ -155,3 +184,4 @@ export function SimpleQueryResponse({
     </div>
   );
 }
+

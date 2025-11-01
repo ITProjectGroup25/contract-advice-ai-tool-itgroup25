@@ -154,7 +154,7 @@ export const conversationFlow: Record<string, ChatNode> = {
   escalate: {
     id: "escalate",
     message:
-      "I'll connect you with our grants team. They typically respond within 1-2 business days. Please provide your email address so they can reach you:",
+      "I'll connect you with our grants team. Please provide your email address so they can reach you:",
     allowFreeText: true,
     onUserInput: (input: string) => {
       if (input.includes("@")) {
@@ -177,7 +177,7 @@ export const conversationFlow: Record<string, ChatNode> = {
   escalate_complete: {
     id: "escalate_complete",
     message:
-      "Perfect! Your request has been forwarded to our grants team. You'll receive a response at the email address you provided within 1-2 business days. Is there anything else I can help with right now?",
+      "Perfect! Your request has been forwarded to our grants team. You'll receive a response at the email address you provided soon. Is there anything else I can help with right now?",
     options: [
       { id: "opt1", text: "Ask another question", nextNodeId: "start" },
       { id: "opt2", text: "No, I'm all set", nextNodeId: "end" },
@@ -208,13 +208,13 @@ export const conversationFlow: Record<string, ChatNode> = {
   faq_escalate: {
     id: "faq_escalate",
     message:
-      "No problem! Your original form submission will be forwarded to our grants team for manual review. You'll receive a response within 1-2 business days.\n\nFor now, please read the below:\n\n**For contractual clause reviews:**\n- Please refer to the EAAC Grants Training Guide for standard clause interpretations\n- Common issues with Background IP, Project IP, and Liability clauses are covered in sections 3-5\n- If your clause falls outside standard parameters, human review may be required\n\n**For grant compliance queries:**\n- Standard compliance requirements are outlined in your grant agreement\n- Common compliance issues and solutions are available in our knowledge base\n- Monthly compliance reminders are sent to all grant holders\n\n**Next Steps:**\n1. Review the relevant documentation linked above\n2. If your issue is resolved, no further action is needed\n3. If you need additional clarification, the RIC staff will contact you within 1-2 business days\n\nThis automated response covers approximately 80% of simple queries. If your specific situation requires personalized attention, our grants team will review your submission within 1-2 business days.",
+      "No problem! Your original form submission will be forwarded to our grants team for manual review. You'll receive a response soon.\n",
     options: [],
   },
   faq_not_found: {
     id: "faq_not_found",
     message:
-      "Unfortunately, we have not found any pre-prepared answers for your form selections. We have forwarded your form to the RIC staff who will contact you at their earliest availability.\n\nFor now, please follow the below:\n\n**For contractual clause reviews:**\n- Please refer to the EAAC Grants Training Guide for standard clause interpretations\n- Common issues with Background IP, Project IP, and Liability clauses are covered in sections 3-5\n- If your clause falls outside standard parameters, human review may be required\n\n**For grant compliance queries:**\n- Standard compliance requirements are outlined in your grant agreement\n- Common compliance issues and solutions are available in our knowledge base\n- Monthly compliance reminders are sent to all grant holders\n\n**Next Steps:**\n1. Review the relevant documentation linked above\n2. If your issue is resolved, no further action is needed\n3. If you need additional clarification, the RIC staff will contact you within 1-2 business days\n\nThis automated response covers approximately 80% of simple queries. If your specific situation requires personalized attention, our grants team will review your submission within 1-2 business days.",
+      "Unfortunately, we have not found any pre-prepared answers for your form selections. We have forwarded your form to the RIC staff who will contact you at their earliest availability.\n",
     options: [],
   },
 };
