@@ -121,6 +121,53 @@ async function writeSheet(
   }
 }
 
+// Helper: safely get a value from object by trying multiple candidate keys
+function getField(obj: any, keys: string[], defaultVal: any = "") {
+  if (!obj) return defaultVal;
+  for (const k of keys) {
+    if (!k) continue;
+    if (k.includes(".")) {
+      const parts = k.split(".");
+      let v: any = obj;
+      for (const p of parts) {
+        if (v == null) break;
+        v = v[p];
+      }
+      if (v != null) return v;
+    } else {
+      if (obj[k] != null) return obj[k];
+    }
+  }
+  return defaultVal;
+}
+
+// Normalize the new table shape to the shape expected by the exporter
+function normalizeSubmission(s: any) {
+  // Parse form_data (may be JSON string or object)
+  let fd: any = {};
+  try {
+    if (s?.form_data) fd = typeof s.form_data === "string" ? JSON.parse(s.form_data) : s.form_data;
+  } catch (e) {
+    fd = {};
+  }
+
+  const formTitleFromFormData = getField(fd, ["Form Title", "form_title", "title", "Query Type", "Form Name", "Your Name"], "");
+
+  return {
+    id: getField(s, ["submission_uid", "submissionUid", "submission_uid", "id"]),
+    form_id: getField(s, ["id"]),
+    form_title: formTitleFromFormData || "",
+    user_id: getField(s, ["user_name", "user_name"]) || getField(s, ["user_email", "email"]),
+    user_email: getField(s, ["user_email", "email"]),
+    status: getField(s, ["status", "state"]),
+    created_at: getField(s, ["created_at", "createdAt", "timestamp"]),
+    updated_at: getField(s, ["updated_at", "updatedAt"]),
+    answers: [],
+    attachments: [],
+    _form_data: fd,
+  };
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { google } = await import("googleapis");
@@ -190,16 +237,19 @@ export async function GET(req: NextRequest) {
       "Created At",
       "Updated At",
     ];
-    const subValues = rows.map((s) => [
-      s.id ?? "",
-      s.form_id ?? s.form?.id ?? "",
-      s.form?.title ?? "",
-      s.user_id ?? s.user?.id ?? "",
-      s.user?.email ?? "",
-      s.status ?? "",
-      s.created_at ?? "",
-      s.updated_at ?? "",
-    ]);
+    const subValues = rows.map((s) => {
+      const n = normalizeSubmission(s);
+      return [
+        n.id ?? "",
+        n.form_id ?? "",
+        n.form_title ?? "",
+        n.user_id ?? "",
+        n.user_email ?? "",
+        n.status ?? "",
+        n.created_at ?? "",
+        n.updated_at ?? "",
+      ];
+    });
     await writeSheet(sheets, spreadsheetId!, "Submissions", subHeader, subValues);
 
     if (expand) {
@@ -212,10 +262,12 @@ export async function GET(req: NextRequest) {
         "Created At",
       ];
       const ansValues: any[] = [];
+      // new schema stores answers inside form_data; we don't have structured answers so keep empty
       rows.forEach((s) => {
-        (s.answers ?? []).forEach((a: any) => {
+        const n = normalizeSubmission(s);
+        (n.answers ?? []).forEach((a: any) => {
           ansValues.push([
-            s.id ?? "",
+            n.id ?? "",
             a.id ?? "",
             a.question_id ?? "",
             a.value ?? "",
@@ -236,9 +288,10 @@ export async function GET(req: NextRequest) {
       ];
       const attValues: any[] = [];
       rows.forEach((s) => {
-        (s.attachments ?? []).forEach((f: any) => {
+        const n = normalizeSubmission(s);
+        (n.attachments ?? []).forEach((f: any) => {
           attValues.push([
-            s.id ?? "",
+            n.id ?? "",
             f.id ?? "",
             f.file_key ?? "",
             f.file_name ?? "",
