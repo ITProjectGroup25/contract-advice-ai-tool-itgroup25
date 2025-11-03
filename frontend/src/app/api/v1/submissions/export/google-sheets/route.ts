@@ -1,12 +1,26 @@
 import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
-import { listSubmissions } from "@/lib/db/submissions";
+import { sqlClient } from "@backend";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import type { sheets_v4 } from "googleapis";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+type GrantSubmissionRow = {
+  id: number;
+  submission_uid: string;
+  query_type: "simple" | "complex";
+  status: "submitted" | "processed" | "escalated";
+  user_email: string | null;
+  user_name: string | null;
+  form_data: Record<string, any>;
+  user_satisfied: boolean | null;
+  needs_human_review: boolean | null;
+  created_at: string;
+  updated_at: string;
+};
 
 async function getUserOAuthClient(userId: string) {
   const { google } = await import("googleapis");
@@ -57,25 +71,25 @@ async function getUserOAuthClient(userId: string) {
   return oauth2;
 }
 
-async function ensureSheets(sheets: sheets_v4.Sheets, spreadsheetId: string, expand: boolean) {
+async function ensureSheets(sheets: sheets_v4.Sheets, spreadsheetId: string) {
   const meta = await sheets.spreadsheets.get({ spreadsheetId });
   const titles = new Set((meta.data.sheets ?? []).map((s) => s.properties?.title));
-  const wanted = ["Submissions", ...(expand ? ["Answers", "Attachments"] : [])];
+  const wanted = ["Grant Support Submissions"];
 
   const requests: any[] = [];
   // If there is a default sheet, rename it; otherwise create new sheets
-  if (!titles.has("Submissions")) {
+  if (!titles.has("Grant Support Submissions")) {
     if (
       meta.data.sheets?.[0]?.properties?.sheetId != null &&
       (meta.data.sheets?.length ?? 0) === 1
     ) {
       requests.push({
         updateSheetProperties: {
-          properties: { sheetId: meta.data.sheets![0].properties!.sheetId!, title: "Submissions" },
+          properties: { sheetId: meta.data.sheets![0].properties!.sheetId!, title: "Grant Support Submissions" },
           fields: "title",
         },
       });
-      titles.add("Submissions");
+      titles.add("Grant Support Submissions");
     }
   }
   for (const w of wanted) {
@@ -133,28 +147,32 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Missing userId" }, { status: 400 });
     }
 
-    const expand = sp.get("expand") === "1";
-    const page = Number(sp.get("page") ?? "1");
-    const pageSize = Number(sp.get("pageSize") ?? "1000");
-    const orderBy = sp.get("orderBy") ?? "created_at";
-    const asc = (sp.get("asc") ?? "false") === "true";
-    const status = sp.get("status") as any;
-    const formId = sp.get("formId") ? Number(sp.get("formId")) : undefined;
-    const dateFrom = sp.get("dateFrom") ?? undefined;
-    const dateTo = sp.get("dateTo") ?? undefined;
+    // Query parameters for filtering grant_support_submissions
+    const limit = Number(sp.get("limit") ?? "1000");
+    const status = sp.get("status") as "submitted" | "processed" | "escalated" | undefined;
+    const queryType = sp.get("queryType") as "simple" | "complex" | undefined;
 
-    const { data } = await listSubmissions({
-      page,
-      pageSize,
-      orderBy,
-      asc,
-      status,
-      formId,
-      dateFrom,
-      dateTo,
-      expand,
-    });
-    const rows = (data as any[]) ?? [];
+    // Fetch data from grant_support_submissions table
+    let query = `SELECT * FROM grant_support_submissions WHERE 1=1`;
+    const params: any[] = [];
+    let paramIndex = 1;
+
+    if (status) {
+      query += ` AND status = $${paramIndex}`;
+      params.push(status);
+      paramIndex++;
+    }
+
+    if (queryType) {
+      query += ` AND query_type = $${paramIndex}`;
+      params.push(queryType);
+      paramIndex++;
+    }
+
+    query += ` ORDER BY created_at DESC LIMIT $${paramIndex}`;
+    params.push(limit);
+
+    const rows = (await sqlClient.unsafe(query, params)) as GrantSubmissionRow[];
 
     // Use this admin's OAuth client
     const auth = await getUserOAuthClient(userId);
@@ -163,7 +181,7 @@ export async function GET(req: NextRequest) {
 
     // If a spreadsheetId is provided (pre-selected sheet), reuse it; otherwise create a new one
     const spreadsheetIdParam = sp.get("spreadsheetId") ?? undefined;
-    const titlePrefix = sp.get("name") ?? "Submissions";
+    const titlePrefix = sp.get("name") ?? "Grant Support Submissions";
 
     let spreadsheetId = spreadsheetIdParam;
     if (!spreadsheetId) {
@@ -177,84 +195,44 @@ export async function GET(req: NextRequest) {
       spreadsheetId = created.data.id!;
     }
 
-    await ensureSheets(sheets, spreadsheetId!, expand);
+    await ensureSheets(sheets, spreadsheetId!);
 
-    // Submissions
-    const subHeader = [
-      "Submission ID",
-      "Form ID",
-      "Form Title",
-      "User ID",
-      "User Email",
+    // Grant Support Submissions
+    const header = [
+      "ID",
+      "Submission UID",
+      "Query Type",
       "Status",
+      "User Email",
+      "User Name",
+      "Form Data (JSON)",
+      "User Satisfied",
+      "Needs Human Review",
       "Created At",
       "Updated At",
     ];
-    const subValues = rows.map((s) => [
+    
+    const values = rows.map((s: GrantSubmissionRow) => [
       s.id ?? "",
-      s.form_id ?? s.form?.id ?? "",
-      s.form?.title ?? "",
-      s.user_id ?? s.user?.id ?? "",
-      s.user?.email ?? "",
+      s.submission_uid ?? "",
+      s.query_type ?? "",
       s.status ?? "",
+      s.user_email ?? "",
+      s.user_name ?? "",
+      JSON.stringify(s.form_data ?? {}),
+      s.user_satisfied === null ? "" : s.user_satisfied ? "Yes" : "No",
+      s.needs_human_review === null ? "" : s.needs_human_review ? "Yes" : "No",
       s.created_at ?? "",
       s.updated_at ?? "",
     ]);
-    await writeSheet(sheets, spreadsheetId!, "Submissions", subHeader, subValues);
-
-    if (expand) {
-      const ansHeader = [
-        "Submission ID",
-        "Answer ID",
-        "Question ID",
-        "Value",
-        "Multi Values (JSON)",
-        "Created At",
-      ];
-      const ansValues: any[] = [];
-      rows.forEach((s) => {
-        (s.answers ?? []).forEach((a: any) => {
-          ansValues.push([
-            s.id ?? "",
-            a.id ?? "",
-            a.question_id ?? "",
-            a.value ?? "",
-            JSON.stringify(a.multi ?? []),
-            a.created_at ?? "",
-          ]);
-        });
-      });
-      await writeSheet(sheets, spreadsheetId!, "Answers", ansHeader, ansValues);
-
-      const attHeader = [
-        "Submission ID",
-        "Attachment ID",
-        "File Key",
-        "File Name",
-        "File Size",
-        "Created At",
-      ];
-      const attValues: any[] = [];
-      rows.forEach((s) => {
-        (s.attachments ?? []).forEach((f: any) => {
-          attValues.push([
-            s.id ?? "",
-            f.id ?? "",
-            f.file_key ?? "",
-            f.file_name ?? "",
-            f.file_size ?? "",
-            f.created_at ?? "",
-          ]);
-        });
-      });
-      await writeSheet(sheets, spreadsheetId!, "Attachments", attHeader, attValues);
-    }
+    
+    await writeSheet(sheets, spreadsheetId!, "Grant Support Submissions", header, values);
 
     return NextResponse.json({
       ok: true,
       spreadsheetId,
       url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}`,
-      sheetNames: expand ? ["Submissions", "Answers", "Attachments"] : ["Submissions"],
+      sheetNames: ["Grant Support Submissions"],
       count: rows.length,
     });
   } catch (err: any) {
