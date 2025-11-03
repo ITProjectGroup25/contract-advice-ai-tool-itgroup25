@@ -45,7 +45,7 @@ export async function listSubmissions(p: ListParams = {}) {
 
   const sel = expand ? EXPAND_SELECT : "*";
 
-  let q = supabaseAdmin.from("submission").select(sel, { count: "exact" });
+  let q = supabaseAdmin.from("grant_support_submissions").select(sel, { count: "exact" });
 
   if (status) q = q.eq("status", status);
   if (formId) q = q.eq("form_id", formId);
