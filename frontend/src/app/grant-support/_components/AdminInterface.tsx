@@ -45,6 +45,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Textarea } from "./ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { FAQManagement } from "./FAQManagement";
+import { SettingsPanel } from "./SettingsPanel";
 
 interface AdminInterfaceProps {
   onBack: () => void;
@@ -931,7 +932,7 @@ export function AdminInterface({
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="fields" disabled={isPending}>
               Fields Management
             </TabsTrigger>
@@ -946,6 +947,9 @@ export function AdminInterface({
             </TabsTrigger>
             <TabsTrigger value="database" disabled={isPending}>
               Database Management
+            </TabsTrigger>
+            <TabsTrigger value="settings" disabled={isPending}>
+              Settings
             </TabsTrigger>
           </TabsList>
 
@@ -1187,6 +1191,9 @@ export function AdminInterface({
 
           <TabsContent value="database" className="space-y-6">
             <DatabaseManagement />
+          </TabsContent>
+          <TabsContent value="settings" className="space-y-6">
+            <SettingsPanel />
           </TabsContent>
         </Tabs>
       </div>

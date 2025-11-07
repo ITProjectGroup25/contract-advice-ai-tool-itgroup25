@@ -1,7 +1,8 @@
 // @ts-nocheck - Temporarily disabled due to type compatibility issues
 import { sqlClient } from "@backend";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { requireAdminToken } from "@/lib/api-auth";
 
 const createSubmissionSchema = z.object({
   formData: z.record(z.any()),
@@ -183,7 +184,11 @@ export async function GET(req: Request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(req: Request) {
+  // Check admin token before allowing clear all
+  const authError = requireAdminToken(req as NextRequest);
+  if (authError) return authError;
+
   try {
     await ensureTable();
     await sqlClient`DELETE FROM grant_support_submissions`;

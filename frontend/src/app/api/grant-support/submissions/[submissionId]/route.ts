@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { sqlClient } from "@backend";
+import { requireAdminToken } from "@/lib/api-auth";
 
 type RouteContext = {
   params: {
@@ -52,6 +53,10 @@ async function ensureTable() {
 }
 
 export async function PATCH(req: Request, context: RouteContext) {
+  // Check admin token before allowing update
+  const authError = requireAdminToken(req as NextRequest);
+  if (authError) return authError;
+
   try {
     await ensureTable();
     const submissionId = Number(context.params.submissionId);
@@ -142,6 +147,10 @@ export async function PATCH(req: Request, context: RouteContext) {
 }
 
 export async function DELETE(_req: Request, context: RouteContext) {
+  // Check admin token before allowing delete
+  const authError = requireAdminToken(_req as NextRequest);
+  if (authError) return authError;
+
   try {
     await ensureTable();
     const submissionId = Number(context.params.submissionId);
