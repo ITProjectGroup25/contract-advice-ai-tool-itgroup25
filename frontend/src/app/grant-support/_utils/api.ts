@@ -1,3 +1,5 @@
+import { getAdminHeaders } from "@/lib/admin-token";
+
 export type QueryType = "simple" | "complex";
 export type SubmissionStatus = "submitted" | "processed" | "escalated";
 
@@ -112,7 +114,10 @@ export async function updateGrantSupportSubmission(
 ): Promise<void> {
   const res = await fetch(`/api/grant-support/submissions/${submissionId}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...getAdminHeaders(),
+    },
     body: JSON.stringify(updates),
   });
   await handleJsonResponse(res);
@@ -121,6 +126,7 @@ export async function updateGrantSupportSubmission(
 export async function deleteGrantSupportSubmission(submissionId: number): Promise<void> {
   const res = await fetch(`/api/grant-support/submissions/${submissionId}`, {
     method: "DELETE",
+    headers: getAdminHeaders(),
   });
   await handleJsonResponse(res);
 }
@@ -128,6 +134,7 @@ export async function deleteGrantSupportSubmission(submissionId: number): Promis
 export async function clearGrantSupportSubmissions(): Promise<void> {
   const res = await fetch("/api/grant-support/submissions", {
     method: "DELETE",
+    headers: getAdminHeaders(),
   });
   await handleJsonResponse(res);
 }
