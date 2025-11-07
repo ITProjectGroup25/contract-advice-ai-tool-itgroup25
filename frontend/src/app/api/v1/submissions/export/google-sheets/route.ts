@@ -3,6 +3,7 @@ import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { sqlClient } from "@backend";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { requireAdminToken } from "@/lib/api-auth";
 import type { sheets_v4 } from "googleapis";
 
 export const runtime = "nodejs";
@@ -136,6 +137,10 @@ async function writeSheet(
 }
 
 export async function GET(req: NextRequest) {
+  // Check admin token before allowing export
+  const authError = requireAdminToken(req);
+  if (authError) return authError;
+
   try {
     const { google } = await import("googleapis");
 

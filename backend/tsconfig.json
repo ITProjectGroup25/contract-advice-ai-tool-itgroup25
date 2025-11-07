@@ -15,5 +15,5 @@
     }
   },
   "include": ["src/**/*.ts", "drizzle/**/*.ts"],
-  "exclude": ["node_modules", "**/schema.ts"]
+  "exclude": ["node_modules"]
 }

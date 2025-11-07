@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporarily disabled due to Drizzle ORM version compatibility issues
 import {
   pgTable,
   index,

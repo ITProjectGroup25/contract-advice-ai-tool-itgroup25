@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { sqlClient } from "@backend";
+import { requireAdminToken } from "@/lib/api-auth";
 
 // XLSX needs Node (Buffer). Ensure server runtime.
 export const runtime = "nodejs";
@@ -21,6 +22,10 @@ type GrantSubmissionRow = {
 };
 
 export async function GET(req: NextRequest) {
+  // Check admin token before allowing export
+  const authError = requireAdminToken(req);
+  if (authError) return authError;
+
   try {
     const sp = new URL(req.url).searchParams;
 

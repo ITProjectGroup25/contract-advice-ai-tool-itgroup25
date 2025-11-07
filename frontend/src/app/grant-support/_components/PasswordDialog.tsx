@@ -7,14 +7,13 @@ import { Label } from "./ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Lock, Eye, EyeOff } from "lucide-react";
+import { setAdminToken } from "@/lib/admin-token";
 
 interface PasswordDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
-
-const ADMIN_PASSWORD = "12345";
 
 export function PasswordDialog({ open, onClose, onSuccess }: PasswordDialogProps) {
   const [password, setPassword] = useState("");
@@ -27,16 +26,35 @@ export function PasswordDialog({ open, onClose, onSuccess }: PasswordDialogProps
     setIsVerifying(true);
     setError("");
 
-    // Simulate a small delay for security
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      // verify password
+      const response = await fetch("/api/admin/verify-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password }),
+      });
 
-    if (password === ADMIN_PASSWORD) {
-      setPassword("");
-      setIsVerifying(false);
-      onSuccess();
-      onClose();
-    } else {
-      setError("Incorrect password. Please try again.");
+      const data = await response.json();
+
+      if (data.success) {
+        // Store admin token for subsequent API requests
+        if (data.token) {
+          setAdminToken(data.token);
+        }
+        setPassword("");
+        setIsVerifying(false);
+        onSuccess();
+        onClose();
+      } else {
+        setError(data.error || "Incorrect password. Please try again.");
+        setPassword("");
+        setIsVerifying(false);
+      }
+    } catch (error) {
+      console.error("Password verification error:", error);
+      setError("Failed to verify password. Please try again.");
       setPassword("");
       setIsVerifying(false);
     }

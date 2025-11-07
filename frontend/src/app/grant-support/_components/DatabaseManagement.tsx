@@ -36,6 +36,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { getAdminHeaders } from "@/lib/admin-token";
 
 const GOOGLE_USER_STORAGE_KEY = "grant-support-google-user-id";
 
@@ -260,7 +261,9 @@ export function DatabaseManagement() {
         expand: "1",
       });
 
-      const response = await fetch(`/api/v1/submissions/export/google-sheets?${params.toString()}`);
+      const response = await fetch(`/api/v1/submissions/export/google-sheets?${params.toString()}`, {
+        headers: getAdminHeaders(),
+      });
       const data = await response.json();
       if (!response.ok || !data?.ok) {
         throw new Error(data?.error || "Failed to export to Google Sheets");
