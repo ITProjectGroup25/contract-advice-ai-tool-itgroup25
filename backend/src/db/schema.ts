@@ -977,12 +977,12 @@ export const grantSupportFaqs = pgTable(
 );
 
 export const userGoogleTokens = pgTable("user_google_tokens", {
-  userId: uuid("user_id").primaryKey().notNull(),
-  accessToken: text("access_token").notNull(),
-  refreshToken: text("refresh_token").notNull(),
-  expiryDate: timestamp("expiry_date", { withTimezone: true, mode: "string" }).notNull(),
-  scope: text("scope").notNull(),
-  tokenType: text("token_type").notNull(),
+  userId: text("user_id").primaryKey().notNull(),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  expiryDate: timestamp("expiry_date", { withTimezone: true, mode: "string" }),
+  scope: text("scope"),
+  tokenType: text("token_type"),
 });
 
 export const knowledgeBase = pgTable(

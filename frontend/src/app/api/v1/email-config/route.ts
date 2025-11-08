@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import { db, schema } from "@backend";
+import { requireAdminToken } from "@/lib/api-auth";
 
 const { systemSetting } = schema;
 const EMAIL_CONFIG_KEY = "grant_support_email_config";
@@ -49,6 +50,10 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
+  // Check admin token before allowing email config update
+  const authError = requireAdminToken(req as NextRequest);
+  if (authError) return authError;
+
   try {
     const body = await req.json();
     const config = emailConfigSchema.parse(body);

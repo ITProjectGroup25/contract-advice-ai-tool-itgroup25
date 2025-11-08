@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "typecheck": "tsc --project tsconfig.json --noEmit --skipLibCheck",
-    "db:generate": "dotenv -e ../.env -- drizzle-kit generate:pg",
+    "db:generate": "dotenv -e ../.env -- drizzle-kit generate",
     "db:migrate": "dotenv -e ../.env -- drizzle-kit migrate",
-    "db:push": "dotenv -e ../.env -- drizzle-kit push:pg",
+    "db:push": "dotenv -e ../.env -- drizzle-kit push",
+    "db:studio": "dotenv -e ../.env -- drizzle-kit studio",
     "update-types": "npx drizzle-kit pull && npx shx mv ./drizzle/*.ts ./src/db/"
   },
   "dependencies": {

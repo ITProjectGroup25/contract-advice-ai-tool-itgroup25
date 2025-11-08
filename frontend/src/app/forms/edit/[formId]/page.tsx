@@ -1,4 +1,7 @@
 import postgres from "postgres";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@backend";
+import { redirect } from "next/navigation";
 import MainFormBuilder from "./form-builder-components/main-form-builder";
 import { TemplateSchema } from "./form-builder-components/types/FormTemplateTypes";
 
@@ -11,6 +14,13 @@ type PageParams = {
 };
 
 const page = async ({ params }: PageParams) => {
+  // Check authentication before allowing access to form editor
+  const session = await getServerSession(authOptions as any);
+  
+  if (!session?.user) {
+    redirect("/api/auth/signin");
+  }
+
   const formId = Number(params.formId);
 
   if (!Number.isInteger(formId)) {

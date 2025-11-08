@@ -7,7 +7,7 @@
 
 # Contract Advice AI Assistant & Referral Tool
 
-This is a server-based online software — the RIC form builder application — built using Next.js, Next-auth, Shadcn UI, Gemini AI API, Drizzle, PostgreSQL, and TypeScript. 
+This is a server-based online software — the RIC form builder application — built using Next.js, Next-auth, Shadcn UI, Drizzle, PostgreSQL, and TypeScript. 
 
 Its purpose is to answer user questions more efficiently. When running, the program operates a webpage and allows the user to select the type of request and the required files, or to easily create customized forms by providing prompts, and the forms can be published for others to fill out. Depending on the complexity, an answer is provided or the question is sent to an administrator's email. 
 
@@ -46,7 +46,6 @@ All user requests and form responses are stored in an online database and catego
 - **Backend**: Next.js API Routes + Drizzle ORM (co-located with frontend)
 - **Database**: PostgreSQL (local via Docker / hosted on Supabase)
 - **Authentication**: NextAuth.js (Google OAuth)
-- **AI Service**: Google Gemini API (optional)
 - **Deployment**: Vercel (app) + Supabase (database)
 - **CI/CD**: GitHub Actions (frontend build & DB migration)
 
@@ -73,7 +72,6 @@ Local setup
 Service Accounts
 - Vercel
 - Supabase
-- Google Cloud Console (for Gemini API)
 - GitHub
 
 ####  Environment Variables
@@ -83,27 +81,45 @@ Service Accounts
 | `DATABASE_URL` | All | PostgreSQL connection string | `postgresql://user:pass@host:5432/db` |
 | `NEXTAUTH_SECRET` | All | Secret for NextAuth | `your-32-char-secret` |
 | `NEXTAUTH_URL` | All | App base URL | `https://yourdomain.vercel.app` |
-| `GOOGLE_CLIENT_ID` | All | Google OAuth client ID | `123456789.apps.googleusercontent.com` |
-| `GOOGLE_CLIENT_SECRET` | All | Google OAuth client secret | `GOCSPX-xxxxx` |
-| `GEMINI_API_KEY` | All | Google Gemini API key | `AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXX` |
+
 | `NEXT_PUBLIC_BASE_URL` | Frontend | Public base URL | `https://yourdomain.vercel.app` |
 | `NEXT_PUBLIC_SUPABASE_URL` | Frontend | Supabase project URL | `https://xxx.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Frontend | Supabase anon key | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Backend | Supabase service role key | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
+| `ADMIN_API_TOKEN` | Backend | Admin API authentication token | `64-char-random-string` |
 
-Generate `NEXTAUTH_SECRET`:
+**Google OAuth**:
+
+|Variable|Scope|Description|Example|
+|-----|-----|-----|-----|
+| `GOOGLE_CLIENT_ID` | All | Google OAuth client ID | `123456789.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | All | Google OAuth client secret | `GOCSPX-xxxxx` |
+| `GOOGLE_REDIRECT_URI` | All | OAuth callback URL | `https://yourdomain.vercel.app/api/google/oauth/callback` |
+
+**EmailJS **:
+
+|Variable|Scope|Description|Example|
+|-----|-----|-----|-----|
+| `NEXT_PUBLIC_EMAILJS_ENABLED` | Frontend | Enable email notifications | `true` or `false` |
+| `NEXT_PUBLIC_EMAILJS_PUBLIC_KEY` | Frontend | EmailJS public key | `your-public-key` |
+| `NEXT_PUBLIC_EMAILJS_SERVICE_ID` | Frontend | EmailJS service ID | `service_xxxxx` |
+| `NEXT_PUBLIC_EMAILJS_TEMPLATE_ID` | Frontend | User confirmation template ID | `template_xxxxx` |
+| `NEXT_PUBLIC_EMAILJS_GRANT_TEAM_TEMPLATE_ID` | Frontend | Grant team notification template ID | `template_xxxxx` |
+
+**Generate Secrets**:
 
 ```bash
+# Generate NEXTAUTH_SECRET
 openssl rand -base64 32
 
-
-```
-
-or
-
-```bash
+# Or using Node.js
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
+# Generate ADMIN_API_TOKEN (64 characters)
+openssl rand -hex 32
 
+# Or using Node.js
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 ## Local Development Setup
 
@@ -139,37 +155,79 @@ cd ..
 
 #### 4. Configure Environment Variables
 
-under Root create `.env` file with content
+Create `.env` file in the **root directory**:
 
 ```bash
+# Database
 DATABASE_URL=postgres://contract_user:contract_password@localhost:5432/contract_db
+
+# Authentication
 NEXTAUTH_SECRET=local-secret-key
 NEXTAUTH_URL=http://localhost:3000
 
+# Supabase (use remote for quick start)
+NEXT_PUBLIC_SUPABASE_URL=https://lfedmwfgftpkknllchxr.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmZWRtd2ZnZnRwa2tubGxjaHhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAzNjcwNDcsImV4cCI6MjA0NTk0MzA0N30.U_EqFTx9cNKemKjIzG05nU7pPAqb-rznz9t8fSxMrGg
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmZWRtd2ZnZnRwa2tubGxjaHhyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMDM2NzA0NywiZXhwIjoyMDQ1OTQzMDQ3fQ.DKL4kCtMFqVNLsxLMb2EY9KCjvbr_6BxeUV7j_uR74g
 
-```
+# Admin Token
+ADMIN_API_TOKEN=dev-admin-token-12345
 
-under `FrontEnd` create `.env.local` file with Environment Variables under __Environment Variables__ section
-
-```bash
-DATABASE_URL=postgres://contract_user:contract_password@localhost:5432/contract_db
-NEXTAUTH_SECRET=local-secret-key
-NEXTAUTH_URL=http://localhost:3000
+# Google OAuth (optional for local dev)
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:3000/api/google/oauth/callback
+
+# Application
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
-GEMINI_API_KEY=your-gemini-api-key
-
-
+NODE_ENV=development
 ```
+
+> 💡 **Tip**: For quick local development, you can use the remote Supabase credentials provided above.
 
 #### 5. Run Database Migration
 
+**⚠️ Important**: If using Supabase, it's recommended to execute SQL migration files directly in Supabase SQL Editor.
+
+**Two Migration Methods**:
+
+**Method A: Using Drizzle Kit** (for local database)
+
 ```bash
 npm run db:push --workspace backend
-
-
 ```
+
+**Method B: Manual SQL Execution** (recommended for Supabase)
+
+Execute the following SQL files in order via Supabase SQL Editor:
+
+1. `backend/drizzle/0001_gorgeous_thor.sql` - Update foreign key constraints
+2. `backend/drizzle/0002_lean_fabian_cortez.sql` - Create core business tables (30+ tables)
+3. `backend/drizzle/0003_hot_piledriver.sql` - Create referral_submissions table
+4. `backend/drizzle/0004_add_admin_password.sql` - Create admin_password table and function
+5. `backend/drizzle/0005_add_missing_tables.sql` - Create missing core tables (grant_support_submissions, user_google_tokens, email_config, etc.)
+
+**Verification**: After migration, verify all core tables exist:
+
+```sql
+-- Run in Supabase SQL Editor to verify
+SELECT table_name, '✅' as status
+FROM information_schema.tables
+WHERE table_schema = 'public'
+    AND table_name IN (
+        'grant_support_submissions',
+        'user_google_tokens',
+        'admin_password',
+        'email_config',
+        'grant_support_faqs',
+        'form',
+        'form_details',
+        'form_results'
+    )
+ORDER BY table_name;
+```
+
+Expected result: 8 rows showing ✅ status
 
 #### 6. Start Dev Server
 
@@ -199,7 +257,11 @@ Retrieve connection info:
 Automatic Deployment (Recommended)
 
 1. Link GitHub repository to Vercel
-2. Add all required environment variables (see table above)
+2. Add all required environment variables (see table above):
+   - ✅ All variables from the **Environment Variables** section
+   - ✅ Generate `ADMIN_API_TOKEN` using: `openssl rand -hex 32`
+   - ✅ Set `NODE_ENV=production`
+   - ⚠️ **Important**: Never use default/demo credentials in production!
 3. Configure project settings (choose one of the following):
    - Option A (recommended for simplicity)
       - Root Directory: Repository root
@@ -265,9 +327,10 @@ Push to main branch →
          <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder.png" width="600">
 </div>
 
-2. Go into form page, on the upper right, there is the admin Panal, enter password.
+2. Go into form page, on the upper right, there is the admin Panel, enter password.
 
-   - EDIT: contact dev team for default password
+   - **Default Password**: `12345`
+
 
 <div align="center">
          <img src="readMePictures/afterDeploymentSetupPicture/Form-Builder3.png" width="600">
@@ -385,12 +448,6 @@ https://yourdomain.vercel.app/api/auth/callback/google (prod)
 
 
 ```
-
-**Google Gemini API (Optional)**
-
-1. Enable Generative AI API
-2. Generate API key
-3. Configure quotas and limits
 
 **EmailJS (Optional)**
 

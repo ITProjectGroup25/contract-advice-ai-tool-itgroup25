@@ -1,10 +1,8 @@
 {
-  "id": "00000000-0000-0000-0000-000000000000",
-  "prevId": "",
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "form": {
+    "public.form": {
       "name": "form",
       "schema": "",
       "columns": {
@@ -25,15 +23,18 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "now()"
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "form_details": {
+    "public.form_details": {
       "name": "form_details",
       "schema": "",
       "columns": {
@@ -58,27 +59,35 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "form_details_form_id_fkey": {
-          "name": "form_details_form_id_fkey",
+        "form_details_form_id_form_id_fk": {
+          "name": "form_details_form_id_form_id_fk",
           "tableFrom": "form_details",
+          "columnsFrom": [
+            "form_id"
+          ],
           "tableTo": "form",
-          "schemaTo": "public",
-          "columnsFrom": ["form_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "form_details_form_id_key": {
-          "columns": ["form_id"],
-          "nullsNotDistinct": false,
-          "name": "form_details_form_id_key"
+          "name": "form_details_form_id_key",
+          "columns": [
+            "form_id"
+          ],
+          "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "form_results": {
+    "public.form_results": {
       "name": "form_results",
       "schema": "",
       "columns": {
@@ -99,7 +108,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "now()"
         },
         "results": {
           "name": "results",
@@ -110,91 +119,105 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "form_results_form_id_fkey": {
-          "name": "form_results_form_id_fkey",
+        "form_results_form_id_form_id_fk": {
+          "name": "form_results_form_id_form_id_fk",
           "tableFrom": "form_results",
+          "columnsFrom": [
+            "form_id"
+          ],
           "tableTo": "form",
-          "schemaTo": "public",
-          "columnsFrom": ["form_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     }
   },
   "enums": {
-    "factor_type": {
-      "name": "factor_type",
-      "values": {
-        "phone": "phone",
-        "webauthn": "webauthn",
-        "totp": "totp"
-      }
-    },
-    "factor_status": {
-      "name": "factor_status",
-      "values": {
-        "verified": "verified",
-        "unverified": "unverified"
-      }
-    },
-    "aal_level": {
+    "public.aal_level": {
       "name": "aal_level",
-      "values": {
-        "aal3": "aal3",
-        "aal2": "aal2",
-        "aal1": "aal1"
-      }
+      "schema": "public",
+      "values": [
+        "aal3",
+        "aal2",
+        "aal1"
+      ]
     },
-    "code_challenge_method": {
-      "name": "code_challenge_method",
-      "values": {
-        "plain": "plain",
-        "s256": "s256"
-      }
-    },
-    "one_time_token_type": {
-      "name": "one_time_token_type",
-      "values": {
-        "phone_change_token": "phone_change_token",
-        "email_change_token_current": "email_change_token_current",
-        "email_change_token_new": "email_change_token_new",
-        "recovery_token": "recovery_token",
-        "reauthentication_token": "reauthentication_token",
-        "confirmation_token": "confirmation_token"
-      }
-    },
-    "equality_op": {
-      "name": "equality_op",
-      "values": {
-        "in": "in",
-        "gte": "gte",
-        "gt": "gt",
-        "lte": "lte",
-        "lt": "lt",
-        "neq": "neq",
-        "eq": "eq"
-      }
-    },
-    "action": {
+    "public.action": {
       "name": "action",
-      "values": {
-        "ERROR": "ERROR",
-        "TRUNCATE": "TRUNCATE",
-        "DELETE": "DELETE",
-        "UPDATE": "UPDATE",
-        "INSERT": "INSERT"
-      }
+      "schema": "public",
+      "values": [
+        "ERROR",
+        "TRUNCATE",
+        "DELETE",
+        "UPDATE",
+        "INSERT"
+      ]
     },
-    "oauth_registration_type": {
+    "public.code_challenge_method": {
+      "name": "code_challenge_method",
+      "schema": "public",
+      "values": [
+        "plain",
+        "s256"
+      ]
+    },
+    "public.equality_op": {
+      "name": "equality_op",
+      "schema": "public",
+      "values": [
+        "in",
+        "gte",
+        "gt",
+        "lte",
+        "lt",
+        "neq",
+        "eq"
+      ]
+    },
+    "public.factor_status": {
+      "name": "factor_status",
+      "schema": "public",
+      "values": [
+        "verified",
+        "unverified"
+      ]
+    },
+    "public.factor_type": {
+      "name": "factor_type",
+      "schema": "public",
+      "values": [
+        "phone",
+        "webauthn",
+        "totp"
+      ]
+    },
+    "public.oauth_registration_type": {
       "name": "oauth_registration_type",
-      "values": {
-        "manual": "manual",
-        "dynamic": "dynamic"
-      }
+      "schema": "public",
+      "values": [
+        "manual",
+        "dynamic"
+      ]
+    },
+    "public.one_time_token_type": {
+      "name": "one_time_token_type",
+      "schema": "public",
+      "values": [
+        "phone_change_token",
+        "email_change_token_current",
+        "email_change_token_new",
+        "recovery_token",
+        "reauthentication_token",
+        "confirmation_token"
+      ]
     }
   },
   "schemas": {},
@@ -202,5 +225,11 @@
     "schemas": {},
     "tables": {},
     "columns": {}
-  }
+  },
+  "id": "ef29dc91-3601-44d3-9d3a-8f4d79a62620",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "sequences": {},
+  "policies": {},
+  "views": {},
+  "roles": {}
 }

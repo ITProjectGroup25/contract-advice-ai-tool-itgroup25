@@ -139,14 +139,6 @@ export async function clearGrantSupportSubmissions(): Promise<void> {
   await handleJsonResponse(res);
 }
 
-export async function exportGrantSupportSubmissions(): Promise<string> {
-  const res = await fetch("/api/grant-support/submissions/export");
-  if (!res.ok) {
-    throw new Error("Failed to export submissions");
-  }
-  return await res.text();
-}
-
 export async function fetchEmailConfig(): Promise<{
   configured: boolean;
   config: EmailConfig | null;
@@ -161,7 +153,10 @@ export async function fetchEmailConfig(): Promise<{
 export async function saveEmailConfig(config: EmailConfig): Promise<EmailConfig> {
   const res = await fetch("/api/v1/email-config", {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...getAdminHeaders(),
+    },
     body: JSON.stringify(config),
   });
   const data = await handleJsonResponse<{ config: EmailConfig }>(res);

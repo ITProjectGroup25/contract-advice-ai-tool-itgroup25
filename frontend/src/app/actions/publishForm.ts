@@ -1,6 +1,8 @@
 "use server";
 
 import postgres from "postgres";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@backend";
 import { TemplateSchema } from "../forms/edit/[formId]/form-builder-components/types/FormTemplateTypes";
 import { formDataToObject } from "./fromDataToObject";
 
@@ -10,6 +12,15 @@ export async function publishForm(
   },
   formData: FormData
 ) {
+  // Check authentication before allowing form publish
+  const session = await getServerSession(authOptions as any);
+  
+  if (!session?.user) {
+    return {
+      message: "Unauthorized: You must be signed in to publish forms",
+    };
+  }
+
   console.log({ formData });
 
   const asObject = formDataToObject<FormData>(formData);

@@ -5,29 +5,43 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1757016551325,
-      "tag": "0000_foamy_tomas",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
       "when": 1759913917832,
       "tag": "0001_gorgeous_thor",
       "breakpoints": true
     },
     {
-      "idx": 2,
+      "idx": 1,
       "version": "5",
       "when": 1759914333553,
       "tag": "0002_lean_fabian_cortez",
       "breakpoints": true
     },
     {
-      "idx": 3,
+      "idx": 2,
       "version": "5",
       "when": 1759979003393,
       "tag": "0003_hot_piledriver",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1730000000000,
+      "tag": "0004_add_admin_password",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1732000000000,
+      "tag": "0005_add_missing_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1733000000000,
+      "tag": "0006_fix_user_google_tokens",
       "breakpoints": true
     }
   ]

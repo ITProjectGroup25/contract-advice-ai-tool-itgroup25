@@ -168,39 +168,6 @@ class LocalDatabase {
     };
   }
 
-  async exportAllToSQL(): Promise<string> {
-    const submissions = await this.getAllSubmissions();
-
-    let sqlContent = `-- Form Submissions Database Export\n`;
-    sqlContent += `-- Generated on: ${new Date().toISOString()}\n`;
-    sqlContent += `-- Total submissions: ${submissions.length}\n\n`;
-
-    sqlContent += `CREATE TABLE IF NOT EXISTS form_submissions (\n`;
-    sqlContent += `  id VARCHAR(255) PRIMARY KEY,\n`;
-    sqlContent += `  timestamp DATETIME,\n`;
-    sqlContent += `  query_type VARCHAR(50),\n`;
-    sqlContent += `  form_data TEXT,\n`;
-    sqlContent += `  sql_statement TEXT,\n`;
-    sqlContent += `  status VARCHAR(50),\n`;
-    sqlContent += `  user_satisfied BOOLEAN,\n`;
-    sqlContent += `  needs_human_review BOOLEAN\n`;
-    sqlContent += `);\n\n`;
-
-    submissions.forEach((submission) => {
-      sqlContent += `INSERT INTO form_submissions VALUES (\n`;
-      sqlContent += `  '${submission.id}',\n`;
-      sqlContent += `  '${submission.timestamp}',\n`;
-      sqlContent += `  '${submission.queryType}',\n`;
-      sqlContent += `  '${JSON.stringify(submission.formData).replace(/'/g, "''")}',\n`;
-      sqlContent += `  '${submission.sqlStatement.replace(/'/g, "''")}',\n`;
-      sqlContent += `  '${submission.status}',\n`;
-      sqlContent += `  ${submission.userSatisfied ?? "NULL"},\n`;
-      sqlContent += `  ${submission.needsHumanReview ?? "NULL"}\n`;
-      sqlContent += `);\n\n`;
-    });
-
-    return sqlContent;
-  }
 }
 
 export const localDB = new LocalDatabase();
