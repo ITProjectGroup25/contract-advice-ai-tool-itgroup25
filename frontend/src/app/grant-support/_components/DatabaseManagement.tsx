@@ -15,7 +15,7 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import { ChangeEvent, useCallback, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { FormSubmission, localDB } from "../_utils/localDatabase";
 import { SubmissionDisplay } from "./SubmissionDisplay/SubmissionDisplay";
@@ -125,24 +125,32 @@ export function DatabaseManagement() {
     }
   };
 
-  const handleExportAll = async () => {
+  const handleExportExcel = async () => {
     try {
-      const sqlContent = await localDB.exportAllToSQL();
-      const blob = new Blob([sqlContent], { type: "application/sql" });
+      const response = await fetch("/api/v1/submissions/export/xlsx-sheets?limit=10000", {
+        headers: getAdminHeaders(),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to export to Excel");
+      }
+
+      const blob = await response.blob();
       const url = URL.createObjectURL(blob);
 
       const link = document.createElement("a");
       link.href = url;
-      link.download = `all_submissions_${new Date().toISOString().split("T")[0]}.sql`;
+      link.download = `grant_support_submissions_${new Date().toISOString().split("T")[0]}.xlsx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
       URL.revokeObjectURL(url);
-      toast.success("Database exported successfully");
-    } catch (error) {
-      console.error("Error exporting database:", error);
-      toast.error("Failed to export database");
+      toast.success("Data exported to Excel successfully");
+    } catch (error: any) {
+      console.error("Error exporting to Excel:", error);
+      toast.error(error?.message || "Failed to export to Excel");
     }
   };
 
@@ -228,6 +236,15 @@ export function DatabaseManagement() {
       toast.info("Google Sheets account is not connected yet.");
     }
   };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem(GOOGLE_USER_STORAGE_KEY)?.trim();
+    if (stored) {
+      setGoogleUserId(stored);
+      checkGoogleStatus(stored);
+    }
+  }, [checkGoogleStatus]);
 
   const handleConnectGoogle = () => {
     const trimmed = googleUserId.trim();
@@ -385,9 +402,9 @@ export function DatabaseManagement() {
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
-          <Button onClick={handleExportAll} size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Download to Local
+          <Button onClick={handleExportExcel} size="sm">
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Export to Excel
           </Button>
         </div>
       </div>

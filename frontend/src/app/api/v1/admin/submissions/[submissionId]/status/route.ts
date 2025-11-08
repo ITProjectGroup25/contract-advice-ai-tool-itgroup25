@@ -1,8 +1,9 @@
 // @ts-nocheck - Temporarily disabled due to Drizzle ORM type compatibility issues
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { eq, sql } from "drizzle-orm";
 import { db, schema } from "@backend";
+import { requireAdminToken } from "@/lib/api-auth";
 
 const { submission } = schema;
 
@@ -19,6 +20,10 @@ type RouteContext = {
 };
 
 export async function PUT(req: Request, context: RouteContext) {
+  // Check admin token before allowing status update
+  const authError = requireAdminToken(req as NextRequest);
+  if (authError) return authError;
+
   try {
     const submissionId = Number(context.params.submissionId);
     if (!Number.isFinite(submissionId)) {

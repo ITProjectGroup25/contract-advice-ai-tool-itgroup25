@@ -1,7 +1,6 @@
 import {
   createGrantSupportSubmission,
   deleteGrantSupportSubmission,
-  exportGrantSupportSubmissions,
   clearGrantSupportSubmissions,
   fetchGrantSupportSubmissions,
   updateGrantSupportSubmission,
@@ -156,9 +155,6 @@ class LocalDatabase {
     );
   }
 
-  async exportAllToSQL(): Promise<string> {
-    return exportGrantSupportSubmissions();
-  }
 }
 
 export const localDB = new LocalDatabase();

@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@backend";
+import { requireAdminToken } from "@/lib/api-auth";
 
 const { submission } = schema;
 
@@ -11,6 +12,10 @@ type RouteContext = {
 };
 
 export async function DELETE(_req: Request, context: RouteContext) {
+  // Check admin token before allowing delete
+  const authError = requireAdminToken(_req as NextRequest);
+  if (authError) return authError;
+
   try {
     const submissionId = Number(context.params.submissionId);
     if (!Number.isFinite(submissionId)) {

@@ -3,7 +3,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
-import { AdminInterface } from "./AdminInterface";
+import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import { AdminInterface, type AdminTab, isAdminTab } from "./AdminInterface";
 import { DynamicFormRenderer } from "./DynamicFormRenderer/DynamicFormRenderer";
 import { PasswordDialog } from "./PasswordDialog";
 import { SimpleQueryResponse } from "./SimpleQueryResponse";
@@ -12,6 +14,7 @@ import { Form, FormSectionsType } from "./types";
 import { Button } from "./ui/button";
 import { Toaster } from "./ui/sonner";
 import { prefetchFaqs } from "./chatbot/useGetFaq";
+import { getAdminToken } from "@/lib/admin-token";
 
 type AppState = "form" | "simple-response" | "success" | "admin";
 
@@ -22,12 +25,15 @@ type Props = {
 
 export default function App({ form, formId }: Props) {
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
 
   const { formSections: sections } = form;
   const [currentState, setCurrentState] = useState<AppState>("form");
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [successPageType, setSuccessPageType] = useState<"complex" | "simple-escalated">("complex");
   const [currentSubmissionId, setCurrentSubmissionId] = useState<string | undefined>();
+  const [initialAdminTab, setInitialAdminTab] = useState<AdminTab>("fields");
+  const serializedSearchParams = searchParams.toString();
 
   useEffect(() => {
     console.log("[EmailJS] App started, checking EmailJS availability...");
@@ -64,6 +70,57 @@ export default function App({ form, formId }: Props) {
         console.warn("[GrantSupportApp] Failed to prefetch FAQs", error);
       });
   }, [formId, queryClient]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(serializedSearchParams);
+    const view = params.get("view");
+    const tab = params.get("tab");
+    const googleStatus = params.get("google");
+
+    if (!view && !tab && !googleStatus) {
+      return;
+    }
+
+    const tabOverride = isAdminTab(tab)
+      ? tab
+      : googleStatus === "connected"
+        ? "database"
+        : null;
+
+    if (tabOverride) {
+      setInitialAdminTab(tabOverride);
+    }
+
+    if (view === "admin") {
+      const token = getAdminToken();
+      if (token) {
+        setCurrentState("admin");
+        setShowPasswordDialog(false);
+      } else {
+        setShowPasswordDialog(true);
+      }
+    }
+
+    if (googleStatus === "connected") {
+      toast.success("Google account connected successfully.");
+    }
+
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      let changed = false;
+      ["view", "tab", "google"].forEach((param) => {
+        if (url.searchParams.has(param)) {
+          url.searchParams.delete(param);
+          changed = true;
+        }
+      });
+      if (changed) {
+        const newSearch = url.searchParams.toString();
+        const newUrl = `${url.pathname}${newSearch ? `?${newSearch}` : ""}${url.hash}`;
+        window.history.replaceState(null, "", newUrl);
+      }
+    }
+  }, [serializedSearchParams]);
 
   const handleSimpleQuerySuccess = (submissionId?: string) => {
     setCurrentSubmissionId(submissionId);
@@ -131,6 +188,7 @@ export default function App({ form, formId }: Props) {
             sections={sections!}
             formId={formId!}
             onSectionsUpdate={handleSectionsUpdate}
+            initialTab={initialAdminTab}
           />
         );
       default:
