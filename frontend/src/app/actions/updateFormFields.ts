@@ -32,7 +32,7 @@ type Args = {
 
 export async function updateFormFields({ formId, formSections }: Args): Promise<Return> {
   // Check authentication before allowing form updates
-  const session = await getServerSession(authOptions as any);
+  const session = await getServerSession(authOptions);
   
   if (!session?.user) {
     return {

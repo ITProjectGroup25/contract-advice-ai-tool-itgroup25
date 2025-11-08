@@ -71,8 +71,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // redirect back to frontend page
-    const back = new URL(`/settings/integrations?google=connected`, req.url);
+    // redirect back to grant support admin panel
+    const back = new URL(`/grant-support?google=connected`, req.url);
     return NextResponse.redirect(back);
   } catch (e: any) {
     const g = e?.response?.data?.error;

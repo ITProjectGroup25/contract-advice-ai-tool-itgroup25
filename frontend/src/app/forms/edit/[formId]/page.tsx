@@ -15,7 +15,7 @@ type PageParams = {
 
 const page = async ({ params }: PageParams) => {
   // Check authentication before allowing access to form editor
-  const session = await getServerSession(authOptions as any);
+  const session = await getServerSession(authOptions);
   
   if (!session?.user) {
     redirect("/api/auth/signin");

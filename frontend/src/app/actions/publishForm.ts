@@ -13,7 +13,7 @@ export async function publishForm(
   formData: FormData
 ) {
   // Check authentication before allowing form publish
-  const session = await getServerSession(authOptions as any);
+  const session = await getServerSession(authOptions);
   
   if (!session?.user) {
     return {
