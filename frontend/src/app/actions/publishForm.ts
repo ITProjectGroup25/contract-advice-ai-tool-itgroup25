@@ -2,6 +2,7 @@
 
 import postgres from "postgres";
 import { getServerSession } from "next-auth";
+import type { Session } from "next-auth";
 import { authOptions } from "@backend";
 import { TemplateSchema } from "../forms/edit/[formId]/form-builder-components/types/FormTemplateTypes";
 import { formDataToObject } from "./fromDataToObject";
@@ -13,7 +14,7 @@ export async function publishForm(
   formData: FormData
 ) {
   // Check authentication before allowing form publish
-  const session = await getServerSession(authOptions);
+  const session: Session | null = await getServerSession(authOptions);
   
   if (!session?.user) {
     return {

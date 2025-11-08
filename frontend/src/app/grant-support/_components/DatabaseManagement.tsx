@@ -15,7 +15,7 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import { ChangeEvent, useCallback, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { FormSubmission, localDB } from "../_utils/localDatabase";
 import { SubmissionDisplay } from "./SubmissionDisplay/SubmissionDisplay";
@@ -236,6 +236,15 @@ export function DatabaseManagement() {
       toast.info("Google Sheets account is not connected yet.");
     }
   };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem(GOOGLE_USER_STORAGE_KEY)?.trim();
+    if (stored) {
+      setGoogleUserId(stored);
+      checkGoogleStatus(stored);
+    }
+  }, [checkGoogleStatus]);
 
   const handleConnectGoogle = () => {
     const trimmed = googleUserId.trim();

@@ -3,6 +3,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
+import type { Session } from "next-auth";
 import { authOptions } from "@backend";
 import { FormSectionsType } from "../grant-support/_components/types";
 
@@ -32,7 +33,7 @@ type Args = {
 
 export async function updateFormFields({ formId, formSections }: Args): Promise<Return> {
   // Check authentication before allowing form updates
-  const session = await getServerSession(authOptions);
+  const session: Session | null = await getServerSession(authOptions);
   
   if (!session?.user) {
     return {

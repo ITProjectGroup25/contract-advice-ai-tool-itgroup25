@@ -13,7 +13,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { DatabaseManagement } from "./DatabaseManagement";
 import { EmailConfiguration } from "./EmailConfiguration";
@@ -52,6 +52,7 @@ interface AdminInterfaceProps {
   sections: FormSectionsType;
   formId: number;
   onSectionsUpdate: (sections: FormSectionsType) => void;
+  initialTab?: AdminTab;
 }
 
 type ConfirmationAction =
@@ -61,6 +62,13 @@ type ConfirmationAction =
   | { type: "delete-section"; sectionId: string }
   | { type: "duplicate-field"; field: FormSectionChildrenType }
   | null;
+
+export const ADMIN_TABS = ["fields", "sections", "faqs", "email", "database", "settings"] as const;
+export type AdminTab = (typeof ADMIN_TABS)[number];
+
+export const isAdminTab = (value: string | null | undefined): value is AdminTab => {
+  return !!value && (ADMIN_TABS as readonly string[]).includes(value);
+};
 
 // System fields that cannot be edited or deleted
 const SYSTEM_FIELD_LABELS = ["Your Name", "Your Email", "Query Type"];
@@ -74,6 +82,7 @@ export function AdminInterface({
   sections,
   formId,
   onSectionsUpdate,
+  initialTab = "fields",
 }: AdminInterfaceProps) {
   console.log({ sections });
 
@@ -81,7 +90,11 @@ export function AdminInterface({
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [isCreatingField, setIsCreatingField] = useState(false);
   const [isCreatingSection, setIsCreatingSection] = useState(false);
-  const [activeTab, setActiveTab] = useState("fields");
+  const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
   const [isPending, startTransition] = useTransition();
   const [confirmationAction, setConfirmationAction] = useState<ConfirmationAction>(null);
 
@@ -931,7 +944,10 @@ export function AdminInterface({
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(isAdminTab(value) ? value : "fields")}
+        >
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="fields" disabled={isPending}>
               Fields Management
